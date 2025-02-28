@@ -1,8 +1,22 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
-}
-
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+﻿<header>
+    <div class="text-center">
+        <h1 class="display-4">Myforum</h1>
+        <p>Добро пожаловать.</p>
+    </div>
+</header>
+<main>
+    <section class="text-center">
+        <p><span>MyForum</span> - это система форумов, где можно общаться быстро и свободно, где любая точка зрения имеет право на жизнь. От вас необходимо только соблюдение правил.</p>
+    </section>
+    <section>
+        <div class="table-bordered">
+            <ul class="navbar-nav flex-grow-1">
+               @* @foreach(var cat in categories) список категорий
+                   {
+                        <li><a href="/@cat/">@cat</a></li>
+                   }
+               *@
+            </ul>
+        </div>
+    </section>
+</main>
