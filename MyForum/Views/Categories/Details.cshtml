@@ -1,0 +1,25 @@
+﻿@model Category
+@{
+    ViewData["Title"] = Model.Name;
+}
+
+<main>
+    <section class="text-center">
+        <h1>@Model.Name</h1>
+        <p>@Model.Description</p>
+    </section>
+    <section>
+        <div class="table-bordered">
+            <ul class="navbar-nav flex-grow-1">
+                @foreach (var top in @Model.Topics)
+                {
+                    <li>
+                        <a href="/@top.Title/">@top.Title   </a>
+                        <p>@top.User.Username</p>
+                        <p>@top.Content</p>
+                    </li>
+                }
+            </ul>
+        </div>
+    </section>
+</main>

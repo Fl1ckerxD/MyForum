@@ -34,6 +34,12 @@ namespace MyForum
             app.UseAuthorization();
 
             app.MapControllerRoute(
+                name: "Category",
+                pattern: "{categoryName}",
+                defaults: new { controller = "Categories", action = "Details" }
+                );
+
+            app.MapControllerRoute(
                 name: "default",
                 pattern: "{controller=Home}/{action=Index}/{id?}");
 

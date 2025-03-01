@@ -1,0 +1,31 @@
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using MyForum.Models;
+
+namespace MyForum.Controllers
+{
+    public class CategoriesController : Controller
+    {
+        private readonly ForumContext _context;
+        public CategoriesController(ForumContext context)
+        {
+            _context = context;
+        }
+        public async Task<IActionResult> Details(string categoryName)
+        {
+            if (string.IsNullOrEmpty(categoryName))
+            {
+                return RedirectToAction("Index"); // Перенаправление на главную страницу, если имя категории не указано
+            }
+
+            var category = await _context.Categories.Include(x => x.Topics).ThenInclude(x => x.User).FirstOrDefaultAsync(c => c.Name == categoryName);
+
+            if (category == null)
+            {
+                return NotFound(); // Возвращаем 404, если категория не найдена
+            }
+
+            return View(category); // Передаем категорию в представление
+        }
+    }
+}

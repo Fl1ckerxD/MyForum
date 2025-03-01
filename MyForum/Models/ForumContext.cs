@@ -25,7 +25,6 @@ public partial class ForumContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-        //    optionsBuilder.UseMySQL(conString);
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
