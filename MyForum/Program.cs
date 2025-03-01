@@ -1,3 +1,6 @@
+using Microsoft.EntityFrameworkCore;
+using MyForum.Models;
+
 namespace MyForum
 {
     public class Program
@@ -8,6 +11,10 @@ namespace MyForum
 
             // Add services to the container.
             builder.Services.AddControllersWithViews();
+
+            var conString = builder.Configuration.GetConnectionString("ForumDatabase") ??
+                    throw new InvalidOperationException("Connection string 'ForumDatabase' not found.");
+            builder.Services.AddDbContext<ForumContext>(options => options.UseMySQL(conString));
 
             var app = builder.Build();
 

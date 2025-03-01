@@ -1,4 +1,5 @@
-﻿<header>
+﻿@model List<Category>
+<header>
     <div class="text-center">
         <h1 class="display-4">Myforum</h1>
         <p>Добро пожаловать.</p>
@@ -11,11 +12,10 @@
     <section>
         <div class="table-bordered">
             <ul class="navbar-nav flex-grow-1">
-               @* @foreach(var cat in categories) список категорий
-                   {
-                        <li><a href="/@cat/">@cat</a></li>
-                   }
-               *@
+                @foreach (var cat in @Model)
+                {
+                    <li><a href="/@cat.Name/">@cat.Name</a></li>
+                }
             </ul>
         </div>
     </section>

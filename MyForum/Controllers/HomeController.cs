@@ -7,15 +7,17 @@ namespace MyForum.Controllers
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
-
-        public HomeController(ILogger<HomeController> logger)
+        private readonly ForumContext _context;
+        public HomeController(ILogger<HomeController> logger, ForumContext context)
         {
             _logger = logger;
+            _context = context;
         }
 
         public IActionResult Index()
         {
-            return View();
+            List<Category> categories = new(_context.Categories);
+            return View(categories);
         }
 
         public IActionResult Privacy()
