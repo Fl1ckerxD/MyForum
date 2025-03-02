@@ -14,11 +14,6 @@ namespace MyForum.Controllers
 
         public async Task<IActionResult> Index(string categoryName)
         {
-            if (string.IsNullOrEmpty(categoryName))
-            {
-                return RedirectToAction("Index"); // Перенаправление на главную страницу, если имя категории не указано
-            }
-
             var category = await _context.Categories.Include(x => x.Topics).ThenInclude(x => x.User).FirstOrDefaultAsync(c => c.Name == categoryName);
 
             if (category == null)

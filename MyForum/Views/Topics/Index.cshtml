@@ -6,15 +6,16 @@
     <section class="text-center">
         <h1>@Model.Title</h1>
         <p>@Model.User.Username</p>
+        <p>@Model.Posts.Count</p>
     </section>
     <section>
         <div class="table-bordered">
             <ul class="navbar-nav flex-grow-1">
                 @foreach (var post in @Model.Posts)
                 {
-                        <p>@post.Content</p>
-                        <p>@post.User.Username</p>
-                        <p>@post.Likes.Count</p>
+                    <p>@post.Content</p>
+                    <p>@post.User.Username</p>
+                    <p>@post.Likes.Count</p>
                 }
             </ul>
         </div>
