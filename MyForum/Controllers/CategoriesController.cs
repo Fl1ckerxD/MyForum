@@ -11,7 +11,8 @@ namespace MyForum.Controllers
         {
             _context = context;
         }
-        public async Task<IActionResult> Details(string categoryName)
+
+        public async Task<IActionResult> Index(string categoryName)
         {
             if (string.IsNullOrEmpty(categoryName))
             {

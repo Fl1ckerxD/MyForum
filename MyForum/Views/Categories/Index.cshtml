@@ -14,7 +14,7 @@
                 @foreach (var top in @Model.Topics)
                 {
                     <li>
-                        <a href="/@top.Title/">@top.Title   </a>
+                        <a href="/@Model.Name/@top.Id">@top.Title</a>
                         <p>@top.User.Username</p>
                         <p>@top.Content</p>
                     </li>
