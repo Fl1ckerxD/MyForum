@@ -1,0 +1,11 @@
+﻿@model User
+@{
+    ViewData["Title"] = "Профиль";
+}
+
+<div>
+    <label>Имя: @Model.Username</label>
+    <label>Почта: @Model.Email</label>
+    <a asp-controller="Users" asp-action="Logout">Выйти</a>
+</div>
+

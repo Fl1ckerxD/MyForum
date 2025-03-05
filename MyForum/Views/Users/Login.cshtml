@@ -1,0 +1,23 @@
+﻿@{
+    ViewData["Title"] = "Авторизация";
+}
+
+
+<div class="registration-form">
+    <h1>Вход</h1>
+    <form method="post" asp-action="Login">
+        <div>
+            <label>Имя пользователя или почта:</label>
+            <input name="username" class="form-control" />
+        </div>
+
+        <div>
+            <label>Пароль:</label>
+            <input type="password" name="password" class="form-control" />
+        </div>
+
+        <div class="error-message" asp-validation-summary="ModelOnly"></div>
+
+        <input type="submit" value="Войти" />
+    </form>
+</div>

@@ -1,6 +1,10 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using MyForum.Models;
 using MyForum.Services;
+using System.Security.Claims;
 
 namespace MyForum.Controllers
 {
@@ -12,10 +16,6 @@ namespace MyForum.Controllers
         {
             _context = context;
             _userService = userService;
-        }
-        public IActionResult Index()
-        {
-            return View();
         }
         public IActionResult Create()
         {
@@ -43,6 +43,59 @@ namespace MyForum.Controllers
             await _context.SaveChangesAsync();
 
             return RedirectToAction("Index", "Home");
+        }
+
+        public IActionResult Login()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Login(string username, string password)
+        {
+            var user = await _context.Users.FirstOrDefaultAsync(u => (u.Username == username || u.Email == username) && u.Password == password);
+
+            if (user == null)
+            {
+                ModelState.AddModelError("", "Неверное имя пользователя или пароль.");
+                return View();
+            }
+
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                new Claim(ClaimTypes.Name, user.Username),
+                new Claim(ClaimTypes.Role, user.Role)
+            };
+
+            var identity = new ClaimsIdentity(claims, "CookieAuth");
+
+            // Создаем ClaimsPrincipal и выполняем вход
+            var principal = new ClaimsPrincipal(identity);
+            await HttpContext.SignInAsync("CookieAuth", principal, new AuthenticationProperties
+            {
+                IsPersistent = true, // Сохраняем вход после закрытия браузера
+                ExpiresUtc = DateTimeOffset.UtcNow.AddDays(1) // Время жизни сессии
+            });
+
+            return RedirectToAction("Profile");
+        }
+
+        public async Task<IActionResult> Logout()
+        {
+            // Выполняем выход
+            await HttpContext.SignOutAsync("CookieAuth");
+            return RedirectToAction("Index", "Home");
+        }
+
+        [Authorize]
+        public async Task<IActionResult> Profile()
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier); // Получаем ID пользователя 
+
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Id.ToString() == userId);
+
+            return View(user);
         }
     }
 }
