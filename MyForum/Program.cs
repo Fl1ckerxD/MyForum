@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using MyForum.Models;
+using MyForum.Services;
 
 namespace MyForum
 {
@@ -15,6 +16,8 @@ namespace MyForum
             var conString = builder.Configuration.GetConnectionString("ForumDatabase") ??
                     throw new InvalidOperationException("Connection string 'ForumDatabase' not found.");
             builder.Services.AddDbContext<ForumContext>(options => options.UseMySQL(conString));
+
+            builder.Services.AddScoped<UserService>();
 
             var app = builder.Build();
 
