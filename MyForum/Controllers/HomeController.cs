@@ -14,7 +14,6 @@ namespace MyForum.Controllers
             _logger = logger;
             _context = context;
         }
-
         public IActionResult Index()
         {
             List<Category> categories = new(_context.Categories);

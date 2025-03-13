@@ -25,21 +25,5 @@ namespace MyForum.Controllers
 
             return View(category); // Передаем категорию в представление
         }
-
-        [HttpPost]
-        public IActionResult Create(int categoryId, string categoryName, string title, string content)
-        {
-            var topic = new Topic
-            {
-                Title = title,
-                Content = content,
-                CategoryId = categoryId,
-                UserId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier))
-            };
-
-            _context.Topics.Add(topic);
-            _context.SaveChanges();
-            return Redirect($"/{WebUtility.UrlEncode(categoryName)}/{topic.Id}");
-        }
     }
 }

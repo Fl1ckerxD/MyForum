@@ -14,15 +14,22 @@
     {
         <section>
             <div>
-                <form method="post" asp-action="Create">
+                <form method="post" asp-action="Create" asp-controller="Topics">
                     <input type="hidden" name="categoryId" value="@Model.Id" />
                     <input type="hidden" name="categoryName" value="@Model.Name" />
+
                     <div>
                         <label>Название:</label>
                         <input name="title" />
+                    </div>
+
+                    <div>
                         <label>Комментарий:</label>
                         <textarea name="content"></textarea>
                     </div>
+
+                    <div class="error-message" asp-validation-summary="All"></div>
+
                     <div>
                         <input type="submit" value="Создать" />
                     </div>

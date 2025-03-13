@@ -22,3 +22,26 @@
         </div>
     </section>
 </main>
+@if (User.Identity.IsAuthenticated)
+{
+    <footer>
+        <section>
+            <div>
+                <form method="post" asp-action="Comment" asp-controller="Topics">
+                    <input type="hidden" name="topicId" value="@Model.Id" />
+                    <input type="hidden" name="categoryName" value="@Model.Category.Name" />
+
+                    <div>
+                        <label>Комментарий:</label>
+                        <textarea name="content"></textarea>
+                        <div class="error-message" asp-validation-summary="All"></div>
+                    </div>
+
+                    <div>
+                        <input type="submit" value="Создать" />
+                    </div>
+                </form>
+            </div>
+        </section>
+    </footer>
+}
