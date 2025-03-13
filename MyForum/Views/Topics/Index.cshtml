@@ -14,9 +14,15 @@
             <ul class="navbar-nav flex-grow-1">
                 @foreach (var post in @Model.Posts)
                 {
-                    <p>@post.Content</p>
-                    <p>@post.User.Username</p>
-                    <p>@post.Likes.Count</p>
+                    <li>
+                        <p>@post.Content</p>
+                        <p>Автор: @post.User.Username</p>
+                        <p>Лайки: @post.Likes.Count</p>
+
+                        <form asp-controller="Posts" asp-action="Like" asp-route-postId="@post.Id" method="post">
+                            <button type="submit" class="btn btn-sm btn-primary">Лайкнуть</button>
+                        </form>
+                    </li>
                 }
             </ul>
         </div>
@@ -27,10 +33,7 @@
     <footer>
         <section>
             <div>
-                <form method="post" asp-action="Comment" asp-controller="Topics">
-                    <input type="hidden" name="topicId" value="@Model.Id" />
-                    <input type="hidden" name="categoryName" value="@Model.Category.Name" />
-
+                <form method="post" asp-action="Comment" asp-controller="Posts" asp-route-topicId="@Model.Id" asp-route-categoryName="@Model.Category.Name">
                     <div>
                         <label>Комментарий:</label>
                         <textarea name="content"></textarea>

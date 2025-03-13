@@ -27,7 +27,7 @@ namespace MyForum.Controllers
             if (!category.Topics.Contains(topic))
                 return NotFound(); // Возвращаем 404, если тема не найдена
 
-            topic = await _context.Topics.Include(x => x.User).Include(x => x.Posts).ThenInclude(x => x.User).ThenInclude(x => x.Likes).FirstOrDefaultAsync(t => t.Id == topicId);
+            topic = await _context.Topics.Include(x => x.User).Include(x => x.Posts).ThenInclude(x => x.Likes).Include(x => x.Posts).ThenInclude(x => x.User).FirstOrDefaultAsync(t => t.Id == topicId);
             return View(topic); // Передаем тему в представление
         }
 
@@ -57,33 +57,6 @@ namespace MyForum.Controllers
             _context.SaveChanges();
 
             return Redirect($"/{WebUtility.UrlEncode(categoryName)}/{topic.Id}");
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> Comment(string categoryName, int topicId, string? content)
-        {
-            if (string.IsNullOrWhiteSpace(content))
-                ModelState.AddModelError(nameof(content), "Комментарий не должен быть пустым.");
-            else if (content.Length > 15000)
-                ModelState.AddModelError(nameof(content), "Длина не должна превышать больше 15000 символов.");
-
-            if (!ModelState.IsValid)
-            {
-                var topic = await _context.Topics.Include(x => x.User).Include(x => x.Category).Include(x => x.Posts).ThenInclude(x => x.User).ThenInclude(x => x.Likes).FirstOrDefaultAsync(t => t.Id == topicId);
-                return View("~/Views/Topics/Index.cshtml", topic);
-            }
-
-            var post = new Post
-            {
-                Content = content,
-                TopicId = topicId,
-                UserId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier))
-            };
-
-            _context.Posts.Add(post);
-            _context.SaveChanges();
-
-            return RedirectToAction("Index", new { categoryName, topicId });
         }
     }
 }

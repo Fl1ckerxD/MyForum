@@ -14,10 +14,7 @@
     {
         <section>
             <div>
-                <form method="post" asp-action="Create" asp-controller="Topics">
-                    <input type="hidden" name="categoryId" value="@Model.Id" />
-                    <input type="hidden" name="categoryName" value="@Model.Name" />
-
+                <form method="post" asp-action="Create" asp-controller="Topics" asp-route-categoryId="@Model.Id" asp-route-categoryName="@Model.Name">
                     <div>
                         <label>Название:</label>
                         <input name="title" />
