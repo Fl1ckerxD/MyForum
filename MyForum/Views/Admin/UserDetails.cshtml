@@ -1,0 +1,77 @@
+﻿@model User?
+@{
+    ViewData["Title"] = "Информация о пользователях";
+}
+
+<main>
+    <h1>Информация о пользователях</h1>
+
+    <form asp-controller="Admin" asp-action="UserDetails" method="post">
+        <div>
+            <label>Никнейм:</label>
+            <input name="username" />
+            <div asp-validation-summary="All"></div>
+        </div>
+        <div>
+            <button type="submit" class="btn btn-primary">Найти</button>
+        </div>
+    </form>
+
+    @if (@Model != null)
+    {
+        <section>
+            @if (Model.Topics.Any())
+            {
+                <h2>Посты:</h2>
+                <ul>
+                    @foreach (var topic in Model.Topics)
+                    {
+                        <li>
+                            <strong>@topic.Title</strong>
+                            <p>@topic.Content</p>
+                        </li>
+                    }
+                </ul>
+            }
+            else
+            {
+                <p>У пользователя нет постов.</p>
+            }
+
+            @if (Model.Posts.Any())
+            {
+                <h2>Комментарии:</h2>
+                <ul>
+                    @foreach (var post in Model.Posts)
+                    {
+                        <li>
+                            <p>@post.Content</p>
+                            <p>Лайки: @post.Likes.Count</p>
+                        </li>
+                    }
+                </ul>
+            }
+            else
+            {
+                <p>У пользователя нет комментариев.</p>
+            }
+
+            @if (Model.Likes.Any())
+            {
+                <h2>Лайки:</h2>
+                <ul>
+                    @foreach (var like in Model.Likes)
+                    {
+                        <li>
+                            <p>Лайкнутый комментарий: @like.Post.Content</p>
+                        </li>
+                    }
+                </ul>
+            }
+            else
+            {
+                <p>У пользователя нет лайков.</p>
+            }
+        </section>
+    }
+</main>
