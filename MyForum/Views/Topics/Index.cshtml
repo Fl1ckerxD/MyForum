@@ -9,28 +9,8 @@
         <p>@Model.User.Username</p>
         <p>@Model.Posts.Count</p>
     </section>
-    <section>
-        <div class="table-bordered">
-            <ul class="navbar-nav flex-grow-1">
-                @foreach (var post in @Model.Posts)
-                {
-                    <li>
-                        <p>@post.Content</p>
-                        <p>Автор: @post.User.Username</p>
-                        <p>Лайки: @post.Likes.Count</p>
-
-                        <form asp-controller="Posts" asp-action="Like" asp-route-postId="@post.Id" method="post">
-                            <button type="submit" class="btn btn-sm btn-primary">Лайкнуть</button>
-                        </form>
-                    </li>
-                }
-            </ul>
-        </div>
-    </section>
-</main>
-@if (User.Identity.IsAuthenticated)
-{
-    <footer>
+    @if (User.Identity.IsAuthenticated)
+    {
         <section>
             <div>
                 <form method="post" asp-action="Comment" asp-controller="Posts" asp-route-topicId="@Model.Id" asp-route-categoryName="@Model.Category.Name">
@@ -46,5 +26,29 @@
                 </form>
             </div>
         </section>
-    </footer>
-}
+    }
+    <section>
+        <div class="table-bordered">
+            <ul class="navbar-nav flex-grow-1">
+                @foreach (var post in @Model.Posts)
+                {
+                    <li>
+                        <label>Автор: <strong>@post.User.Username</strong></label>
+                        @if (@post.UserId == User.GetUserId())
+                        {
+                            <form asp-controller="Posts" asp-action="Delete" asp-route-postId="@post.Id" method="post" class="d-inline">
+                                <button type="submit" class="btn btn-sm btn-danger">Удалить</button>
+                            </form>
+                        }
+                        <p>@post.Content</p>
+                        <label>Лайки: @post.Likes.Count</label>
+
+                        <form asp-controller="Posts" asp-action="Like" asp-route-postId="@post.Id" method="post" class="d-inline">
+                            <button type="submit" class="btn btn-sm btn-primary">Лайкнуть</button>
+                        </form>
+                    </li>
+                }
+            </ul>
+        </div>
+    </section>
+</main>

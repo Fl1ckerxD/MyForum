@@ -31,7 +31,7 @@ namespace MyForum.Controllers
             {
                 Content = content,
                 TopicId = topicId,
-                UserId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier))
+                UserId = (int)User.GetUserId()
             };
 
             _context.Posts.Add(post);
@@ -46,11 +46,9 @@ namespace MyForum.Controllers
             var post = await _context.Posts.Include(p => p.Topic).ThenInclude(p => p.Category).Include(p => p.Likes).FirstOrDefaultAsync(p => p.Id == postId);
 
             if (post == null)
-            {
                 return NotFound();
-            }
 
-            int userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+            int userId = (int)User.GetUserId();
             var existingLike = post.Likes.FirstOrDefault(l => l.UserId == userId);
 
             if (existingLike != null)
@@ -69,6 +67,24 @@ namespace MyForum.Controllers
                 _context.Likes.Add(newLike);
             }
             await _context.SaveChangesAsync();
+            return RedirectToAction("Index", "Topics", new { categoryName = post.Topic.Category.Name, topicId = post.TopicId });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Delete(int postId)
+        {
+            var post = _context.Posts.Include(p => p.Topic).ThenInclude(p => p.Category).Include(p => p.Likes).FirstOrDefault(p => p.Id == postId);
+
+            if(post == null)
+                return NotFound();
+
+            var currentUserId = User.GetUserId();
+            if (post.UserId != currentUserId)
+                return Forbid();
+
+            _context.Posts.Remove(post);
+            await _context.SaveChangesAsync();
+
             return RedirectToAction("Index", "Topics", new { categoryName = post.Topic.Category.Name, topicId = post.TopicId });
         }
     }

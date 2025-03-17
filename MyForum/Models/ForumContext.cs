@@ -60,7 +60,7 @@ public partial class ForumContext : DbContext
 
             entity.HasOne(d => d.Post).WithMany(p => p.Likes)
                 .HasForeignKey(d => d.PostId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
+                .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("likes_ibfk_1");
 
             entity.HasOne(d => d.User).WithMany(p => p.Likes)
@@ -87,7 +87,7 @@ public partial class ForumContext : DbContext
 
             entity.HasOne(d => d.Topic).WithMany(p => p.Posts)
                 .HasForeignKey(d => d.TopicId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
+                .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("posts_ibfk_1");
 
             entity.HasOne(d => d.User).WithMany(p => p.Posts)

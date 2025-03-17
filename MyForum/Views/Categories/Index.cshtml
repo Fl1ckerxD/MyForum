@@ -41,8 +41,16 @@
                 @foreach (var top in @Model.Topics)
                 {
                     <li>
-                        <a href="/@Model.Name/@top.Id">@top.Title</a>
-                        <p>@top.User.Username</p>
+                        <div>
+                            <a href="/@Model.Name/@top.Id">@top.Title</a>
+                            <lable>@top.User.Username</lable>
+                            @if (@top.UserId == User.GetUserId())
+                            {
+                                <form asp-controller="Topics" asp-action="Delete" asp-route-topicId="@top.Id" method="post" class="d-inline">
+                                    <button type="submit" class="btn btn-sm btn-danger">Удалить</button>
+                                </form>
+                            }
+                        </div>
                         <p>@top.Content</p>
                     </li>
                 }

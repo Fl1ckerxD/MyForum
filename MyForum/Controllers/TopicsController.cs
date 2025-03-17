@@ -50,13 +50,31 @@ namespace MyForum.Controllers
                 Title = title,
                 Content = content,
                 CategoryId = categoryId,
-                UserId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier))
+                UserId = (int)User.GetUserId()
             };
 
             _context.Topics.Add(topic);
             _context.SaveChanges();
 
             return Redirect($"/{WebUtility.UrlEncode(categoryName)}/{topic.Id}");
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Delete(int topicId)
+        {
+            var topic = await _context.Topics.Include(t => t.User).Include(t => t.Category).FirstOrDefaultAsync(t => t.Id == topicId);
+
+            if (topic == null)
+                return NotFound();
+
+            var currentUserId = User.GetUserId();
+            if (topic.UserId != currentUserId)
+                return Forbid();
+
+            _context.Topics.Remove(topic);
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction("Index", "Categories", new { categoryName = topic.Category.Name });
         }
     }
 }
