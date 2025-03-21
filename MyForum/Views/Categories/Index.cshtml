@@ -44,10 +44,16 @@
                         <div>
                             <a href="/@Model.Name/@top.Id">@top.Title</a>
                             <lable>@top.User.Username</lable>
-                            @if (@top.UserId == User.GetUserId())
+                            @if (@top.UserId == User.GetUserId() || User.IsInRole("Admin"))
                             {
                                 <form asp-controller="Topics" asp-action="Delete" asp-route-topicId="@top.Id" method="post" class="d-inline">
                                     <button type="submit" class="btn btn-sm btn-danger">Удалить</button>
+                                </form>
+                            }
+                            @if (User.IsInRole("Admin"))
+                            {
+                                <form asp-controller="Admin" asp-action="UserDetails" asp-route-username="@top.User.Username" method="post" class="d-inline">
+                                    <button type="submit" class="btn btn-sm btn-info">О пользователе</button>
                                 </form>
                             }
                         </div>

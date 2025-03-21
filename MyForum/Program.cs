@@ -49,6 +49,14 @@ namespace MyForum
             app.UseAuthentication();
             app.UseAuthorization();
 
+            app.UseStatusCodePages(async statusCodeContext =>
+            {
+                var response = statusCodeContext.HttpContext.Response;
+                response.ContentType = "text/html; charset=UTF-8";
+                if (response.StatusCode == 404)
+                    await response.SendFileAsync("Views/Shared/NotFound.cshtml");
+            });
+
             app.MapControllerRoute(
                 name: "topic",
                 pattern: "{categoryName}/{topicId:int}",

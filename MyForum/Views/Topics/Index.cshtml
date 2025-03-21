@@ -7,6 +7,12 @@
         <h1>@Model.Title</h1>
         <p>@Model.Content</p>
         <p>@Model.User.Username</p>
+        @if (User.IsInRole("Admin"))
+        {
+            <form asp-controller="Admin" asp-action="UserDetails" asp-route-username="@Model.User.Username" method="post" class="d-inline">
+                <button type="submit" class="btn btn-sm btn-info">О пользователе</button>
+            </form>
+        }
         <p>@Model.Posts.Count</p>
     </section>
     @if (User.Identity.IsAuthenticated)
@@ -34,10 +40,16 @@
                 {
                     <li>
                         <label>Автор: <strong>@post.User.Username</strong></label>
-                        @if (@post.UserId == User.GetUserId())
+                        @if (@post.UserId == User.GetUserId() || User.IsInRole("Admin"))
                         {
                             <form asp-controller="Posts" asp-action="Delete" asp-route-postId="@post.Id" method="post" class="d-inline">
                                 <button type="submit" class="btn btn-sm btn-danger">Удалить</button>
+                            </form>
+                        }
+                        @if (User.IsInRole("Admin"))
+                        {
+                            <form asp-controller="Admin" asp-action="UserDetails" asp-route-username="@post.User.Username" method="post" class="d-inline">
+                                <button type="submit" class="btn btn-sm btn-info">О пользователе</button>
                             </form>
                         }
                         <p>@post.Content</p>

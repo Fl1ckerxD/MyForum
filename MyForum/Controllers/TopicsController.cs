@@ -68,7 +68,7 @@ namespace MyForum.Controllers
                 return NotFound();
 
             var currentUserId = User.GetUserId();
-            if (topic.UserId != currentUserId)
+            if (topic.UserId != currentUserId && !User.IsInRole("Admin"))
                 return Forbid();
 
             _context.Topics.Remove(topic);

@@ -79,7 +79,7 @@ namespace MyForum.Controllers
                 return NotFound();
 
             var currentUserId = User.GetUserId();
-            if (post.UserId != currentUserId)
+            if (post.UserId != currentUserId && !User.IsInRole("Admin"))
                 return Forbid();
 
             _context.Posts.Remove(post);

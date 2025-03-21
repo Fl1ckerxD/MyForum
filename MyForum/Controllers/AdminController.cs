@@ -20,7 +20,7 @@ namespace MyForum.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> UserDetails(string username)
+        public async Task<IActionResult> UserDetails(string? username)
         {
             if(string.IsNullOrWhiteSpace(username))
             {
@@ -30,6 +30,8 @@ namespace MyForum.Controllers
 
             var user = await _context.Users
                 .Include(u => u.Topics)
+                .Include(u => u.Likes)
+                .ThenInclude(u => u.Post)
                 .Include(u => u.Posts)
                 .ThenInclude(u => u.Likes)
                 .FirstOrDefaultAsync(u => u.Username == username);
@@ -41,6 +43,34 @@ namespace MyForum.Controllers
             }
 
             return View(user);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> DeleteTopic(int topicId)
+        {
+            var topic = await _context.Topics.Include(t => t.User).FirstOrDefaultAsync(t => t.Id == topicId);
+
+            if (topic == null)
+                return NotFound();
+
+            _context.Topics.Remove(topic);
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction("UserDetails", new { username = topic.User.Username });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> DeletePost(int postId)
+        {
+            var post = await _context.Posts.Include(t => t.User).FirstOrDefaultAsync(p => p.Id == postId);
+
+            if (post == null)
+                return NotFound();
+
+            _context.Posts.Remove(post);
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction("UserDetails", new { username = post.User.Username });
         }
     }
 }

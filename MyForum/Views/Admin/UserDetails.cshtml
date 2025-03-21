@@ -20,6 +20,7 @@
     @if (@Model != null)
     {
         <section>
+            <h2>Информация о пользователе <strong>@Model.Username</strong>:</h2>
             @if (Model.Topics.Any())
             {
                 <h2>Посты:</h2>
@@ -29,6 +30,9 @@
                         <li>
                             <strong>@topic.Title</strong>
                             <p>@topic.Content</p>
+                            <form asp-action="DeleteTopic" asp-route-topicId="@topic.Id" method="post" class="d-inline">
+                                <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Вы уверены, что хотите удалить этот элемент?')">Удалить</button>
+                            </form>
                         </li>
                     }
                 </ul>
@@ -46,6 +50,9 @@
                     {
                         <li>
                             <p>@post.Content</p>
+                            <form asp-action="DeletePost" asp-route-postId="@post.Id" method="post" class="d-inline">
+                                <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Вы уверены, что хотите удалить этот элемент?')">Удалить</button>
+                            </form>
                             <p>Лайки: @post.Likes.Count</p>
                         </li>
                     }
