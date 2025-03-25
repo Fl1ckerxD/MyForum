@@ -6,24 +6,30 @@
     <title>@ViewData["Title"]</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    @* <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin> *@
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     @* <link rel="stylesheet" href="~/MyForum.styles.css" asp-append-version="true" /> *@
 </head>
 <body>
     <header>
-        <div>
+        <div class="stats-card header-inline">
             <a href="/">MyForum</a>
-            @if (User.Identity.IsAuthenticated)
-            {
-                <span>Добро пожаловать, <a href="/users/profile"><strong>@User.Identity.Name</strong></a></span>
-                <a asp-controller="Users" asp-action="Logout">Выйти</a>
-            }
-            else
-            {
-                <a href="/users/login">Войти</a>
-            }
+            <div class="right-section">
+                @if (User.Identity.IsAuthenticated)
+                {
+                    <span>Добро пожаловать, <a href="/users/profile"><strong>@User.Identity.Name</strong></a></span>
+                    <a asp-controller="Users" asp-action="Logout">Выйти</a>
+                }
+                else
+                {
+                    <a href="/users/login">Войти</a>
+                    <a href="/users/create">Регистрация</a>
+                }
+            </div>
         </div>
     </header>
-    <div>
+    <div class="container">
         <main role="main" class="pb-3">
             @RenderBody()
         </main>

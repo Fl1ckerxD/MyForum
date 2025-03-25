@@ -32,6 +32,7 @@ namespace MyForum.Controllers
                 .Include(u => u.Topics)
                 .Include(u => u.Likes)
                 .ThenInclude(u => u.Post)
+                .ThenInclude(u => u.User)
                 .Include(u => u.Posts)
                 .ThenInclude(u => u.Likes)
                 .FirstOrDefaultAsync(u => u.Username == username);

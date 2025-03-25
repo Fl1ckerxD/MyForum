@@ -5,37 +5,32 @@
 
 <main>
     <section class="text-center">
-        <h1>@Model.Name</h1>
-        <p>@Model.Description</p>
-        <a>Создать трэд</a>
+        <h1 class="logo-text fade-in">@Model.Name</h1>
+        <p class="welcome-text">@Model.Description</p>
     </section>
 
     @if (User.Identity.IsAuthenticated)
     {
-        <section>
-            <div>
-                <form method="post" asp-action="Create" asp-controller="Topics" asp-route-categoryId="@Model.Id" asp-route-categoryName="@Model.Name">
-                    <div>
-                        <label>Название:</label>
-                        <input name="title" />
+        <section class="fade-in-up delay-200ms">
+            <div class="form-container">
+                <form class="comment-form" method="post" asp-action="Create" asp-controller="Topics" asp-route-categoryId="@Model.Id" asp-route-categoryName="@Model.Name">
+                    <div class="form-header form-group">
+                        <input type="text" name="title" class="form-input" placeholder="Название" />
                     </div>
-
-                    <div>
-                        <label>Комментарий:</label>
-                        <textarea name="content"></textarea>
+                    <div class="form-group">
+                        <textarea class="comment-textarea" name="content" placeholder="Комментарий. Макс. длина 15000"></textarea>
                     </div>
-
                     <div class="error-message" asp-validation-summary="All"></div>
 
-                    <div>
-                        <input type="submit" value="Создать" />
+                    <div class="form-footer">
+                        <button type="submit" class="submit-button">Создать</button>
                     </div>
                 </form>
             </div>
         </section>
     }
 
-    <section>
+    <section class="topic-section fade-in-up delay-200ms">
         <div class="table-bordered">
             <ul class="navbar-nav flex-grow-1">
                 @foreach (var top in @Model.Topics)
@@ -43,17 +38,28 @@
                     <li>
                         <div>
                             <a href="/@Model.Name/@top.Id">@top.Title</a>
-                            <lable>@top.User.Username</lable>
-                            @if (@top.UserId == User.GetUserId() || User.IsInRole("Admin"))
-                            {
-                                <form asp-controller="Topics" asp-action="Delete" asp-route-topicId="@top.Id" method="post" class="d-inline">
-                                    <button type="submit" class="btn btn-sm btn-danger">Удалить</button>
-                                </form>
-                            }
+                            <strong>@top.User.Username</strong>
+                            <lable class="welcome-text topic-time">@top.CreatedAt</lable>
                             @if (User.IsInRole("Admin"))
                             {
                                 <form asp-controller="Admin" asp-action="UserDetails" asp-route-username="@top.User.Username" method="post" class="d-inline">
-                                    <button type="submit" class="btn btn-sm btn-info">О пользователе</button>
+                                    <button type="submit" class="button-transparent">
+                                        <svg class="info-button-circle" width="24" height="24" viewBox="0 0 24 24">
+                                            <circle cx="12" cy="12" r="10" />
+                                            <path d="M12 16V12M12 8H12.01" stroke="#ffff" stroke-width="2" stroke-linecap="round" />
+                                        </svg>
+                                    </button>
+                                </form>
+                            }
+                            @if (@top.UserId == User.GetUserId() || User.IsInRole("Admin"))
+                            {
+                                <form asp-controller="Topics" asp-action="Delete" asp-route-topicId="@top.Id" method="post" class="d-inline">
+                                    <button type="submit" class="button-transparent" onclick="return confirm('Вы уверены, что хотите удалить этот элемент?')">
+                                        <svg class="delete-button-circle" width="24" height="24" viewBox="0 0 24 24">
+                                            <circle cx="12" cy="12" r="10" />
+                                            <path d="M15 9L9 15M9 9L15 15" stroke="#ffff" stroke-width="2" stroke-linecap="round" />
+                                        </svg>
+                                    </button>
                                 </form>
                             }
                         </div>
