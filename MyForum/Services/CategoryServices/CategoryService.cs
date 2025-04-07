@@ -10,12 +10,18 @@ namespace MyForum.Services.CategoryServices
         {
             _context = context;
         }
+
         public async Task<Category> GetCategoryByNameAsync(string categoryName)
         {
             return await _context.Categories
             .Include(x => x.Topics)
             .ThenInclude(x => x.User)
             .FirstOrDefaultAsync(c => c.Name == categoryName);
+        }
+
+        public async Task<ICollection<Category>> GetAllCategoriesAsync()
+        {
+            return await _context.Categories.ToListAsync();
         }
     }
 }

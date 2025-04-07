@@ -1,22 +1,31 @@
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using MyForum.Models;
+using MyForum.Services.CategoryServices;
 
 namespace MyForum.Controllers
 {
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
-        private readonly ForumContext _context;
-        public HomeController(ILogger<HomeController> logger, ForumContext context)
+        private readonly ICategoryService _categoryService;
+        public HomeController(ILogger<HomeController> logger, ICategoryService categoryService)
         {
             _logger = logger;
-            _context = context;
+            _categoryService = categoryService;
         }
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            List<Category> categories = new(_context.Categories);
-            return View(categories);
+            try
+            {
+                var categories = await _categoryService.GetAllCategoriesAsync();
+                return View(categories);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Ошибка при получении списка категорий.");
+                return StatusCode(500, "Произошла ошибка при обработке запроса.");
+            }
         }
 
         public IActionResult Privacy()
