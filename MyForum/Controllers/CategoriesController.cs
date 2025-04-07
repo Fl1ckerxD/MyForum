@@ -1,29 +1,43 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using MyForum.Models;
-using System.Net;
-using System.Security.Claims;
+using MyForum.Services.CategoryServices;
 
 namespace MyForum.Controllers
 {
     public class CategoriesController : Controller
     {
-        private readonly ForumContext _context;
-        public CategoriesController(ForumContext context)
+        private readonly ICategoryService _categoryService;
+        private readonly ILogger<CategoriesController> _logger;
+        public CategoriesController(ILogger<CategoriesController> logger, ICategoryService categoryService)
         {
-            _context = context;
+            _logger = logger;
+            _categoryService = categoryService;
         }
 
         public async Task<IActionResult> Index(string categoryName)
         {
-            var category = await _context.Categories.Include(x => x.Topics).ThenInclude(x => x.User).FirstOrDefaultAsync(c => c.Name == categoryName);
-
-            if (category == null)
+            if (string.IsNullOrWhiteSpace(categoryName))
             {
-                return NotFound(); // Возвращаем 404, если категория не найдена
+                ModelState.AddModelError(nameof(categoryName), "Имя категории не может быть пустым.");
+                return BadRequest(ModelState);
             }
 
-            return View(category); // Передаем категорию в представление
+            try
+            {
+                var category = await _categoryService.GetCategoryByNameAsync(categoryName);
+
+                if (category == null)
+                {
+                    _logger.LogWarning($"Категория с именем '{categoryName}' не найдена.");
+                    return NotFound(); // Возвращаем 404, если категория не найдена
+                }
+
+                return View(category); // Передаем категорию в представление
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Ошибка при получении категории '{categoryName}'.");
+                return StatusCode(500, "Произошла ошибка при обработке запроса.");
+            }
         }
     }
 }

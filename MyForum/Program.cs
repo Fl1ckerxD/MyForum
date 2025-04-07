@@ -1,7 +1,9 @@
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
+using MyForum.Controllers;
 using MyForum.Models;
 using MyForum.Services;
+using MyForum.Services.CategoryServices;
 using MyForum.Services.UserServices;
 using MySql.Data.MySqlClient;
 
@@ -27,6 +29,7 @@ namespace MyForum
 
             builder.Services.AddScoped<IUserService, UserService>();
             builder.Services.AddScoped<IEntityService, EntityService>();
+            builder.Services.AddScoped<ICategoryService, CategoryService>();
 
             builder.Services.AddAuthentication("CookieAuth").AddCookie("CookieAuth", options =>
             {
