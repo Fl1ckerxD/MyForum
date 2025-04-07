@@ -3,6 +3,8 @@
     ViewData["Title"] = "Информация о пользователях";
 }
 
+<script src="~/js/delete.js"></script>
+
 <main>
     <h1 class="fade-in">Информация о пользователях</h1>
 
@@ -30,14 +32,20 @@
                             <li>
                                 <strong>@topic.Title</strong>
                                 <label class="welcome-text topic-time">@topic.CreatedAt</label>
-                                <form asp-action="DeleteTopic" asp-route-topicId="@topic.Id" method="post" class="d-inline">
+                               @* <form asp-action="DeleteTopic" asp-route-topicId="@topic.Id" method="post" class="d-inline">
                                     <button type="submit" class="button-transparent" onclick="return confirm('Вы уверены, что хотите удалить этот элемент?')">
                                         <svg class="delete-button-circle" width="24" height="24" viewBox="0 0 24 24">
                                             <circle cx="12" cy="12" r="10" />
                                             <path d="M15 9L9 15M9 9L15 15" stroke="#ffff" stroke-width="2" stroke-linecap="round" />
                                         </svg>
                                     </button>
-                                </form>
+                                </form> *@
+                                <button type="submit" class="button-transparent" onclick="deleteTopic(@topic.Id, this)">
+                                    <svg class="delete-button-circle" width="24" height="24" viewBox="0 0 24 24">
+                                        <circle cx="12" cy="12" r="10" />
+                                        <path d="M15 9L9 15M9 9L15 15" stroke="#ffff" stroke-width="2" stroke-linecap="round" />
+                                    </svg>
+                                </button>
                                 <p>@topic.Content</p>
                             </li>
                         }
@@ -59,14 +67,20 @@
                                 <div style="display: flex; gap: 5px;">
                                     <p>@post.Content</p>
                                     <label class="welcome-text topic-time" style="margin-top: 4px;">@post.CreatedAt</label>
-                                    <form asp-action="DeletePost" asp-route-postId="@post.Id" method="post" class="d-inline">
-                                        <button type="submit" class="button-transparent" onclick="return confirm('Вы уверены, что хотите удалить этот элемент?')">
-                                            <svg class="delete-button-circle" width="24" height="24" viewBox="0 0 24 24">
-                                                <circle cx="12" cy="12" r="10" />
-                                                <path d="M15 9L9 15M9 9L15 15" stroke="#ffff" stroke-width="2" stroke-linecap="round" />
-                                            </svg>
-                                        </button>
-                                    </form>
+                                    @* <form asp-action="DeletePost" asp-route-postId="@post.Id" method="post" class="d-inline"> 
+                                         <button type="submit" class="button-transparent" onclick="return confirm('Вы уверены, что хотите удалить этот элемент?')"> 
+                                             <svg class="delete-button-circle" width="24" height="24" viewBox="0 0 24 24"> 
+                                                 <circle cx="12" cy="12" r="10" /> 
+                                                 <path d="M15 9L9 15M9 9L15 15" stroke="#ffff" stroke-width="2" stroke-linecap="round" /> 
+                                             </svg> 
+                                         </button> 
+                                     </form> *@
+                                    <button type="button" class="button-transparent" onclick="deletePost(@post.Id, this)">
+                                        <svg class="delete-button-circle" width="24" height="24" viewBox="0 0 24 24">
+                                            <circle cx="12" cy="12" r="10" />
+                                            <path d="M15 9L9 15M9 9L15 15" stroke="#ffff" stroke-width="2" stroke-linecap="round" />
+                                        </svg>
+                                    </button>
                                 </div>
                                 <p style="margin-top: -15px;">@post.Likes.Count Понравилось</p>
                             </li>

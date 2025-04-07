@@ -1,17 +1,23 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using MyForum.Models;
+using MyForum.Services;
+using MyForum.Services.UserServices;
 
 namespace MyForum.Controllers
 {
     [Authorize(Roles = "Admin")]
     public class AdminController : Controller
     {
-        private readonly ForumContext _context;
-        public AdminController(ForumContext context)
+        private readonly ILogger<AdminController> _logger;
+        private readonly IUserService _userService;
+        private readonly IEntityService _entityService;
+        public AdminController(ILogger<AdminController> logger, IUserService userService,
+            IEntityService entityService)
         {
-            _context = context;
+            _logger = logger;
+            _userService = userService;
+            _entityService = entityService;
         }
 
         public IActionResult UserDetails()
@@ -22,22 +28,15 @@ namespace MyForum.Controllers
         [HttpPost]
         public async Task<IActionResult> UserDetails(string? username)
         {
-            if(string.IsNullOrWhiteSpace(username))
+            if (string.IsNullOrWhiteSpace(username))
             {
                 ModelState.AddModelError(nameof(username), "Введите никнейм пользователя.");
                 return View();
             }
 
-            var user = await _context.Users
-                .Include(u => u.Topics)
-                .Include(u => u.Likes)
-                .ThenInclude(u => u.Post)
-                .ThenInclude(u => u.User)
-                .Include(u => u.Posts)
-                .ThenInclude(u => u.Likes)
-                .FirstOrDefaultAsync(u => u.Username == username);
+            var user = await _userService.GetUserByUsernameAsync(username);
 
-            if(user == null)
+            if (user == null)
             {
                 ModelState.AddModelError(nameof(username), "Пользователь не найден.");
                 return View();
@@ -49,29 +48,29 @@ namespace MyForum.Controllers
         [HttpPost]
         public async Task<IActionResult> DeleteTopic(int topicId)
         {
-            var topic = await _context.Topics.Include(t => t.User).FirstOrDefaultAsync(t => t.Id == topicId);
-
-            if (topic == null)
-                return NotFound();
-
-            _context.Topics.Remove(topic);
-            await _context.SaveChangesAsync();
-
-            return RedirectToAction("UserDetails", new { username = topic.User.Username });
+            try
+            {
+                return await _entityService.DeleteEntityAsync(topicId, context => context.Topics);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Ошибка при удалении топика.");
+                return StatusCode(500, "Произошла ошибка при удалении топика.");
+            }
         }
 
         [HttpPost]
         public async Task<IActionResult> DeletePost(int postId)
         {
-            var post = await _context.Posts.Include(t => t.User).FirstOrDefaultAsync(p => p.Id == postId);
-
-            if (post == null)
-                return NotFound();
-
-            _context.Posts.Remove(post);
-            await _context.SaveChangesAsync();
-
-            return RedirectToAction("UserDetails", new { username = post.User.Username });
+            try
+            {
+                return await _entityService.DeleteEntityAsync(postId, context => context.Posts);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Ошибка при удалении топика.");
+                return StatusCode(500, "Произошла ошибка при удалении топика.");
+            }
         }
     }
 }

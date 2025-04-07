@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MyForum.Models;
-using MyForum.Services;
+using MyForum.Services.UserServices;
 using System.Security.Claims;
 
 namespace MyForum.Controllers
@@ -11,8 +11,8 @@ namespace MyForum.Controllers
     public class UsersController : Controller
     {
         private readonly ForumContext _context;
-        private readonly UserService _userService;
-        public UsersController(ForumContext context, UserService userService)
+        private readonly IUserService _userService;
+        public UsersController(ForumContext context, IUserService userService)
         {
             _context = context;
             _userService = userService;
@@ -54,7 +54,6 @@ namespace MyForum.Controllers
         public async Task<IActionResult> Login(string username, string password)
         {
             var user = await _context.Users.FirstOrDefaultAsync(u => (u.Username == username || u.Email == username) && u.Password == password);
-
             if (user == null)
             {
                 ModelState.AddModelError("", "Неверное имя пользователя или пароль.");
@@ -77,7 +76,7 @@ namespace MyForum.Controllers
                 IsPersistent = true, // Сохраняем вход после закрытия браузера
                 ExpiresUtc = DateTimeOffset.UtcNow.AddDays(1) // Время жизни сессии
             });
-
+            _userService.SaveUserProfileInCache(user, 5);
             return RedirectToAction("Profile");
         }
 
@@ -91,9 +90,9 @@ namespace MyForum.Controllers
         [Authorize]
         public async Task<IActionResult> Profile()
         {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier); // Получаем ID пользователя 
+            string username = User.Identity.Name;
 
-            var user = await _context.Users.FirstOrDefaultAsync(u => u.Id.ToString() == userId);
+            var user = await _userService.GetUserProfile(username);
 
             return View(user);
         }

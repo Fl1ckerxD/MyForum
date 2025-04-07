@@ -1,6 +1,8 @@
+using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
 using MyForum.Models;
 using MyForum.Services;
+using MyForum.Services.UserServices;
 using MySql.Data.MySqlClient;
 
 namespace MyForum
@@ -13,12 +15,18 @@ namespace MyForum
 
             // Add services to the container.
             builder.Services.AddControllersWithViews();
+            builder.Services.AddResponseCompression(opt =>
+            {
+                opt.EnableForHttps = true;
+                opt.Providers.Add(new GzipCompressionProvider(new GzipCompressionProviderOptions()));
+            });
 
             var conString = builder.Configuration.GetConnectionString("ForumDatabase") ??
                     throw new InvalidOperationException("Connection string 'ForumDatabase' not found.");
             builder.Services.AddDbContext<ForumContext>(options => options.UseMySQL(conString));
 
-            builder.Services.AddScoped<UserService>();
+            builder.Services.AddScoped<IUserService, UserService>();
+            builder.Services.AddScoped<IEntityService, EntityService>();
 
             builder.Services.AddAuthentication("CookieAuth").AddCookie("CookieAuth", options =>
             {
@@ -29,6 +37,7 @@ namespace MyForum
             });
 
             builder.Services.AddAuthentication();
+            builder.Services.AddMemoryCache();
 
             var app = builder.Build();
 
@@ -41,13 +50,22 @@ namespace MyForum
             }
 
             app.UseHttpsRedirection();
-            app.UseStaticFiles();
+            app.UseStaticFiles(new StaticFileOptions()
+            {
+                //OnPrepareResponse = ctx =>
+                //{
+                //    ctx.Context.Response.Headers.Add("Cache-Control", "public,max-age=600");
+                //}
+            });
 
             app.UseRouting();
 
             // Использование аутентификации и авторизации
             app.UseAuthentication();
             app.UseAuthorization();
+
+            // Использование сжатия ответов
+            app.UseResponseCompression();
 
             app.UseStatusCodePages(async statusCodeContext =>
             {
