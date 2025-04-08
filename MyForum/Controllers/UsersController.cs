@@ -67,11 +67,11 @@ namespace MyForum.Controllers
                 new Claim(ClaimTypes.Role, user.Role)
             };
 
-            var identity = new ClaimsIdentity(claims, "CookieAuth");
+            var identity = new ClaimsIdentity(claims, "Cookies");
 
             // Создаем ClaimsPrincipal и выполняем вход
             var principal = new ClaimsPrincipal(identity);
-            await HttpContext.SignInAsync("CookieAuth", principal, new AuthenticationProperties
+            await HttpContext.SignInAsync("Cookies", principal, new AuthenticationProperties
             {
                 IsPersistent = true, // Сохраняем вход после закрытия браузера
                 ExpiresUtc = DateTimeOffset.UtcNow.AddDays(1) // Время жизни сессии
@@ -83,7 +83,7 @@ namespace MyForum.Controllers
         public async Task<IActionResult> Logout()
         {
             // Выполняем выход
-            await HttpContext.SignOutAsync("CookieAuth");
+            await HttpContext.SignOutAsync("Cookies");
             return RedirectToAction("Index", "Home");
         }
 

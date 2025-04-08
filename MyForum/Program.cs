@@ -1,11 +1,13 @@
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
-using MyForum.Controllers;
 using MyForum.Models;
 using MyForum.Services;
 using MyForum.Services.CategoryServices;
+using MyForum.Services.PostServices;
+using MyForum.Services.TopicServices;
 using MyForum.Services.UserServices;
-using MySql.Data.MySqlClient;
+using System.Security.Claims;
 
 namespace MyForum
 {
@@ -30,8 +32,10 @@ namespace MyForum
             builder.Services.AddScoped<IUserService, UserService>();
             builder.Services.AddScoped<IEntityService, EntityService>();
             builder.Services.AddScoped<ICategoryService, CategoryService>();
+            builder.Services.AddScoped<IPostService, PostService>();
+            builder.Services.AddScoped<ITopicService, TopicService>();
 
-            builder.Services.AddAuthentication("CookieAuth").AddCookie("CookieAuth", options =>
+            builder.Services.AddAuthentication("Cookies").AddCookie("Cookies", options =>
             {
                 options.Cookie.Name = "MyForum.Auth";
                 options.LoginPath = "/Users/Login"; // Страница входа
@@ -39,7 +43,13 @@ namespace MyForum
                 options.ExpireTimeSpan = TimeSpan.FromDays(1); // Время жизни куки
             });
 
-            builder.Services.AddAuthentication();
+            builder.Services.AddAuthorization(options =>
+            {
+                options.AddPolicy("PostOwnerOrAdmin", policy =>
+                policy.RequireAssertion(context =>
+                context.User.IsInRole("Admin") ||
+                context.User.Claims.Any(c => c.Type == ClaimTypes.NameIdentifier && c.Value == context.Resource.ToString())));
+            });
             builder.Services.AddMemoryCache();
 
             var app = builder.Build();

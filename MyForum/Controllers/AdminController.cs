@@ -50,7 +50,8 @@ namespace MyForum.Controllers
         {
             try
             {
-                return await _entityService.DeleteEntityAsync(topicId, context => context.Topics);
+                await _entityService.DeleteEntityAsync(topicId, context => context.Topics);
+                return Ok();
             }
             catch (Exception ex)
             {
@@ -64,7 +65,8 @@ namespace MyForum.Controllers
         {
             try
             {
-                return await _entityService.DeleteEntityAsync(postId, context => context.Posts);
+                await _entityService.DeleteEntityAsync(postId, context => context.Posts);
+                return Ok();
             }
             catch (Exception ex)
             {

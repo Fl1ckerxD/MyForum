@@ -1,16 +1,23 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MyForum.Models;
-using System.Security.Claims;
+using MyForum.Services.PostServices;
+using MyForum.Services.TopicServices;
 
 namespace MyForum.Controllers
 {
     public class PostsController : Controller
     {
-        private readonly ForumContext _context;
-        public PostsController(ForumContext context)
+        private readonly IPostService _postService;
+        private readonly ITopicService _topicService;
+        private readonly ILogger<PostsController> _logger;
+        public PostsController(IPostService postService, ITopicService topicService,
+            ILogger<PostsController> logger)
         {
-            _context = context;
+            _postService = postService;
+            _topicService = topicService;
+            _logger = logger;
         }
 
         [HttpPost]
@@ -23,69 +30,63 @@ namespace MyForum.Controllers
 
             if (!ModelState.IsValid)
             {
-                var topic = await _context.Topics.Include(x => x.User).Include(x => x.Category).Include(x => x.Posts).ThenInclude(x => x.User).ThenInclude(x => x.Likes).FirstOrDefaultAsync(t => t.Id == topicId);
+                var topic = await _topicService.GetTopicByIdAsync(topicId);
                 return View("~/Views/Topics/Index.cshtml", topic);
             }
 
-            var post = new Post
+            try
             {
-                Content = content,
-                TopicId = topicId,
-                UserId = (int)User.GetUserId()
-            };
+                await _postService.AddCommentAsync(topicId, content, (int)User.GetUserId());
+                _logger.LogInformation($"Пользователь {User.Identity.Name}({User.GetUserId()}) добавил комментарий к топику {topicId}.");
 
-            _context.Posts.Add(post);
-            _context.SaveChanges();
+                // Заменить на return Ok(); и на писать AJAX скрипт
+                return Ok();
+                //return RedirectToAction("Index", "Topics", new { categoryName, topicId });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Ошибка при добавлении комментария.");
+                return StatusCode(500, "Произошла ошибка при добавлении комментария.");
+            }
 
-            return RedirectToAction("Index", "Topics", new { categoryName, topicId });
         }
 
         [HttpPost]
         public async Task<IActionResult> Like(int postId)
         {
-            var post = await _context.Posts.Include(p => p.Topic).ThenInclude(p => p.Category).Include(p => p.Likes).FirstOrDefaultAsync(p => p.Id == postId);
-
-            if (post == null)
-                return NotFound();
-
-            int userId = (int)User.GetUserId();
-            var existingLike = post.Likes.FirstOrDefault(l => l.UserId == userId);
-
-            if (existingLike != null)
+            try
             {
-                // Если пользователь уже лайкнул, убрать лайк
-                _context.Likes.Remove(existingLike);
+                await _postService.ToggleLikeAsync(postId, (int)User.GetUserId());
+                _logger.LogInformation($"Пользователь {User.Identity.Name}({User.GetUserId()}) лайкнул пост {postId}.");
+                // Заменить на return Ok(); и на писать AJAX скрипт
+                return Ok();
+                //return RedirectToAction("Index", "Topics", new { categoryName = post.Topic.Category.Name, topicId = post.TopicId });
             }
-
-            else
+            catch (Exception ex)
             {
-                var newLike = new Like
-                {
-                    PostId = postId,
-                    UserId = userId
-                };
-                _context.Likes.Add(newLike);
+                _logger.LogError(ex, "Ошибка при обработке лайка.");
+                return StatusCode(500, "Произошла ошибка при обработке запроса.");
             }
-            await _context.SaveChangesAsync();
-            return RedirectToAction("Index", "Topics", new { categoryName = post.Topic.Category.Name, topicId = post.TopicId });
         }
 
         [HttpPost]
+        [Authorize(Policy = "PostOwnerOrAdmin")]
         public async Task<IActionResult> Delete(int postId)
         {
-            var post = _context.Posts.Include(p => p.Topic).ThenInclude(p => p.Category).Include(p => p.Likes).FirstOrDefault(p => p.Id == postId);
+            try
+            {
+                await _postService.DeletePostAsync(postId);
+                _logger.LogInformation($"Пользователь {User.Identity.Name}({User.GetUserId()}) удалил пост {postId}.");
 
-            if(post == null)
-                return NotFound();
-
-            var currentUserId = User.GetUserId();
-            if (post.UserId != currentUserId && !User.IsInRole("Admin"))
-                return Forbid();
-
-            _context.Posts.Remove(post);
-            await _context.SaveChangesAsync();
-
-            return RedirectToAction("Index", "Topics", new { categoryName = post.Topic.Category.Name, topicId = post.TopicId });
+                // Заменить на return Ok(); и на писать AJAX скрипт
+                return Ok();
+                //return RedirectToAction("Index", "Topics", new { categoryName = post.Topic.Category.Name, topicId = post.TopicId });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Ошибка при удалении поста.");
+                return StatusCode(500, "Произошла ошибка при обработке запроса.");
+            }
         }
     }
 }
