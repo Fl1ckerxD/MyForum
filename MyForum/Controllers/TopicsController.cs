@@ -1,34 +1,40 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MyForum.Models;
-using System.Net;
-using System.Security.Claims;
+using MyForum.Services.TopicServices;
 
 namespace MyForum.Controllers
 {
     public class TopicsController : Controller
     {
         private readonly ForumContext _context;
-        public TopicsController(ForumContext context)
+        private readonly ILogger<TopicsController> _logger;
+        private readonly ITopicService _topicService;
+        public TopicsController(ForumContext context, ILogger<TopicsController> logger,
+            ITopicService topicService)
         {
             _context = context;
+            _logger = logger;
+            _topicService = topicService;
         }
 
         public async Task<IActionResult> Index(string categoryName, int topicId)
         {
-            var category = await _context.Categories.Include(x => x.Topics).FirstOrDefaultAsync(c => c.Name == categoryName);
-
-            if (category == null)
-                return NotFound(); // Возвращаем 404, если категория не найдена
-
-            var topic = await _context.Topics.FirstOrDefaultAsync(t => t.Id == topicId);
-
-            if (!category.Topics.Contains(topic))
-                return NotFound(); // Возвращаем 404, если тема не найдена
-
-            topic = await _context.Topics.Include(x => x.User).Include(x => x.Posts).ThenInclude(x => x.Likes).Include(x => x.Posts).ThenInclude(x => x.User).FirstOrDefaultAsync(t => t.Id == topicId);
-            return View(topic); // Передаем тему в представление
+            try
+            {
+                var topic = await _topicService.GetTopicByIdAsync(topicId);
+                return View(topic);
+            }
+            catch (ArgumentException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Ошибка при получении топика.");
+                return StatusCode(500, "Произошла ошибка при обработке запроса.");
+            }
         }
 
         [HttpPost]
@@ -45,36 +51,36 @@ namespace MyForum.Controllers
                 return View("~/Views/Categories/Index.cshtml", category);
             }
 
-            var topic = new Topic
+            try
             {
-                Title = title,
-                Content = content,
-                CategoryId = categoryId,
-                UserId = (int)User.GetUserId()
-            };
-
-            _context.Topics.Add(topic);
-            _context.SaveChanges();
-
-            return Redirect($"/{WebUtility.UrlEncode(categoryName)}/{topic.Id}");
+                await _topicService.CreateTopicAsync(categoryId, title, content, (int)User.GetUserId());
+                _logger.LogInformation($"Пользователь {User.Identity.Name}({User.GetUserId()}) создал топик {title}.");
+                int topicId = await _context.Topics.Where(t => t.Title == title).Select(t => t.Id).FirstOrDefaultAsync();
+                var url = Url.Action("Index", "Topics", new { categoryName, topicId });
+                return Redirect(url);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Ошибка при создании топика.");
+                return StatusCode(500, "Произошла ошибка при обработке запроса");
+            }
         }
 
         [HttpPost]
+        [Authorize(Policy = "OwnerOrAdmin")]
         public async Task<IActionResult> Delete(int topicId)
         {
-            var topic = await _context.Topics.Include(t => t.User).Include(t => t.Category).FirstOrDefaultAsync(t => t.Id == topicId);
-
-            if (topic == null)
-                return NotFound();
-
-            var currentUserId = User.GetUserId();
-            if (topic.UserId != currentUserId && !User.IsInRole("Admin"))
-                return Forbid();
-
-            _context.Topics.Remove(topic);
-            await _context.SaveChangesAsync();
-
-            return RedirectToAction("Index", "Categories", new { categoryName = topic.Category.Name });
+            try
+            {
+                await _topicService.DeleteTopic(topicId);
+                _logger.LogInformation($"Пользователь {User.Identity.Name}({User.GetUserId()}) удалил топик {topicId}");
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Ошибка при удалении топика");
+                return StatusCode(500, "Произошла ошибка при обработке запроса.");
+            }
         }
     }
 }

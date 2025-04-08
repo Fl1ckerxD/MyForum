@@ -30,8 +30,15 @@ namespace MyForum.Controllers
 
             if (!ModelState.IsValid)
             {
-                var topic = await _topicService.GetTopicByIdAsync(topicId);
-                return View("~/Views/Topics/Index.cshtml", topic);
+                try
+                {
+                    var topic = await _topicService.GetTopicByIdAsync(topicId);
+                    return View("~/Views/Topics/Index.cshtml", topic);
+                }
+                catch (ArgumentException ex)
+                {
+                    return NotFound(ex.Message);
+                }
             }
 
             try
@@ -70,7 +77,7 @@ namespace MyForum.Controllers
         }
 
         [HttpPost]
-        [Authorize(Policy = "PostOwnerOrAdmin")]
+        [Authorize(Policy = "OwnerOrAdmin")]
         public async Task<IActionResult> Delete(int postId)
         {
             try

@@ -5,7 +5,8 @@ namespace MyForum.Services.TopicServices
 {
     public interface ITopicService
     {
-        Task DeleteTopic(int topicId);
         Task<Topic> GetTopicByIdAsync(int topicId);
+        Task CreateTopicAsync(int categoryId, string title, string content, int userId);
+        Task DeleteTopic(int topicId);
     }
 }

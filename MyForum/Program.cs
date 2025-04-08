@@ -45,7 +45,7 @@ namespace MyForum
 
             builder.Services.AddAuthorization(options =>
             {
-                options.AddPolicy("PostOwnerOrAdmin", policy =>
+                options.AddPolicy("OwnerOrAdmin", policy =>
                 policy.RequireAssertion(context =>
                 context.User.IsInRole("Admin") ||
                 context.User.Claims.Any(c => c.Type == ClaimTypes.NameIdentifier && c.Value == context.Resource.ToString())));
