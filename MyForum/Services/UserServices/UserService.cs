@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using MyForum.Models;
 
@@ -23,11 +24,8 @@ namespace MyForum.Services.UserServices
 
             var user = await _context.Users
                 .Include(u => u.Topics)
-                .Include(u => u.Likes)
-                .ThenInclude(u => u.Post)
-                .ThenInclude(u => u.User)
-                .Include(u => u.Posts)
-                .ThenInclude(u => u.Likes)
+                .Include(u => u.Likes).ThenInclude(u => u.Post).ThenInclude(u => u.User)
+                .Include(u => u.Posts).ThenInclude(u => u.Likes)
                 .FirstOrDefaultAsync(u => u.Username == username);
 
             if (user != null)
@@ -38,12 +36,12 @@ namespace MyForum.Services.UserServices
             return user;
         }
 
-        public bool IsUserNameUnique(string name)
+        public async Task<bool> IsUserNameUnique(string name)
         {
             return !_context.Users.Any(u => u.Username == name);
         }
 
-        public bool IsEmailUnique(string email)
+        public async Task<bool> IsEmailUnique(string email)
         {
             return !_context.Users.Any(u => u.Email == email);
         }
@@ -71,6 +69,19 @@ namespace MyForum.Services.UserServices
         public void SaveUserProfileInCache(User user, int minutes)
         {
             _cache.Set($"user_profile:{user.Username}", user, TimeSpan.FromMinutes(minutes));
+        }
+
+        public async Task<User> AuthenticateAsync(string usernameOrEmail, string password)
+        {
+            var hasher = new PasswordHasher<string>();
+            return await _context.Users.FirstOrDefaultAsync(u => (u.Username == usernameOrEmail || u.Email == usernameOrEmail) && u.Password == password);
+            // return await _context.Users.FirstOrDefaultAsync(u => (u.Username == usernameOrEmail || u.Email == usernameOrEmail) && hasher.VerifyHashedPassword(null, u.Password, password) == PasswordVerificationResult.Success);
+        }
+
+        public async Task CreateUserAsync(User user)
+        {
+            _context.Users.Add(user);
+            await _context.SaveChangesAsync();
         }
     }
 }
