@@ -45,34 +45,34 @@ namespace MyForum.Controllers
             return View(user);
         }
 
-        [HttpPost]
-        public async Task<IActionResult> DeleteTopic(int topicId)
-        {
-            try
-            {
-                await _entityService.DeleteEntityAsync(topicId, context => context.Topics);
-                return Ok();
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Ошибка при удалении топика.");
-                return StatusCode(500, "Произошла ошибка при удалении топика.");
-            }
-        }
+        //[HttpPost]
+        //public async Task<IActionResult> DeleteTopic(int topicId)
+        //{
+        //    try
+        //    {
+        //        await _entityService.DeleteEntityAsync(topicId, context => context.Topics);
+        //        return Ok();
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        _logger.LogError(ex, "Ошибка при удалении топика.");
+        //        return StatusCode(500, "Произошла ошибка при удалении топика.");
+        //    }
+        //}
 
-        [HttpPost]
-        public async Task<IActionResult> DeletePost(int postId)
-        {
-            try
-            {
-                await _entityService.DeleteEntityAsync(postId, context => context.Posts);
-                return Ok();
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Ошибка при удалении топика.");
-                return StatusCode(500, "Произошла ошибка при удалении топика.");
-            }
-        }
+        //[HttpPost]
+        //public async Task<IActionResult> DeletePost(int postId)
+        //{
+        //    try
+        //    {
+        //        await _entityService.DeleteEntityAsync(postId, context => context.Posts);
+        //        return Ok();
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        _logger.LogError(ex, "Ошибка при удалении топика.");
+        //        return StatusCode(500, "Произошла ошибка при удалении топика.");
+        //    }
+        //}
     }
 }

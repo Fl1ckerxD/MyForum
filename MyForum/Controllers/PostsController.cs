@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MyForum.Models;
 using MyForum.Services.PostServices;
@@ -12,43 +11,38 @@ namespace MyForum.Controllers
         private readonly IPostService _postService;
         private readonly ITopicService _topicService;
         private readonly ILogger<PostsController> _logger;
+        private readonly ForumContext _context;
         public PostsController(IPostService postService, ITopicService topicService,
-            ILogger<PostsController> logger)
+            ILogger<PostsController> logger, ForumContext context)
         {
             _postService = postService;
             _topicService = topicService;
             _logger = logger;
+            _context = context;
         }
 
         [HttpPost]
-        public async Task<IActionResult> Comment(string categoryName, int topicId, string? content)
+        public async Task<IActionResult> Comment([FromBody] CommentRequest request)
         {
-            if (string.IsNullOrWhiteSpace(content))
-                ModelState.AddModelError(nameof(content), "Комментарий не должен быть пустым.");
-            else if (content.Length > 15000)
-                ModelState.AddModelError(nameof(content), "Длина не должна превышать больше 15000 символов.");
+            if (string.IsNullOrWhiteSpace(request.Content))
+                return BadRequest(new { message = "Комментарий не может быть пустым." });
 
-            if (!ModelState.IsValid)
-            {
-                try
-                {
-                    var topic = await _topicService.GetTopicByIdAsync(topicId);
-                    return View("~/Views/Topics/Index.cshtml", topic);
-                }
-                catch (ArgumentException ex)
-                {
-                    return NotFound(ex.Message);
-                }
-            }
+            else if (request.Content.Length > 15000)
+                return BadRequest(new { message = "Длина комментария не должна превышать 15000 символов." });
 
             try
             {
-                await _postService.AddCommentAsync(topicId, content, (int)User.GetUserId());
-                _logger.LogInformation($"Пользователь {User.Identity.Name}({User.GetUserId()}) добавил комментарий к топику {topicId}.");
+                await _postService.AddCommentAsync(request.TopicId, request.Content, (int)User.GetUserId());
+                _logger.LogInformation($"Пользователь {User.Identity.Name}({User.GetUserId()}) добавил комментарий к топику {request.TopicId}.");
 
-                // Заменить на return Ok(); и на писать AJAX скрипт
-                return Ok();
-                //return RedirectToAction("Index", "Topics", new { categoryName, topicId });
+                var post = await _context.Posts.Where(p => p.UserId == (int)User.GetUserId()).OrderBy(p => p.Id).LastOrDefaultAsync();
+                return Json(new
+                {
+                    id = post.Id,
+                    username = User.Identity.Name,
+                    createdAt = post.CreatedAt.ToString(),
+                    content = post.Content
+                });
             }
             catch (Exception ex)
             {
@@ -65,9 +59,8 @@ namespace MyForum.Controllers
             {
                 await _postService.ToggleLikeAsync(postId, (int)User.GetUserId());
                 _logger.LogInformation($"Пользователь {User.Identity.Name}({User.GetUserId()}) лайкнул пост {postId}.");
-                // Заменить на return Ok(); и на писать AJAX скрипт
-                return Ok();
-                //return RedirectToAction("Index", "Topics", new { categoryName = post.Topic.Category.Name, topicId = post.TopicId });
+
+                return Json(new { likesCount = _context.Likes.Where(l => l.PostId == postId).Count() });
             }
             catch (Exception ex)
             {
@@ -77,7 +70,7 @@ namespace MyForum.Controllers
         }
 
         [HttpPost]
-        [Authorize(Policy = "OwnerOrAdmin")]
+        //[Authorize(Policy = "OwnerOrAdmin")]
         public async Task<IActionResult> Delete(int postId)
         {
             try
@@ -85,9 +78,7 @@ namespace MyForum.Controllers
                 await _postService.DeletePostAsync(postId);
                 _logger.LogInformation($"Пользователь {User.Identity.Name}({User.GetUserId()}) удалил пост {postId}.");
 
-                // Заменить на return Ok(); и на писать AJAX скрипт
                 return Ok();
-                //return RedirectToAction("Index", "Topics", new { categoryName = post.Topic.Category.Name, topicId = post.TopicId });
             }
             catch (Exception ex)
             {
@@ -97,3 +88,5 @@ namespace MyForum.Controllers
         }
     }
 }
+
+public record CommentRequest(int TopicId, string CategoryName, string Content);

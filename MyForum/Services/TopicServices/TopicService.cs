@@ -38,7 +38,8 @@ namespace MyForum.Services.TopicServices
             return await _context.Topics
                 .Include(x => x.User)
                 .Include(x => x.Category)
-                .Include(x => x.Posts).ThenInclude(x => x.User).ThenInclude(x => x.Likes)
+                .Include(x => x.Posts).ThenInclude(x => x.User)
+                .Include(x => x.Posts).ThenInclude(x => x.Likes)
                 .FirstOrDefaultAsync(t => t.Id == topicId);
         }
     }

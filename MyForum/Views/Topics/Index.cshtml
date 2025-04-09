@@ -4,6 +4,8 @@
 }
 
 <script src="~/js/delete.js"></script>
+<script src="~/js/like.js"></script>
+<script src="~/js/comment.js"></script>
 
 <main>
     <section class="fade-in-up">
@@ -29,16 +31,16 @@
     {
         <section class="fade-in-up delay-200ms">
             <div class="form-container">
-                <form class="comment-form" method="post" asp-action="Comment" asp-controller="Posts" asp-route-topicId="@Model.Id" asp-route-categoryName="@Model.Category.Name">
-                    <div class=" form-group">
-                        <textarea class="comment-textarea" name="content" placeholder="Комментарий. Макс. длина 15000"></textarea>
+                <div class="comment-form">
+                    <div class="form-group">
+                        <textarea class="comment-textarea" id="commentTextarea" placeholder="Комментарий. Макс. длина 15000"></textarea>
                     </div>
-                    <div class="error-message" asp-validation-summary="All"></div>
+                    <div class="error-message" id="commentError"></div>
 
                     <div class="form-footer">
-                        <button type="submit" class="submit-button">Отправить</button>
+                        <button type="button" class="submit-button" onclick="addComment(@Model.Id, '@Model.Category.Name', this)">Отправить</button>
                     </div>
-                </form>
+                </div>
             </div>
         </section>
     }
@@ -73,9 +75,7 @@
                         <p>@post.Content</p>
                         @if (User.Identity.IsAuthenticated)
                         {
-                            <form asp-controller="Posts" asp-action="Like" asp-route-postId="@post.Id" method="post" class="d-inline">
-                                <button type="submit" class="submit-button">Понравилось @post.Likes.Count</button>
-                            </form>
+                            <button type="button" class="like-button submit-button" data-post-id="@post.Id">Понравилось @post.Likes.Count</button>
                         }
                         else
                         {

@@ -67,7 +67,6 @@ namespace MyForum.Controllers
         }
 
         [HttpPost]
-        [Authorize(Policy = "OwnerOrAdmin")]
         public async Task<IActionResult> Delete(int topicId)
         {
             try

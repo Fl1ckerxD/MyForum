@@ -4,7 +4,7 @@
     }
 
     try {
-        const response = await fetch('/Admin/DeletePost?postId=' + postId, {
+        const response = await fetch('/Posts/Delete?postId=' + postId, {
             method: 'POST'
         });
 
@@ -31,7 +31,7 @@ async function deleteTopic(topicId, buttonElement) {
     }
 
     try {
-        const respons = await fetch('/Admin/DeleteTopic?topicId=' + topicId, {
+        const respons = await fetch('/Topics/Delete?topicId=' + topicId, {
             method: 'POST'
         });
         if (respons.ok) {

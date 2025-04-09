@@ -43,13 +43,6 @@ namespace MyForum
                 options.ExpireTimeSpan = TimeSpan.FromDays(1); // Время жизни куки
             });
 
-            builder.Services.AddAuthorization(options =>
-            {
-                options.AddPolicy("OwnerOrAdmin", policy =>
-                policy.RequireAssertion(context =>
-                context.User.IsInRole("Admin") ||
-                context.User.Claims.Any(c => c.Type == ClaimTypes.NameIdentifier && c.Value == context.Resource.ToString())));
-            });
             builder.Services.AddMemoryCache();
 
             var app = builder.Build();
