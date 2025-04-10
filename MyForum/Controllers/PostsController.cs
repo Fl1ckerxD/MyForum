@@ -9,14 +9,11 @@ namespace MyForum.Controllers
     public class PostsController : Controller
     {
         private readonly IPostService _postService;
-        private readonly ITopicService _topicService;
         private readonly ILogger<PostsController> _logger;
         private readonly ForumContext _context;
-        public PostsController(IPostService postService, ITopicService topicService,
-            ILogger<PostsController> logger, ForumContext context)
+        public PostsController(IPostService postService, ILogger<PostsController> logger, ForumContext context)
         {
             _postService = postService;
-            _topicService = topicService;
             _logger = logger;
             _context = context;
         }
@@ -70,7 +67,6 @@ namespace MyForum.Controllers
         }
 
         [HttpPost]
-        //[Authorize(Policy = "OwnerOrAdmin")]
         public async Task<IActionResult> Delete(int postId)
         {
             try

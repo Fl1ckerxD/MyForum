@@ -10,6 +10,7 @@ namespace MyForum.Services.UserServices
         Task<User?> GetUserProfile(string username);
         Task<User> AuthenticateAsync(string usernameOrEmail, string password);
         Task CreateUserAsync(User user);
+        Task CreateUserAsync(UserViewModel user);
         void SaveUserProfileInCache(User user, int minutes);
     }
 }

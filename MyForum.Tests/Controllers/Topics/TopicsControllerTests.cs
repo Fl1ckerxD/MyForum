@@ -1,20 +1,13 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Query;
+using Microsoft.Extensions.Logging;
 using Moq;
 using MyForum.Controllers;
 using MyForum.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Net.Sockets;
+using MyForum.Services;
+using MyForum.Services.TopicServices;
 using System.Security.Claims;
-using System.Security.Cryptography.X509Certificates;
-using System.Text;
-using System.Threading.Tasks;
-using Xunit.Sdk;
 
 namespace MyForum.Tests.Controllers.Topics
 {
@@ -22,6 +15,7 @@ namespace MyForum.Tests.Controllers.Topics
     {
         private readonly Mock<ForumContext> _mockContext;
         private readonly Mock<HttpContext> _mockHttpContext;
+        private readonly Mock<Logger<TopicsController>> _mockLogger;
 
         public TopicsControllerTests()
         {
@@ -39,6 +33,8 @@ namespace MyForum.Tests.Controllers.Topics
 
             // Настройка ForumContext
             _mockContext = new Mock<ForumContext>(new DbContextOptions<ForumContext>());
+
+            _mockLogger = new Mock<Logger<TopicsController>>();
         }
 
         [Fact]
@@ -64,7 +60,7 @@ namespace MyForum.Tests.Controllers.Topics
 
             using (var context = new ForumContext(options))
             {
-                TopicsController controller = new TopicsController(context);
+                TopicsController controller = new TopicsController(context, _mockLogger.Object, new TopicService(context, new EntityService(context)));
 
                 // Act
                 ViewResult result = await controller.Index("Технологии", 1) as ViewResult;
@@ -95,7 +91,7 @@ namespace MyForum.Tests.Controllers.Topics
 
             using (var context = new ForumContext(options))
             {
-                var controller = new TopicsController(context);
+                var controller = new TopicsController(context, _mockLogger.Object, new TopicService(context, new EntityService(context)));
                 controller.ControllerContext = new ControllerContext
                 {
                     HttpContext = _mockHttpContext.Object
@@ -136,7 +132,7 @@ namespace MyForum.Tests.Controllers.Topics
 
             using (var context = new ForumContext(options))
             {
-                var controller = new TopicsController(context);
+                var controller = new TopicsController(context, _mockLogger.Object, new TopicService(context, new EntityService(context)));
                 controller.ControllerContext = new ControllerContext
                 {
                     HttpContext = _mockHttpContext.Object
@@ -176,7 +172,7 @@ namespace MyForum.Tests.Controllers.Topics
 
             using (var context = new ForumContext(options))
             {
-                var controller = new TopicsController(context);
+                var controller = new TopicsController(context, _mockLogger.Object, new TopicService(context, new EntityService(context)));
                 controller.ControllerContext = new ControllerContext
                 {
                     HttpContext = _mockHttpContext.Object
@@ -210,7 +206,7 @@ namespace MyForum.Tests.Controllers.Topics
 
             using (var context = new ForumContext(options))
             {
-                var controller = new TopicsController(context);
+                var controller = new TopicsController(context, _mockLogger.Object, new TopicService(context, new EntityService(context)));
                 controller.ControllerContext = new ControllerContext
                 {
                     HttpContext = _mockHttpContext.Object

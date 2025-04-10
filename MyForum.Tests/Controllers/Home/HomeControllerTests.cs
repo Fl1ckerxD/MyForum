@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using MyForum.Controllers;
 using MyForum.Models;
+using MyForum.Services.CategoryServices;
 
 namespace MyForum.Tests.Controllers.Home
 {
@@ -27,10 +28,10 @@ namespace MyForum.Tests.Controllers.Home
 
             using (var context = new ForumContext(options))
             {
-                HomeController controller = new(logger, context);
+                HomeController controller = new(logger, new CategoryService(context));
 
                 // Act
-                ViewResult result = controller.Index() as ViewResult;
+                ViewResult result = await controller.Index() as ViewResult;
                 var categories = result.ViewData.Model as List<Category>;
 
                 // Assert
@@ -41,7 +42,7 @@ namespace MyForum.Tests.Controllers.Home
         }
 
         [Fact]
-        public void Index_ReturnsCategoriesMoq()
+        public async Task Index_ReturnsCategoriesMoq()
         {
             // Arrange
             ILoggerFactory loggerFactory = LoggerFactory.Create(builder => builder.AddConsole());
@@ -70,10 +71,10 @@ namespace MyForum.Tests.Controllers.Home
 
             mockContext.Setup(c => c.Categories).Returns(mockSet.Object);
 
-            var controller = new HomeController(logger, mockContext.Object);
+            var controller = new HomeController(logger, new CategoryService(mockContext.Object));
 
             // Act
-            var result = controller.Index() as ViewResult;
+            var result = await controller.Index() as ViewResult;
             var categories = result.ViewData.Model as List<Category>;
 
             // Assert

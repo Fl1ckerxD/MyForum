@@ -1,6 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
+using Moq;
 using MyForum.Controllers;
 using MyForum.Models;
+using MyForum.Services.CategoryServices;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,6 +14,12 @@ namespace MyForum.Tests.Controllers.Categories
 {
     public class CategoriesControllerTests
     {
+        private readonly Mock<Logger<CategoriesController>> _mockLogger;
+        public CategoriesControllerTests()
+        {
+            _mockLogger = new();
+        }
+
         [Fact]
         public async Task Index_ReturnsCategory()
         {
@@ -32,7 +41,7 @@ namespace MyForum.Tests.Controllers.Categories
 
             using (var context = new ForumContext(options))
             {
-                CategoriesController controller = new(context);
+                CategoriesController controller = new(_mockLogger.Object, new CategoryService(context));
 
                 // Act
                 ViewResult result = await controller.Index("Технологии") as ViewResult;

@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using MyForum.Models;
 using MyForum.Services.UserServices;
@@ -37,13 +36,7 @@ namespace MyForum.Controllers
                 return View(model); // Возвращаем форму с ошибками валидации
             try
             {
-                var user = new User
-                {
-                    Username = model.Username,
-                    Email = model.Email,
-                    Password = model.Password
-                };
-                await _userService.CreateUserAsync(user);
+                await _userService.CreateUserAsync(model);
                 _logger.LogInformation($"Пользователь {model.Username} успешно зарегистрирован.");
                 return RedirectToAction("Index", "Home");
             }
@@ -118,12 +111,6 @@ namespace MyForum.Controllers
                 _logger.LogError(ex, "Ошибка при получении профиля пользователя.");
                 return StatusCode(500, "Произошла ошибка при обработке запроса.");
             }
-        }
-
-        private string HashPassword(string password)
-        {
-            var hasher = new PasswordHasher<string>();
-            return hasher.HashPassword(null, password);
         }
 
         private async Task SignInUserAsync(User user)

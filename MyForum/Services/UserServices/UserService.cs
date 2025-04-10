@@ -74,14 +74,37 @@ namespace MyForum.Services.UserServices
         public async Task<User> AuthenticateAsync(string usernameOrEmail, string password)
         {
             var hasher = new PasswordHasher<string>();
-            return await _context.Users.FirstOrDefaultAsync(u => (u.Username == usernameOrEmail || u.Email == usernameOrEmail) && u.Password == password);
-            // return await _context.Users.FirstOrDefaultAsync(u => (u.Username == usernameOrEmail || u.Email == usernameOrEmail) && hasher.VerifyHashedPassword(null, u.Password, password) == PasswordVerificationResult.Success);
+            var u = await _context.Users.FirstOrDefaultAsync(u => (u.Username == usernameOrEmail || u.Email == usernameOrEmail));
+            if (u == null)
+                return null;
+
+            if (hasher.VerifyHashedPassword(null, u.Password, password) == PasswordVerificationResult.Success)
+                return u;
+            else
+                return null;
         }
 
         public async Task CreateUserAsync(User user)
         {
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
+        }
+
+        public async Task CreateUserAsync(UserViewModel model)
+        {
+            var user = new User
+            {
+                Username = model.Username,
+                Email = model.Email,
+                Password = HashPassword(model.Password)
+            };
+            await CreateUserAsync(user);
+        }
+
+        private string HashPassword(string password)
+        {
+            var hasher = new PasswordHasher<string>();
+            return hasher.HashPassword(null, password);
         }
     }
 }

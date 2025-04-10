@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using MyForum.Models;
 using MyForum.Services;
 using MyForum.Services.UserServices;
 
@@ -11,13 +10,10 @@ namespace MyForum.Controllers
     {
         private readonly ILogger<AdminController> _logger;
         private readonly IUserService _userService;
-        private readonly IEntityService _entityService;
-        public AdminController(ILogger<AdminController> logger, IUserService userService,
-            IEntityService entityService)
+        public AdminController(ILogger<AdminController> logger, IUserService userService)
         {
             _logger = logger;
             _userService = userService;
-            _entityService = entityService;
         }
 
         public IActionResult UserDetails()
@@ -44,35 +40,5 @@ namespace MyForum.Controllers
 
             return View(user);
         }
-
-        //[HttpPost]
-        //public async Task<IActionResult> DeleteTopic(int topicId)
-        //{
-        //    try
-        //    {
-        //        await _entityService.DeleteEntityAsync(topicId, context => context.Topics);
-        //        return Ok();
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        _logger.LogError(ex, "Ошибка при удалении топика.");
-        //        return StatusCode(500, "Произошла ошибка при удалении топика.");
-        //    }
-        //}
-
-        //[HttpPost]
-        //public async Task<IActionResult> DeletePost(int postId)
-        //{
-        //    try
-        //    {
-        //        await _entityService.DeleteEntityAsync(postId, context => context.Posts);
-        //        return Ok();
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        _logger.LogError(ex, "Ошибка при удалении топика.");
-        //        return StatusCode(500, "Произошла ошибка при удалении топика.");
-        //    }
-        //}
     }
 }
