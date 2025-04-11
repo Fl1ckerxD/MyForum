@@ -12,6 +12,7 @@ namespace MyForum.Services.PostServices
             _context = context;
             _entityService = entityService;
         }
+
         public async Task AddCommentAsync(int topicId, string content, int userId)
         {
             var post = new Post
