@@ -11,5 +11,11 @@ namespace MyForum.Tests
                 .UseInMemoryDatabase(databaseName: "TestDatabase")
                 .Options;
         }
+
+        public static void Dispose(ForumContext context)
+        {
+            context.Database.EnsureDeleted();
+            context.Dispose();
+        }
     }
 }

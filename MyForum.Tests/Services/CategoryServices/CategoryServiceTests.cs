@@ -31,6 +31,8 @@ namespace MyForum.Tests.Services.CategoryServices
             // Assert
             Assert.NotNull(result);
             Assert.Equal(expectedCategory.Name, result.Name);
+
+            DbContext.Dispose(_context);
         }
 
         [Fact]
@@ -44,6 +46,8 @@ namespace MyForum.Tests.Services.CategoryServices
 
             // Assert
             Assert.Null(result);
+
+            DbContext.Dispose(_context);
         }
 
         [Fact]
@@ -66,6 +70,8 @@ namespace MyForum.Tests.Services.CategoryServices
             Assert.NotNull(result);
             Assert.Equal(categories.Count, result.Count);
             Assert.Equal(categories.Select(c => c.Name), result.Select(c => c.Name));
+
+            DbContext.Dispose(_context);
         }
     }
 }
