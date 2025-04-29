@@ -1,5 +1,6 @@
-﻿using MyForum.Models;
-using MyForum.Services.CategoryServices;
+﻿using MyForum.Core.Entities;
+using MyForum.Infrastructure.Data;
+using MyForum.Infrastructure.Services.CategoryServices;
 
 namespace MyForum.Tests.Services.CategoryServices
 {

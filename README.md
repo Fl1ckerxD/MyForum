@@ -2,35 +2,57 @@
 
 ![ASP.NET Core](https://img.shields.io/badge/ASP.NET_Core-9.0-purple?logo=.net)
 ![MySQL](https://img.shields.io/badge/MySQL-8.0-blue?logo=mysql)
+![EF Core](https://img.shields.io/badge/EF_Core-9.0-green)
 
-Клон популярного имиджборда "Двач". Проект реализован на ASP.NET Core 9 с использованием MySQL.
+MyForum — это веб-приложение, реализующее базовые возможности онлайн-форума. Примерно похоже на [2ch], но без возможности загрузки изображений. Пользователи могут создавать топики, оставлять комментарии, ставить лайки, а администраторы имеют доступ к панели управления для модерации контента.
 
 ## 🌟 Основные функции
 
 ### Для всех пользователей
 - 🔐 **Авторизация/Регистрация** через email и пароль
 - 📝 Создание новых тредов с заголовком и содержимым
-- 💬 Публикация постов с поддержкой:
-  - Текста
+- 💬 Оставление комментариев к топикам
 - 👍 Система лайков под постами
 
 ### Для администраторов
-- 🛠 **Админ-панель** с расширенным управлением:
+- 👑 **Админ-панель** с расширенным управлением:
   - Удаление любых тредов/постов
   - Модерация контента
-  - Просмотр статистики
+  - Просмотр активности пользователей
 
 ## 🛠 Технологический стек
+- Backend: ASP.NET Core
+- Database: MySQL 8
+- ORM: Entity Framework Core 9
+- Кэширование: MemoryCache
+- Авторизация: Cookies-based
+- Хеширование паролей: PasswordHasher
+- Тестирование: xUnit, Moq, InMemoryDatabase
+- Оптимизация: GzipCompressionProvider
+- AJAX: Fetch API
 
-**Backend**:
-- ASP.NET Core 9 (MVC)
-- Entity Framework Core 9
-- MySQL 8.0
-
-**Frontend**:
-- Razor Pages
-- Bootstrap 5
-- HTML5/CSS3
+## 🗄 Архитектура проекта
+```
+📦 MyForum/
+├── 📂 Core/                  # Доменные модели и интерфейсы
+│   ├── 📂 DTOs/                # Data Transfer Objects
+│   ├── 📂 Entities/            # ORM-сущности
+│   └── 📂 Interfaces/          # Сервисные интерфейсы
+│
+├── 📂 Infrastructure/          # Реализация репозиториев и сервисов
+│   ├── 📂 Data/                # Контекст EF + миграции
+│   ├── 📂 Repositories/        # Работа с БД
+│   └── 📂 Services/            # Бизнес-логика
+│
+├── 📂 Web/                     # Веб-слои
+│   ├── 📂 Controllers/         # MVC контроллеры
+│   ├── 📂 Extensions/          # Расширения
+│   ├── 📂 Requests/            # DTO входящих запросов
+│   ├── 📂 ViewModels/          # Модели представления
+│   └── 📂 Views/               # Razor-шаблоны
+│
+└── 📂 MyForum.Tests/           # Unit-тесты
+```
 
 ## 🚀 Установка и запуск
 
@@ -71,17 +93,6 @@ dotnet ef database update --context MyForumContext
 dotnet run
 ```
 
-## 🗄 Структура проекта
-
-```
-MyForum/
-├── Controllers/        # Контроллеры MVC
-├── Models/             # Модели и контекст БД
-├── Services/           # DI сервисы
-├── wwwroot/            # Статические файлы
-└── Views/              # Razor-представления
-```
-
 ## ⚙️ Конфигурация
 
 ### Первоначальная настройка админа:
@@ -92,6 +103,13 @@ UPDATE Users
 SET Role = 'Admin'
 WHERE Email = 'admin@example.com';
 ```
+
+## 🧪 Тестирование
+Тесты находятся в проекте MyForum.Tests. 
+Используются:
+- xUnit.net – фреймворк тестирования
+- Moq – для создания mock-объектов
+- InMemoryDatabase – для тестирования уровня работы с данными
 
 ## 📬 Контакты
 

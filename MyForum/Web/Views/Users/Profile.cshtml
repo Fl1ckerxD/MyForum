@@ -1,0 +1,16 @@
+﻿@using MyForum.Core.Entities
+@model User
+@{
+    ViewData["Title"] = "Профиль";
+}
+
+<div>
+    <div>
+        <label>Имя: @Model.Username</label>
+    </div>
+    <div>
+        <label>Почта: @Model.Email</label>
+    </div>
+    <a asp-controller="Users" asp-action="Logout">Выйти</a>
+</div>
+

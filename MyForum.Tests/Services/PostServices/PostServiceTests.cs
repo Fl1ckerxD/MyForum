@@ -1,6 +1,7 @@
-﻿using MyForum.Models;
+﻿using MyForum.Core.Entities;
+using MyForum.Infrastructure.Data;
+using MyForum.Infrastructure.Services.PostServices;
 using MyForum.Services;
-using MyForum.Services.PostServices;
 
 namespace MyForum.Tests.Services.PostServices
 {

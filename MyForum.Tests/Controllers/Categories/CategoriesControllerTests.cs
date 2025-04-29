@@ -1,9 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Moq;
-using MyForum.Controllers;
+using MyForum.Core.Entities;
 using MyForum.Models;
 using MyForum.Services.CategoryServices;
+using MyForum.Web.Controllers;
 using System;
 using System.Collections.Generic;
 using System.Linq;

@@ -3,10 +3,11 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Moq;
-using MyForum.Controllers;
-using MyForum.Models;
+using MyForum.Core.Entities;
+using MyForum.Infrastructure.Data;
 using MyForum.Services;
 using MyForum.Services.TopicServices;
+using MyForum.Web.Controllers;
 using System.Security.Claims;
 
 namespace MyForum.Tests.Controllers.Topics

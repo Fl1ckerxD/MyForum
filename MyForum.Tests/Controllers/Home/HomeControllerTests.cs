@@ -2,9 +2,10 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Moq;
-using MyForum.Controllers;
-using MyForum.Models;
+using MyForum.Core.Entities;
+using MyForum.Infrastructure.Data;
 using MyForum.Services.CategoryServices;
+using MyForum.Web.Controllers;
 
 namespace MyForum.Tests.Controllers.Home
 {

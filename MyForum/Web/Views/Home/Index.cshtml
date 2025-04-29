@@ -1,0 +1,33 @@
+﻿@model IEnumerable<string>
+
+<header class="header fade-in">
+    <div class="logo">
+        <h1 class="logo-text">Myforum</h1>
+    </div>
+    <p class="welcome-text">Добро пожаловать.</p>
+</header>
+
+<section class="description-section fade-in-up delay-200ms">
+    <div class="glass-card">
+        <p>
+            <span class="highlight">MyForum</span> - это система форумов, где можно общаться быстро и свободно, где любая точка зрения имеет право на жизнь. От вас необходимо только соблюдение правил.
+        </p>
+    </div>
+</section>
+
+<section class="categories-section fade-in-up delay-500ms">
+    <div class="categories-grid">
+        <div class="category-group staggered-fade-in">
+            <h3 class="category-items">Тематика</h3>
+            <div class="category-items">
+                <ul class="navbar-nav flex-grow-1">
+                    @foreach (var name in Model)
+                    {
+                        <li><a href="/@name" class="category-item">@name</a></li>
+                    }
+                </ul>
+            </div>
+        </div>
+    </div>
+</section>
+
