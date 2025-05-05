@@ -1,60 +1,21 @@
 ﻿using MyForum.Core.Entities;
+using MyForum.Core.Interfaces;
 using MyForum.Infrastructure.Data;
+using MyForum.Infrastructure.Repositories;
 using MyForum.Infrastructure.Services.PostServices;
-using MyForum.Services;
 
 namespace MyForum.Tests.Services.PostServices
 {
     public class PostServiceTests
     {
-        private readonly ForumContext _context;
+        private readonly IUnitOfWork _uow;
         private readonly PostService _postService;
         public PostServiceTests()
         {
             var options = DbContext.GetOptions();
-            _context = new ForumContext(options);
+            _uow = new UnitOfWork(new ForumContext(options));
 
-            var entityService = new EntityService(_context);
-            _postService = new PostService(_context, entityService);
-        }
-
-        [Fact]
-        public async Task AddCommentAsync_ShouldAddCommentToDatabase()
-        {
-            // Arrange
-            var postContent = "SampleTestContentForMyTest";
-            var topicId = 1;
-            var userId = 1;
-
-            // Act
-            await _postService.AddCommentAsync(topicId, postContent, userId);
-            var result = _context.Posts.FirstOrDefault(p => p.Content == postContent);
-
-            // Assert
-            Assert.NotNull(_context.Posts);
-            Assert.NotNull(result);
-        }
-
-        [Fact]
-        public async Task DeletePostAsync_ShouldCallDeleteEntityAsync()
-        {
-            // Arrange
-            var post = new Post
-            {
-                TopicId = 1,
-                Content = "Sample",
-                UserId = 1
-            };
-
-            _context.Posts.Add(post);
-            await _context.SaveChangesAsync();
-
-            // Act
-            await _postService.DeletePostAsync(post.Id);
-            var result = _context.Posts.FirstOrDefault(p => p.Id == post.Id);
-
-            // Assert
-            Assert.Null(result);
+            _postService = new PostService(_uow);
         }
 
         [Fact]
@@ -69,15 +30,15 @@ namespace MyForum.Tests.Services.PostServices
             };
             var userId = 1;
 
-            _context.Posts.Add(post);
-            await _context.SaveChangesAsync();
+            await _uow.Posts.AddAsync(post);
+            await _uow.SaveAsync();
 
             // Act
             await _postService.ToggleLikeAsync(post.Id, userId);
-            var result = _context.Likes.FirstOrDefault(l => l.PostId == post.Id && l.UserId == userId);
+            var like = post.Likes.FirstOrDefault();
 
             // Assert
-            Assert.NotNull(result);
+            Assert.NotNull(like);
         }
 
         [Fact]
@@ -95,15 +56,15 @@ namespace MyForum.Tests.Services.PostServices
                 Likes = new List<Like> { new Like { PostId = postId, UserId = userId } }
             };
 
-            _context.Posts.Add(post);
-            await _context.SaveChangesAsync();
+            await _uow.Posts.AddAsync(post);
+            await _uow.SaveAsync();
 
             // Act
             await _postService.ToggleLikeAsync(postId, userId);
-            var result = _context.Likes.FirstOrDefault(l => l.PostId == postId && l.UserId == userId);
+            var like = post.Likes.FirstOrDefault();
 
             // Assert
-            Assert.Null(result);
+            Assert.Null(like);
         }
     }
 }

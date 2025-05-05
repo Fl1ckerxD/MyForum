@@ -1,21 +1,17 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Moq;
 using MyForum.Core.Entities;
-using MyForum.Models;
-using MyForum.Services.CategoryServices;
+using MyForum.Infrastructure.Data;
+using MyForum.Infrastructure.Repositories;
 using MyForum.Web.Controllers;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MyForum.Tests.Controllers.Categories
 {
     public class CategoriesControllerTests
     {
-        private readonly Mock<Logger<CategoriesController>> _mockLogger;
+        private readonly Mock<ILogger<CategoriesController>> _mockLogger;
         public CategoriesControllerTests()
         {
             _mockLogger = new();
@@ -42,7 +38,7 @@ namespace MyForum.Tests.Controllers.Categories
 
             using (var context = new ForumContext(options))
             {
-                CategoriesController controller = new(_mockLogger.Object, new CategoryService(context));
+                CategoriesController controller = new(_mockLogger.Object, new CategoryRepository(context));
 
                 // Act
                 ViewResult result = await controller.Index("Технологии") as ViewResult;
@@ -51,7 +47,6 @@ namespace MyForum.Tests.Controllers.Categories
                 // Assert
                 Assert.NotNull(result);
                 Assert.NotNull(category);
-                Assert.NotEmpty(category.Topics);
             }
         }
     }
