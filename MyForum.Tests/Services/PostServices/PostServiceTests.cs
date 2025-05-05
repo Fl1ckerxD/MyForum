@@ -57,7 +57,7 @@ namespace MyForum.Tests.Services.PostServices
             };
 
             await _uow.Posts.AddAsync(post);
-            //await _uow.SaveAsync();
+            await _uow.SaveAsync();
 
             // Act
             await _postService.ToggleLikeAsync(postId, userId);
