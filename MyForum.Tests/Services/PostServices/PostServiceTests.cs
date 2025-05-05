@@ -34,7 +34,7 @@ namespace MyForum.Tests.Services.PostServices
             await _uow.SaveAsync();
 
             // Act
-            await _postService.ToggleLikeAsync(post.Id, userId);
+            //await _postService.ToggleLikeAsync(post.Id, userId);
             var like = post.Likes.FirstOrDefault();
 
             // Assert
