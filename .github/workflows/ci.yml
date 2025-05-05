@@ -20,10 +20,10 @@ jobs:
         run: >
           dotnet test
           MyForum.Tests/bin/Debug/**/MyForum.Tests.dll
-          --logger "trx;LogFileName=TestResults-${{matrix.os.prettyname}}-${{matrix.threadingMode}}.trx"
+          --logger "trx;LogFileName=TestResults.trx"
 
       - name: Upload Test Results
         uses: actions/upload-artifact@v4.6.2
         with:
-          name: myForum-test-results-${{matrix.os.prettyname}}-${{matrix.threadingMode}}
-          path: ${{github.workspace}}/TestResults/TestResults-${{matrix.os.prettyname}}-${{matrix.threadingMode}}.trx
+          name: MyForum-test-results
+          path: ${{github.workspace}}/TestResults/TestResults.trx
