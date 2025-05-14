@@ -1,8 +1,8 @@
 # Двач-клон на ASP.NET Core 9
 
-![ASP.NET Core](https://img.shields.io/badge/ASP.NET_Core-9.0-purple?logo=.net)
-![MySQL](https://img.shields.io/badge/MySQL-8.0-blue?logo=mysql)
-![EF Core](https://img.shields.io/badge/EF_Core-9.0-green)
+[![.NET](https://img.shields.io/badge/.NET_9.0-purple?logo=.net)](https://dotnet.microsoft.com/en-us/download/dotnet/9.0)
+[![MySQL](https://img.shields.io/badge/MySQL-8.0-blue?logo=mysql)](https://www.mysql.com/products/workbench/)
+[![EF Core](https://img.shields.io/badge/EF_Core-9.0-green)](https://learn.microsoft.com/ru-ru/ef/core/get-started/overview/install)
 
 MyForum — это веб-приложение, реализующее базовые возможности онлайн-форума. Примерно похоже на [2ch], но без возможности загрузки изображений. Пользователи могут создавать топики, оставлять комментарии, ставить лайки, а администраторы имеют доступ к панели управления для модерации контента.
 
