@@ -114,6 +114,6 @@ WHERE Email = 'admin@example.com';
 ## 📬 Контакты
 
 По вопросам сотрудничества:
-- Email: mornival@outlook.com
+- Email: mihaylov.slava@outlook.com
 - Telegram: @Fl1cker_0
 - Issues: https://github.com/Fl1ckerxD/MyForum/issues
