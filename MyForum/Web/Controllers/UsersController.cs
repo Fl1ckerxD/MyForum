@@ -65,22 +65,27 @@ namespace MyForum.Web.Controllers
         {
             try
             {
+                _logger.LogInformation("Начата аутентификация пользователя");
                 var user = await _userService.AuthenticateAsync(username, password);
 
                 if (user == null)
                 {
+                    _logger.LogWarning("Неудачная попытка аутентификации для пользователя {Username}", username);
                     ModelState.AddModelError("", "Неверное имя пользователя или пароль.");
                     return View();
                 }
 
                 await SignInUserAsync(user);
                 _userService.SaveUserProfileInCache(user, 5);
-                _logger.LogInformation($"Пользователь {user.Username}({user.Id}) успешно вошел в систему.");
+
+                _logger.LogInformation("Пользователь {Username} (ID: {UserId}) успешно аутентифицирован. Роль: {UserRole}",
+                    user.Username, user.Id, user.Role);
+
                 return RedirectToAction("Profile");
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Ошибка при входе пользователя.");
+                _logger.LogError(ex, "Ошибка при аутентификации пользователя {Username}", username);
                 return StatusCode(500, "Произошла ошибка при обработке запроса.");
             }
         }

@@ -27,12 +27,8 @@ namespace MyForum.Infrastructure.Services.UserServices
             var user = await _uof.Users.GetByUsernameOrEmailAsync(username);
             // если пользователь найден, то добавляем в кэш - время кэширования 5 минут
             if (user != null)
-            {
-                Console.WriteLine($"{user.Username} извлечен из базы данных");
                 SaveUserProfileInCache(user, 5);
-            }
-            else
-                Console.WriteLine($"{user.Username} извлечен из кэша");
+
             return user;
         }
 
