@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace MyForum.Core.Entities;
+﻿namespace MyForum.Core.Entities;
 
 public partial class Category
 {

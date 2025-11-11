@@ -1,5 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using MyForum.Core.Interfaces;
+using MyForum.Core.Interfaces.Repositories;
 using MyForum.Infrastructure.Data;
 
 namespace MyForum.Infrastructure.Repositories

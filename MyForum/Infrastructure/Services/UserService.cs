@@ -1,10 +1,11 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Caching.Memory;
 using MyForum.Core.Entities;
-using MyForum.Core.Interfaces;
+using MyForum.Core.Interfaces.Repositories;
+using MyForum.Core.Interfaces.Services;
 using MyForum.Web.ViewModels;
 
-namespace MyForum.Infrastructure.Services.UserServices
+namespace MyForum.Infrastructure.Services
 {
     public class UserService : IUserService
     {

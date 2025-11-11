@@ -1,7 +1,8 @@
 ﻿using MyForum.Core.Entities;
-using MyForum.Core.Interfaces;
+using MyForum.Core.Interfaces.Repositories;
+using MyForum.Core.Interfaces.Services;
 
-namespace MyForum.Infrastructure.Services.PostServices
+namespace MyForum.Infrastructure.Services
 {
     public class PostService : IPostService
     {

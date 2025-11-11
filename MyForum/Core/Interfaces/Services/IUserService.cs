@@ -1,7 +1,7 @@
 ﻿using MyForum.Core.Entities;
 using MyForum.Web.ViewModels;
 
-namespace MyForum.Infrastructure.Services.UserServices
+namespace MyForum.Core.Interfaces.Services
 {
     public interface IUserService
     {

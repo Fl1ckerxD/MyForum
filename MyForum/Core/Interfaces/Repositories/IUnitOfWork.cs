@@ -1,4 +1,4 @@
-﻿namespace MyForum.Core.Interfaces
+﻿namespace MyForum.Core.Interfaces.Repositories
 {
     public interface IUnitOfWork : IDisposable
     {

@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace MyForum.Core.Entities;
+﻿namespace MyForum.Core.Entities;
 
 public partial class User
 {

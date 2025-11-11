@@ -1,4 +1,4 @@
-﻿namespace MyForum.Infrastructure.Services.PostServices
+﻿namespace MyForum.Core.Interfaces.Services
 {
     public interface IPostService
     {
