@@ -3,150 +3,99 @@ using MyForum.Core.Entities;
 
 namespace MyForum.Infrastructure.Data;
 
-public partial class ForumContext : DbContext
+public partial class ForumDbContext : DbContext
 {
-    public ForumContext()
-    {
-    }
+    public DbSet<Board> Boards { get; set; }
+    public DbSet<Core.Entities.Thread> Threads { get; set; }
+    public DbSet<Post> Posts { get; set; }
+    public DbSet<PostFile> PostFiles { get; set; }
+    public DbSet<Ban> Bans { get; set; }
+    public DbSet<BoardModerator> BoardModerators { get; set; }
 
-    public ForumContext(DbContextOptions<ForumContext> options)
-        : base(options)
-    {
-    }
-
-    public virtual DbSet<Category> Categories { get; set; }
-
-    public virtual DbSet<Like> Likes { get; set; }
-
-    public virtual DbSet<Post> Posts { get; set; }
-
-    public virtual DbSet<Topic> Topics { get; set; }
-
-    public virtual DbSet<User> Users { get; set; }
-
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    public ForumDbContext(DbContextOptions<ForumDbContext> options) : base(options)
     {
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<Category>(entity =>
+        // Board
+        modelBuilder.Entity<Board>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PRIMARY");
-
-            entity.ToTable("categories");
-
-            entity.HasIndex(e => e.Name, "Name").IsUnique();
-
-            entity.Property(e => e.CreatedAt)
-                .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                .HasColumnType("datetime");
-            entity.Property(e => e.Description).HasMaxLength(255);
-            entity.Property(e => e.Name).HasMaxLength(100);
+            entity.HasIndex(b => b.ShortName).IsUnique();
+            entity.HasIndex(b => b.Position);
+            entity.Property(b => b.CreatedAt).HasDefaultValueSql("NOW()");
         });
 
-        modelBuilder.Entity<Like>(entity =>
+        // Thread
+        modelBuilder.Entity<Core.Entities.Thread>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PRIMARY");
+            entity.HasIndex(t => t.BoardId);
+            entity.HasIndex(t => t.LastBumpAt);
+            entity.HasIndex(t => t.IsPinned);
 
-            entity.ToTable("likes");
+            entity.HasOne(t => t.Board)
+                .WithMany(b => b.Threads)
+                .HasForeignKey(t => t.BoardId)
+                .OnDelete(DeleteBehavior.Cascade);
 
-            entity.HasIndex(e => e.PostId, "PostId");
-
-            entity.HasIndex(e => e.UserId, "UserId");
-
-            entity.Property(e => e.CreatedAt)
-                .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                .HasColumnType("datetime");
-
-            entity.HasOne(d => d.Post).WithMany(p => p.Likes)
-                .HasForeignKey(d => d.PostId)
-                .OnDelete(DeleteBehavior.Cascade)
-                .HasConstraintName("likes_ibfk_1");
-
-            entity.HasOne(d => d.User).WithMany(p => p.Likes)
-                .HasForeignKey(d => d.UserId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("likes_ibfk_2");
+            entity.HasOne(t => t.OriginalPost)
+                .WithMany()
+                .HasForeignKey(t => t.OriginalPostId)
+                .OnDelete(DeleteBehavior.Restrict);
         });
 
+        // Post
         modelBuilder.Entity<Post>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PRIMARY");
+            entity.HasIndex(p => p.ThreadId);
+            entity.HasIndex(p => p.CreatedAt);
+            entity.HasIndex(p => p.ReplyToPostId);
 
-            entity.ToTable("posts");
+            entity.HasOne(p => p.Thread)
+                .WithMany(t => t.Posts)
+                .HasForeignKey(p => p.ThreadId)
+                .OnDelete(DeleteBehavior.Cascade);
 
-            entity.HasIndex(e => e.TopicId, "TopicId");
-
-            entity.HasIndex(e => e.UserId, "UserId");
-
-            entity.Property(e => e.Content).HasColumnType("text");
-            entity.Property(e => e.CreatedAt)
-                .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                .HasColumnType("datetime");
-            entity.Property(e => e.UdatedAt).HasColumnType("datetime");
-
-            entity.HasOne(d => d.Topic).WithMany(p => p.Posts)
-                .HasForeignKey(d => d.TopicId)
-                .OnDelete(DeleteBehavior.Cascade)
-                .HasConstraintName("posts_ibfk_1");
-
-            entity.HasOne(d => d.User).WithMany(p => p.Posts)
-                .HasForeignKey(d => d.UserId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("posts_ibfk_2");
+            entity.HasOne(p => p.ReplyToPost)
+                .WithMany(p => p.Replies)
+                .HasForeignKey(p => p.ReplyToPostId)
+                .OnDelete(DeleteBehavior.Restrict);
         });
 
-        modelBuilder.Entity<Topic>(entity =>
+        // PostFile
+        modelBuilder.Entity<PostFile>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PRIMARY");
+            entity.HasIndex(f => f.PostId);
 
-            entity.ToTable("topics");
-
-            entity.HasIndex(e => e.CategoryId, "CategoryId");
-
-            entity.HasIndex(e => e.UserId, "UserId");
-
-            entity.Property(e => e.Content).HasColumnType("text");
-            entity.Property(e => e.CreatedAt)
-                .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                .HasColumnType("datetime");
-            entity.Property(e => e.Title).HasMaxLength(100);
-            entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
-
-            entity.HasOne(d => d.Category).WithMany(p => p.Topics)
-                .HasForeignKey(d => d.CategoryId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("topics_ibfk_1");
-
-            entity.HasOne(d => d.User).WithMany(p => p.Topics)
-                .HasForeignKey(d => d.UserId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("topics_ibfk_2");
+            entity.HasOne(f => f.Post)
+                .WithMany(p => p.Files)
+                .HasForeignKey(f => f.PostId)
+                .OnDelete(DeleteBehavior.Cascade);
         });
 
-        modelBuilder.Entity<User>(entity =>
+        // Ban
+        modelBuilder.Entity<Ban>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PRIMARY");
+            entity.HasIndex(b => b.IpAddress);
+            entity.HasIndex(b => b.ExpiresAt);
+            entity.HasIndex(b => b.IsActive);
 
-            entity.ToTable("users");
-
-            entity.HasIndex(e => e.Email, "Email").IsUnique();
-
-            entity.HasIndex(e => e.Username, "Username").IsUnique();
-
-            entity.Property(e => e.CreatedAt)
-                .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                .HasColumnType("datetime");
-            entity.Property(e => e.Email).HasMaxLength(100);
-            entity.Property(e => e.Password).HasMaxLength(255);
-            entity.Property(e => e.Role)
-                .HasMaxLength(20)
-                .HasDefaultValueSql("'User'");
-            entity.Property(e => e.Username).HasMaxLength(50);
+            entity.HasOne(b => b.Board)
+                .WithMany()
+                .HasForeignKey(b => b.BoardId)
+                .OnDelete(DeleteBehavior.Restrict);
         });
 
-        OnModelCreatingPartial(modelBuilder);
+        // BoardModerator
+        modelBuilder.Entity<BoardModerator>(entity =>
+        {
+            entity.HasIndex(m => new { m.BoardId, m.Username }).IsUnique();
+
+            entity.HasOne(m => m.Board)
+                .WithMany(b => b.Moderators)
+                .HasForeignKey(m => m.BoardId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
     }
 
     partial void OnModelCreatingPartial(ModelBuilder modelBuilder);

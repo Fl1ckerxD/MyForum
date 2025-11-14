@@ -5,14 +5,14 @@ namespace MyForum.Tests
 {
     public static class DbContext
     {
-        public static DbContextOptions<ForumContext> GetOptions()
+        public static DbContextOptions<ForumDbContext> GetOptions()
         {
-            return new DbContextOptionsBuilder<ForumContext>()
+            return new DbContextOptionsBuilder<ForumDbContext>()
                 .UseInMemoryDatabase(databaseName: "TestDatabase")
                 .Options;
         }
 
-        public static void Dispose(ForumContext context)
+        public static void Dispose(ForumDbContext context)
         {
             context.Database.EnsureDeleted();
             context.Dispose();

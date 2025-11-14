@@ -13,7 +13,7 @@ namespace MyForum.Tests.Services.PostServices
         public PostServiceTests()
         {
             var options = DbContext.GetOptions();
-            _uow = new UnitOfWork(new ForumContext(options));
+            _uow = new UnitOfWork(new ForumDbContext(options));
 
             _postService = new PostService(_uow);
         }

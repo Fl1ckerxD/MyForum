@@ -1,20 +1,18 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using MyForum.Core.Entities;
-using MyForum.Core.Interfaces;
-using MyForum.Infrastructure.Services.PostServices;
-using MyForum.Web.Extensions;
+using MyForum.Core.Interfaces.Repositories;
 using MyForum.Web.Requests;
 
 namespace MyForum.Web.Controllers
 {
     public class PostsController : Controller
     {
-        private readonly IPostService _postService;
+        //private readonly IPostService _postService;
         private readonly IUnitOfWork _uow;
         private readonly ILogger<PostsController> _logger;
-        public PostsController(IPostService postService, ILogger<PostsController> logger, IUnitOfWork unitOfWork)
+        public PostsController(ILogger<PostsController> logger, IUnitOfWork unitOfWork)
         {
-            _postService = postService;
+            //_postService = postService;
             _logger = logger;
             _uow = unitOfWork;
         }
@@ -32,15 +30,15 @@ namespace MyForum.Web.Controllers
             {
                 var post = new Post
                 {
-                    TopicId = request.TopicId,
+                    //TopicId = request.TopicId,
                     Content = request.Content,
-                    UserId = User.GetUserId().Value
+                    //UserId = User.GetUserId().Value
                 };
 
-                await _uow.Posts.AddAsync(post);
-                await _uow.SaveAsync();
+                //await _uow.Posts.AddAsync(post);
+                //await _uow.SaveAsync();
 
-                _logger.LogInformation($"Пользователь {User.Identity.Name}({User.GetUserId()}) добавил комментарий к топику {request.TopicId}.");
+                //_logger.LogInformation($"Пользователь {User.Identity.Name}({User.GetUserId()}) добавил комментарий к топику {request.TopicId}.");
 
                 return Json(new
                 {
@@ -57,39 +55,39 @@ namespace MyForum.Web.Controllers
             }
         }
 
-        [HttpPost]
-        public async Task<IActionResult> Like(int postId)
-        {
-            try
-            {
-                await _postService.ToggleLikeAsync(postId, User.GetUserId().Value);
-                _logger.LogInformation($"Пользователь {User.Identity.Name}({User.GetUserId()}) лайкнул пост {postId}.");
+        // [HttpPost]
+        // public async Task<IActionResult> Like(int postId)
+        // {
+        //     try
+        //     {
+        //         await _postService.ToggleLikeAsync(postId, User.GetUserId().Value);
+        //         _logger.LogInformation($"Пользователь {User.Identity.Name}({User.GetUserId()}) лайкнул пост {postId}.");
 
-                return Json(new { likesCount = await _uow.Likes.GetLikesCountAsync(postId) });
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Ошибка при обработке лайка.");
-                return StatusCode(500, "Произошла ошибка при обработке запроса.");
-            }
-        }
+        //         return Json(new { likesCount = await _uow.Likes.GetLikesCountAsync(postId) });
+        //     }
+        //     catch (Exception ex)
+        //     {
+        //         _logger.LogError(ex, "Ошибка при обработке лайка.");
+        //         return StatusCode(500, "Произошла ошибка при обработке запроса.");
+        //     }
+        // }
 
-        [HttpPost]
-        public async Task<IActionResult> Delete(int postId)
-        {
-            try
-            {
-                await _uow.Posts.DeleteAsync(postId);
-                await _uow.SaveAsync();
-                _logger.LogInformation($"Пользователь {User.Identity.Name}({User.GetUserId()}) удалил пост {postId}.");
+        // [HttpPost]
+        // public async Task<IActionResult> Delete(int postId)
+        // {
+        //     try
+        //     {
+        //         await _uow.Posts.DeleteAsync(postId);
+        //         await _uow.SaveAsync();
+        //         _logger.LogInformation($"Пользователь {User.Identity.Name}({User.GetUserId()}) удалил пост {postId}.");
 
-                return Ok();
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Ошибка при удалении поста.");
-                return StatusCode(500, "Произошла ошибка при обработке запроса.");
-            }
-        }
+        //         return Ok();
+        //     }
+        //     catch (Exception ex)
+        //     {
+        //         _logger.LogError(ex, "Ошибка при удалении поста.");
+        //         return StatusCode(500, "Произошла ошибка при обработке запроса.");
+        //     }
+        // }
     }
 }

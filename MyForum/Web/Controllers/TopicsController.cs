@@ -1,7 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using MyForum.Core.Entities;
-using MyForum.Core.Interfaces;
-using MyForum.Web.Extensions;
+using MyForum.Core.Interfaces.Repositories;
 using System.Net;
 
 namespace MyForum.Web.Controllers
@@ -20,8 +18,9 @@ namespace MyForum.Web.Controllers
         {
             try
             {
-                var topic = await _uow.Topics.GetByIdAsync(topicId);
-                return View(topic);
+                // var topic = await _uow.Topics.GetByIdAsync(topicId);
+                // return View(topic);
+                return View();
             }
             catch (ArgumentException ex)
             {
@@ -50,24 +49,25 @@ namespace MyForum.Web.Controllers
 
             try
             {
-                var topic = new Topic
-                {
-                    Title = title,
-                    Content = content,
-                    CategoryId = categoryId,
-                    UserId = (int)User.GetUserId()
-                };
-                await _uow.Topics.AddAsync(topic);
-                await _uow.SaveAsync();
+                // var topic = new Topic
+                // {
+                //     Title = title,
+                //     Content = content,
+                //     CategoryId = categoryId,
+                //     UserId = (int)User.GetUserId()
+                // };
+                // await _uow.Topics.AddAsync(topic);
+                // await _uow.SaveAsync();
 
-                _logger.LogInformation($"Пользователь {User.Identity.Name}({User.GetUserId()}) создал топик {title}.");
+                // _logger.LogInformation($"Пользователь {User.Identity.Name}({User.GetUserId()}) создал топик {title}.");
 
-                return Redirect($"/{WebUtility.UrlEncode(categoryName)}/{topic.Id}");
+                //return Redirect($"/{WebUtility.UrlEncode(categoryName)}/{topic.Id}");
+                return RedirectToAction("Index", "Categories", new { categoryName });
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Ошибка при создании топика.");
-                return StatusCode(500, "Произошла ошибка при обработке запроса");
+                return StatusCode(500, "Произошла ошибка при обработке запроса.");
             }
         }
 
@@ -76,10 +76,10 @@ namespace MyForum.Web.Controllers
         {
             try
             {
-                await _uow.Topics.DeleteAsync(topicId);
+                //await _uow.Topics.DeleteAsync(topicId);
                 await _uow.SaveAsync();
 
-                _logger.LogInformation($"Пользователь {User.Identity.Name}({User.GetUserId()}) удалил топик {topicId}");
+                //_logger.LogInformation($"Пользователь {User.Identity.Name}({User.GetUserId()}) удалил топик {topicId}");
                 return Ok();
             }
             catch (Exception ex)

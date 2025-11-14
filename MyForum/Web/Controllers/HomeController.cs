@@ -8,23 +8,24 @@ namespace MyForum.Web.Controllers
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
-        private readonly ICategoryRepository _categoryRepository;
-        public HomeController(ILogger<HomeController> logger, ICategoryRepository categoryRepository)
+        //private readonly ICategoryRepository _categoryRepository;
+        public HomeController(ILogger<HomeController> logger)
         {
             _logger = logger;
-            _categoryRepository = categoryRepository;
+            //_categoryRepository = categoryRepository;
         }
         public async Task<IActionResult> Index()
         {
             try
             {
-                var categories = await _categoryRepository.GetAllNamesAsync();
-                return View(categories);
+                //var categories = await _categoryRepository.GetAllNamesAsync();
+                //return View(categories);
+                return View();
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Ошибка при получении списка категорий.");
-                return StatusCode(500, "Произошла ошибка при обработке запроса.");
+                _logger.LogError(ex, "пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ.");
+                return StatusCode(500, "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ.");
             }
         }
 

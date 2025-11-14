@@ -5,12 +5,12 @@ namespace MyForum.Web.Controllers
 {
     public class CategoriesController : Controller
     {
-        private readonly ICategoryRepository _categoryRepository;
+        //private readonly ICategoryRepository _categoryRepository;
         private readonly ILogger<CategoriesController> _logger;
-        public CategoriesController(ILogger<CategoriesController> logger, ICategoryRepository categoryRepository)
+        public CategoriesController(ILogger<CategoriesController> logger)
         {
             _logger = logger;
-            _categoryRepository = categoryRepository;
+            //_categoryRepository = categoryRepository;
         }
 
         public async Task<IActionResult> Index(string categoryName)
@@ -23,15 +23,15 @@ namespace MyForum.Web.Controllers
 
             try
             {
-                var category = await _categoryRepository.GetCategoryByNameAsync(categoryName);
+                //var category = await _categoryRepository.GetCategoryByNameAsync(categoryName);
 
-                if (category == null)
-                {
-                    _logger.LogWarning($"Категория с именем '{categoryName}' не найдена.");
-                    return NotFound(); // Возвращаем 404, если категория не найдена
-                }
+                // if (category == null)
+                // {
+                //     _logger.LogWarning($"Категория с именем '{categoryName}' не найдена.");
+                     return NotFound(); // Возвращаем 404, если категория не найдена
+                // }
 
-                return View(category); // Передаем категорию в представление
+                // return View(category); // Передаем категорию в представление
             }
             catch (Exception ex)
             {

@@ -6,9 +6,9 @@ namespace MyForum.Infrastructure.Repositories
 {
     public class Repository<T> : IRepository<T> where T : class
     {
-        protected readonly ForumContext _context;
+        protected readonly ForumDbContext _context;
         private readonly DbSet<T> _dbSet;
-        public Repository(ForumContext context)
+        public Repository(ForumDbContext context)
         {
             _context = context;
             _dbSet = _context.Set<T>();

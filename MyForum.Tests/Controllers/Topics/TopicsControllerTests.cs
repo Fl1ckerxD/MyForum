@@ -13,7 +13,7 @@ namespace MyForum.Tests.Controllers.Topics
 {
     public class TopicsControllerTests
     {
-        private readonly Mock<ForumContext> _mockContext;
+        private readonly Mock<ForumDbContext> _mockContext;
         private readonly Mock<HttpContext> _mockHttpContext;
         private readonly Mock<ILogger<TopicsController>> _mockLogger;
 
@@ -32,7 +32,7 @@ namespace MyForum.Tests.Controllers.Topics
             _mockHttpContext.Setup(h => h.User).Returns(principal);
 
             // Настройка ForumContext
-            _mockContext = new Mock<ForumContext>(new DbContextOptions<ForumContext>());
+            _mockContext = new Mock<ForumDbContext>(new DbContextOptions<ForumDbContext>());
 
             _mockLogger = new();
         }
@@ -43,7 +43,7 @@ namespace MyForum.Tests.Controllers.Topics
             // Arrange
             var options = DbContext.GetOptions();
 
-            using (var context = new ForumContext(options))
+            using (var context = new ForumDbContext(options))
             {
                 // Добавление тестовых данных
                 context.Categories.Add(new Category { Name = "Технологии", Description = "1" });
@@ -58,7 +58,7 @@ namespace MyForum.Tests.Controllers.Topics
                 await context.SaveChangesAsync();
             }
 
-            using (var context = new ForumContext(options))
+            using (var context = new ForumDbContext(options))
             {
                 TopicsController controller = new TopicsController(_mockLogger.Object, new UnitOfWork(context));
 

@@ -1,18 +1,16 @@
 using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
-using MyForum.Core.Interfaces;
+using MyForum.Core.Interfaces.Repositories;
 using MyForum.Infrastructure.Data;
 using MyForum.Infrastructure.Repositories;
-using MyForum.Infrastructure.Services.PostServices;
-using MyForum.Infrastructure.Services.UserServices;
 using Serilog;
 
 namespace MyForum
 {
     public class Program
     {
-        public static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
             Log.Logger = new LoggerConfiguration()
                 .MinimumLevel.Override("Microsoft", Serilog.Events.LogEventLevel.Information)
@@ -44,17 +42,10 @@ namespace MyForum
                     opt.Providers.Add(new GzipCompressionProvider(new GzipCompressionProviderOptions()));
                 });
 
-                var conString = builder.Configuration.GetConnectionString("ForumDatabase") ??
-                        throw new InvalidOperationException("Connection string 'ForumDatabase' not found.");
-                builder.Services.AddDbContext<ForumContext>(options => options.UseMySQL(conString));
+                var conString = builder.Configuration.GetConnectionString(nameof(ForumDbContext)) ??
+                        throw new InvalidOperationException($"Connection string not found.");
+                builder.Services.AddDbContext<ForumDbContext>(options => options.UseNpgsql(conString));
 
-                builder.Services.AddScoped<IUserService, UserService>();
-                builder.Services.AddScoped<IPostService, PostService>();
-                builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
-                builder.Services.AddScoped<ILikeRepository, LikeRepository>();
-                builder.Services.AddScoped<IPostRepository, PostRepository>();
-                builder.Services.AddScoped<ITopicRepository, TopicRepository>();
-                builder.Services.AddScoped<IUserRepository, UserRepository>();
                 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
                 builder.Services.AddAuthentication("Cookies").AddCookie("Cookies", options =>
@@ -68,6 +59,21 @@ namespace MyForum
                 builder.Services.AddMemoryCache();
 
                 var app = builder.Build();
+
+                using (var scope = app.Services.CreateScope())
+                {
+                    var services = scope.ServiceProvider;
+                    try
+                    {
+                        var context = services.GetRequiredService<ForumDbContext>();
+                        await SeedData.SeedAsync(context, app.Logger);
+                    }
+                    catch (Exception ex)
+                    {
+                        var logger = services.GetRequiredService<ILogger<Program>>();
+                        logger.LogError(ex, "Error migrating database");
+                    }
+                }
 
                 // Configure the HTTP request pipeline.
                 if (!app.Environment.IsDevelopment())

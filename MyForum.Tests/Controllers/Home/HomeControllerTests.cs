@@ -24,7 +24,7 @@ namespace MyForum.Tests.Controllers.Home
             // Arrange
             var options = DbContext.GetOptions();
 
-            using (var context = new ForumContext(options))
+            using (var context = new ForumDbContext(options))
             {
                 // Добавляем тестовые данные
                 context.Categories.Add(new Category { Name = "Технологии", Description = "1" });
@@ -32,7 +32,7 @@ namespace MyForum.Tests.Controllers.Home
                 await context.SaveChangesAsync();
             }
 
-            using (var context = new ForumContext(options))
+            using (var context = new ForumDbContext(options))
             {
                 HomeController controller = new(_mockLogger.Object, new CategoryRepository(context));
 

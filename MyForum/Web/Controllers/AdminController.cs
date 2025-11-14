@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using MyForum.Core.Interfaces;
+using MyForum.Core.Interfaces.Repositories;
 
 namespace MyForum.Web.Controllers
 {
@@ -28,15 +28,15 @@ namespace MyForum.Web.Controllers
                 ModelState.AddModelError(nameof(username), "Введите никнейм пользователя.");
                 return View();
             }
-            var user = await _uow.Users.GetAllDetailsAsync(username);
+            //var user = await _uow.Users.GetAllDetailsAsync(username);
 
-            if (user == null)
-            {
-                ModelState.AddModelError(nameof(username), "Пользователь не найден.");
+            // if (user == null)
+            // {
+            //     ModelState.AddModelError(nameof(username), "Пользователь не найден.");
                 return View();
-            }
+            //}
 
-            return View(user);
+            //return View(user);
         }
     }
 }

@@ -23,7 +23,7 @@ namespace MyForum.Tests.Controllers.Categories
             // Arrange
             var options = DbContext.GetOptions();
 
-            using (var context = new ForumContext(options))
+            using (var context = new ForumDbContext(options))
             {
                 // Добавление тестовых данных
                 context.Categories.Add(new Category { Name = "Технологии", Description = "1" });
@@ -36,7 +36,7 @@ namespace MyForum.Tests.Controllers.Categories
                 await context.SaveChangesAsync();
             }
 
-            using (var context = new ForumContext(options))
+            using (var context = new ForumDbContext(options))
             {
                 CategoriesController controller = new(_mockLogger.Object, new CategoryRepository(context));
 
