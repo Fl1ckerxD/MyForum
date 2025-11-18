@@ -13,29 +13,29 @@ namespace MyForum.Infrastructure.Repositories
             _context = context;
             _dbSet = _context.Set<T>();
         }
-        public virtual async Task AddAsync(T entity)
+        public virtual async Task AddAsync(T entity, CancellationToken cancellationToken = default)
         {
-            await _dbSet.AddAsync(entity);
+            await _dbSet.AddAsync(entity, cancellationToken);
         }
 
-        public virtual async Task DeleteAsync(int id)
+        public virtual async Task DeleteAsync(int id, CancellationToken cancellationToken = default)
         {
             var enetity = await GetByIdAsync(id);
             if (enetity != null) _dbSet.Remove(enetity);
             else throw new ArgumentException("Объект не найден.");
         }
 
-        public virtual async Task<IEnumerable<T>> GetAllAsync()
+        public virtual async Task<IEnumerable<T>> GetAllAsync(CancellationToken cancellationToken = default)
         {
-            return await _dbSet.ToListAsync();
+            return await _dbSet.ToListAsync(cancellationToken);
         }
 
-        public virtual async Task<T?> GetByIdAsync(int id)
+        public virtual async Task<T?> GetByIdAsync(int id, CancellationToken cancellationToken = default)
         {
-            return await _dbSet.FindAsync(id);
+            return await _dbSet.FindAsync(id, cancellationToken);
         }
 
-        public virtual async Task UpdateAsync(T entity)
+        public virtual void Update(T entity)
         {
             _dbSet.Update(entity);
         }

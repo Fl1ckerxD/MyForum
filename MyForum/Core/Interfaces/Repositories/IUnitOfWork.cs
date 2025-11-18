@@ -1,12 +1,16 @@
-﻿namespace MyForum.Core.Interfaces.Repositories
+﻿using MyForum.Core.Entities;
+using Thread = MyForum.Core.Entities.Thread;
+
+namespace MyForum.Core.Interfaces.Repositories
 {
     public interface IUnitOfWork : IDisposable
     {
-        // ICategoryRepository Categories { get; }
-        // ILikeRepository Likes { get; }
-        // IPostRepository Posts { get; }
-        // ITopicRepository Topics { get; }
-        // IUserRepository Users { get; }
-        Task<int> SaveAsync();
+        IRepository<Ban> Bans { get; }
+        IRepository<Board> Boards { get; }
+        IRepository<BoardModerator> BoardModerators { get; }
+        IRepository<Post> Posts { get; }
+        IRepository<PostFile> PostFiles { get; }
+        IRepository<Thread> Threads { get; }
+        Task<int> SaveAsync(CancellationToken cancellationToken = default);
     }
 }
