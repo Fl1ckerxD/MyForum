@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
 using MyForum.Core.Interfaces.Repositories;
+using MyForum.Core.MappingProfiles;
 using MyForum.Infrastructure.Data;
 using MyForum.Infrastructure.Repositories;
 using Serilog;
@@ -36,6 +37,7 @@ namespace MyForum
 
                 // Add services to the container.
                 builder.Services.AddControllersWithViews();
+                builder.Services.AddAutoMapper(typeof(AppMappingProfile));
                 builder.Services.AddResponseCompression(opt =>
                 {
                     opt.EnableForHttps = true;
@@ -113,9 +115,9 @@ namespace MyForum
                     );
 
                 app.MapControllerRoute(
-                    name: "category",
-                    pattern: "{categoryName}",
-                    defaults: new { controller = "Categories", action = "Index" }
+                    name: "board",
+                    pattern: "{boardShortName}",
+                    defaults: new { controller = "Boards", action = "Index" }
                     );
 
                 app.MapControllerRoute(

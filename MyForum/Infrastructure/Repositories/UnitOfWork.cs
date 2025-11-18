@@ -1,5 +1,7 @@
-﻿using MyForum.Core.Entities;
+﻿using AutoMapper;
+using MyForum.Core.Entities;
 using MyForum.Core.Interfaces.Repositories;
+using MyForum.Core.MappingProfiles;
 using MyForum.Infrastructure.Data;
 using Thread = MyForum.Core.Entities.Thread;
 
@@ -22,7 +24,7 @@ namespace MyForum.Infrastructure.Repositories
         }
 
         public IRepository<Ban> Bans => _bans ??= new Repository<Ban>(_context);
-        public IBoardRepository Boards => _boards ??= new BoardRepository(_context);
+        public IBoardRepository Boards => _boards ??= new BoardRepository(_context, new MapperConfiguration(cfg => cfg.AddProfile<AppMappingProfile>()).CreateMapper());
         public IRepository<BoardModerator> BoardModerators => _boardModerators ??= new Repository<BoardModerator>(_context);
         public IRepository<Post> Posts => _posts ??= new Repository<Post>(_context);
         public IRepository<PostFile> PostFiles => _postFiles ??= new Repository<PostFile>(_context);

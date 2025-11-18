@@ -11,7 +11,7 @@ namespace MyForum.Tests.Controllers.Categories
 {
     public class CategoriesControllerTests
     {
-        private readonly Mock<ILogger<CategoriesController>> _mockLogger;
+        private readonly Mock<ILogger<BoardsController>> _mockLogger;
         public CategoriesControllerTests()
         {
             _mockLogger = new();
@@ -38,7 +38,7 @@ namespace MyForum.Tests.Controllers.Categories
 
             using (var context = new ForumDbContext(options))
             {
-                CategoriesController controller = new(_mockLogger.Object, new CategoryRepository(context));
+                BoardsController controller = new(_mockLogger.Object, new CategoryRepository(context));
 
                 // Act
                 ViewResult result = await controller.Index("Технологии") as ViewResult;
