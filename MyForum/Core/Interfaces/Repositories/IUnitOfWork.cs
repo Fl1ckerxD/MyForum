@@ -6,7 +6,7 @@ namespace MyForum.Core.Interfaces.Repositories
     public interface IUnitOfWork : IDisposable
     {
         IRepository<Ban> Bans { get; }
-        IRepository<Board> Boards { get; }
+        IBoardRepository Boards { get; }
         IRepository<BoardModerator> BoardModerators { get; }
         IRepository<Post> Posts { get; }
         IRepository<PostFile> PostFiles { get; }

@@ -10,7 +10,7 @@ namespace MyForum.Infrastructure.Repositories
         private readonly ForumDbContext _context;
         private bool _disposed;
         public IRepository<Ban> _bans;
-        public IRepository<Board> _boards;
+        public IBoardRepository _boards;
         public IRepository<BoardModerator> _boardModerators;
         public IRepository<Post> _posts;
         public IRepository<PostFile> _postFiles;
@@ -22,7 +22,7 @@ namespace MyForum.Infrastructure.Repositories
         }
 
         public IRepository<Ban> Bans => _bans ??= new Repository<Ban>(_context);
-        public IRepository<Board> Boards => _boards ??= new Repository<Board>(_context);
+        public IBoardRepository Boards => _boards ??= new BoardRepository(_context);
         public IRepository<BoardModerator> BoardModerators => _boardModerators ??= new Repository<BoardModerator>(_context);
         public IRepository<Post> Posts => _posts ??= new Repository<Post>(_context);
         public IRepository<PostFile> PostFiles => _postFiles ??= new Repository<PostFile>(_context);

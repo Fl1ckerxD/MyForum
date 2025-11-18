@@ -1,4 +1,4 @@
-﻿@model IEnumerable<string>
+﻿@model IEnumerable<BoardNamesDto>
 
 <header class="header fade-in">
     <div class="logo">
@@ -18,12 +18,12 @@
 <section class="categories-section fade-in-up delay-500ms">
     <div class="categories-grid">
         <div class="category-group staggered-fade-in">
-            <h3 class="category-items">Тематика</h3>
+            <h3 class="category-items">Доски</h3>
             <div class="category-items">
                 <ul class="navbar-nav flex-grow-1">
-                    @foreach (var name in Model)
+                    @foreach (var board in Model)
                     {
-                        <li><a href="/@name" class="category-item">@name</a></li>
+                        <li><a href="/@board.ShortName" class="category-item">@board.Name</a></li>
                     }
                 </ul>
             </div>

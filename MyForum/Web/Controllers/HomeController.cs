@@ -1,6 +1,6 @@
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
-using MyForum.Core.Interfaces;
+using MyForum.Core.Interfaces.Repositories;
 using MyForum.Web.ViewModels;
 
 namespace MyForum.Web.Controllers
@@ -8,24 +8,25 @@ namespace MyForum.Web.Controllers
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
-        //private readonly ICategoryRepository _categoryRepository;
-        public HomeController(ILogger<HomeController> logger)
+        private readonly IUnitOfWork _unitOfWork;
+        public HomeController(ILogger<HomeController> logger, IUnitOfWork unitOfWork)
         {
             _logger = logger;
-            //_categoryRepository = categoryRepository;
+            _unitOfWork = unitOfWork;
         }
+
+        [ResponseCache(Duration = 3600, Location = ResponseCacheLocation.Any)]
         public async Task<IActionResult> Index()
         {
             try
             {
-                //var categories = await _categoryRepository.GetAllNamesAsync();
-                //return View(categories);
-                return View();
+                var boards = await _unitOfWork.Boards.GetAllNamesAsync().ConfigureAwait(false);
+                return View(boards);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "������ ��� ��������� ������ ���������.");
-                return StatusCode(500, "��������� ������ ��� ��������� �������.");
+                _logger.LogError(ex, "Ошибка при загрузке названий досок");
+                return StatusCode(500, "Ошибка при загрузке названий досок");
             }
         }
 
