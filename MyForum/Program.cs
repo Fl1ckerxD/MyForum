@@ -2,9 +2,11 @@ using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
 using MyForum.Core.Interfaces.Repositories;
+using MyForum.Core.Interfaces.Services;
 using MyForum.Core.MappingProfiles;
 using MyForum.Infrastructure.Data;
 using MyForum.Infrastructure.Repositories;
+using MyForum.Infrastructure.Services;
 using Serilog;
 
 namespace MyForum
@@ -49,6 +51,8 @@ namespace MyForum
                 builder.Services.AddDbContext<ForumDbContext>(options => options.UseNpgsql(conString));
 
                 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+                builder.Services.AddScoped<IBoardService, BoardService>();
+                builder.Services.AddScoped<IThreadService, ThreadService>();
 
                 builder.Services.AddAuthentication("Cookies").AddCookie("Cookies", options =>
                 {
@@ -110,9 +114,9 @@ namespace MyForum
                 });
 
                 app.MapControllerRoute(
-                    name: "topic",
-                    pattern: "{categoryName}/{topicId:int}",
-                    defaults: new { controller = "Topics", action = "Index" }
+                    name: "thread",
+                    pattern: "{boardShortName}/{threadId:int}",
+                    defaults: new { controller = "Threads", action = "Index" }
                     );
 
                 app.MapControllerRoute(

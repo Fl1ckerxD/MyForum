@@ -1,34 +1,36 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using MyForum.Core.Interfaces.Repositories;
-using System.Net;
+using MyForum.Core.Interfaces.Services;
 
 namespace MyForum.Web.Controllers
 {
-    public class TopicsController : Controller
+    public class ThreadsController : Controller
     {
-        private readonly ILogger<TopicsController> _logger;
-        private readonly IUnitOfWork _uow;
-        public TopicsController(ILogger<TopicsController> logger, IUnitOfWork unitOfWork)
+        private readonly ILogger<ThreadsController> _logger;
+        private readonly IThreadService _threadService;
+
+        public ThreadsController(ILogger<ThreadsController> logger, IThreadService threadService)
         {
             _logger = logger;
-            _uow = unitOfWork;
+            _threadService = threadService;
         }
 
-        public async Task<IActionResult> Index(string categoryName, int topicId)
+        public async Task<IActionResult> Index(string boardShortName, int threadId, CancellationToken cancellationToken)
         {
             try
             {
-                // var topic = await _uow.Topics.GetByIdAsync(topicId);
-                // return View(topic);
-                return View();
-            }
-            catch (ArgumentException ex)
-            {
-                return NotFound(ex.Message);
+                var thread = await _threadService.GetThreadWithPostsById(boardShortName, threadId, cancellationToken);
+
+                if (thread == null)
+                {
+                    _logger.LogWarning("Тред с ID '{ThreadId}' не найден.", threadId);
+                    return NotFound();
+                }
+
+                return View(thread);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Ошибка при получении топика.");
+                _logger.LogError(ex, "Ошибка при загрузке страницы.");
                 return StatusCode(500, "Произошла ошибка при обработке запроса.");
             }
         }
@@ -77,7 +79,7 @@ namespace MyForum.Web.Controllers
             try
             {
                 //await _uow.Topics.DeleteAsync(topicId);
-                await _uow.SaveAsync();
+                //await _uow.SaveAsync();
 
                 //_logger.LogInformation($"Пользователь {User.Identity.Name}({User.GetUserId()}) удалил топик {topicId}");
                 return Ok();

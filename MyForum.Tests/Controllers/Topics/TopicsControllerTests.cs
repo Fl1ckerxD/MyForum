@@ -15,7 +15,7 @@ namespace MyForum.Tests.Controllers.Topics
     {
         private readonly Mock<ForumDbContext> _mockContext;
         private readonly Mock<HttpContext> _mockHttpContext;
-        private readonly Mock<ILogger<TopicsController>> _mockLogger;
+        private readonly Mock<ILogger<ThreadsController>> _mockLogger;
 
         public TopicsControllerTests()
         {
@@ -60,7 +60,7 @@ namespace MyForum.Tests.Controllers.Topics
 
             using (var context = new ForumDbContext(options))
             {
-                TopicsController controller = new TopicsController(_mockLogger.Object, new UnitOfWork(context));
+                ThreadsController controller = new ThreadsController(_mockLogger.Object, new UnitOfWork(context));
 
                 // Act
                 ViewResult result = await controller.Index("Технологии", 1) as ViewResult;

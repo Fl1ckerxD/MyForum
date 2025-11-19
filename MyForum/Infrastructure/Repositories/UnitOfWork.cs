@@ -1,9 +1,6 @@
-﻿using AutoMapper;
-using MyForum.Core.Entities;
+﻿using MyForum.Core.Entities;
 using MyForum.Core.Interfaces.Repositories;
-using MyForum.Core.MappingProfiles;
 using MyForum.Infrastructure.Data;
-using Thread = MyForum.Core.Entities.Thread;
 
 namespace MyForum.Infrastructure.Repositories
 {
@@ -16,7 +13,7 @@ namespace MyForum.Infrastructure.Repositories
         public IRepository<BoardModerator> _boardModerators;
         public IRepository<Post> _posts;
         public IRepository<PostFile> _postFiles;
-        public IRepository<Thread> _threads;
+        public IThreadRepository _threads;
 
         public UnitOfWork(ForumDbContext context)
         {
@@ -28,7 +25,7 @@ namespace MyForum.Infrastructure.Repositories
         public IRepository<BoardModerator> BoardModerators => _boardModerators ??= new Repository<BoardModerator>(_context);
         public IRepository<Post> Posts => _posts ??= new Repository<Post>(_context);
         public IRepository<PostFile> PostFiles => _postFiles ??= new Repository<PostFile>(_context);
-        public IRepository<Thread> Threads => _threads ??= new Repository<Thread>(_context);
+        public IThreadRepository Threads => _threads ??= new ThreadRepository(_context);
 
         public async Task<int> SaveAsync(CancellationToken cancellationToken = default)
         {

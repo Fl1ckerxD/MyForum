@@ -11,6 +11,13 @@ namespace MyForum.Infrastructure.Repositories
         {
         }
 
+        public override async Task<IEnumerable<Board>> GetAllAsync(CancellationToken cancellationToken = default)
+        {
+            return await _context.Boards
+                .OrderBy(b => b.Position)
+                .ToListAsync(cancellationToken);
+        }
+
         public async Task<Board?> GetBoardWithThreadsAndPostsAsync(string boardShortName, CancellationToken cancellationToken = default)
         {
             return await _context.Boards
