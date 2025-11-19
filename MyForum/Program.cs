@@ -53,6 +53,8 @@ namespace MyForum
                 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
                 builder.Services.AddScoped<IBoardService, BoardService>();
                 builder.Services.AddScoped<IThreadService, ThreadService>();
+                builder.Services.AddScoped<IPostService, PostService>();
+                builder.Services.AddScoped<IIPHasher, SHA256IPHasher>();
 
                 builder.Services.AddAuthentication("Cookies").AddCookie("Cookies", options =>
                 {

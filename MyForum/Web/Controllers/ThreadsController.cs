@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using MyForum.Core.DTOs;
 using MyForum.Core.Interfaces.Services;
 
 namespace MyForum.Web.Controllers
@@ -7,11 +8,13 @@ namespace MyForum.Web.Controllers
     {
         private readonly ILogger<ThreadsController> _logger;
         private readonly IThreadService _threadService;
+        private readonly IPostService _postService;
 
-        public ThreadsController(ILogger<ThreadsController> logger, IThreadService threadService)
+        public ThreadsController(ILogger<ThreadsController> logger, IThreadService threadService, IPostService postService)
         {
             _logger = logger;
             _threadService = threadService;
+            _postService = postService;
         }
 
         public async Task<IActionResult> Index(string boardShortName, int threadId, CancellationToken cancellationToken)
@@ -36,40 +39,42 @@ namespace MyForum.Web.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create(int categoryId, string categoryName, string? title, string? content)
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create(CreateThreadDto createThreadDto, CancellationToken cancellationToken)
         {
-            if (string.IsNullOrWhiteSpace(title))
-                ModelState.AddModelError(nameof(title), "Введите название трэда.");
-            else if (title.Length > 100)
-                ModelState.AddModelError(nameof(title), "Длина не должна превышать больше 100 символов.");
+            if (string.IsNullOrWhiteSpace(createThreadDto.Subject))
+                ModelState.AddModelError(nameof(createThreadDto.Subject), "Введите название трэда.");
+            else if (createThreadDto.Subject.Length > 100)
+                ModelState.AddModelError(nameof(createThreadDto.Subject), "Длина не должна превышать больше 100 символов.");
 
             if (!ModelState.IsValid)
             {
-                var url = Url.Action("Index", "Categories", new { categoryName });
-                return Redirect(url);
+                return BadRequest(ModelState);
             }
 
             try
             {
-                // var topic = new Topic
-                // {
-                //     Title = title,
-                //     Content = content,
-                //     CategoryId = categoryId,
-                //     UserId = (int)User.GetUserId()
-                // };
-                // await _uow.Topics.AddAsync(topic);
-                // await _uow.SaveAsync();
+                var threadId = await _threadService.CreateThreadAsync(createThreadDto.BoardId, createThreadDto.Subject, cancellationToken);
 
-                // _logger.LogInformation($"Пользователь {User.Identity.Name}({User.GetUserId()}) создал топик {title}.");
+                var ipAddress = GetClientIpAddress();
+                var userAgent = Request.Headers["User-Agent"].ToString();
 
-                //return Redirect($"/{WebUtility.UrlEncode(categoryName)}/{topic.Id}");
-                return RedirectToAction("Index", "Categories", new { categoryName });
+                await _postService.CreateAsync(
+                    threadId: threadId,
+                    content: createThreadDto.OriginalPost.Content,
+                    authorName: createThreadDto.OriginalPost.AuthorName,
+                    postPassword: createThreadDto.OriginalPost.PostPassword ?? string.Empty,
+                    isOriginalPost: true,
+                    ipAddress: ipAddress,
+                    userAgent: userAgent,
+                    cancellationToken: cancellationToken);
+
+                return RedirectToAction("Index", "Threads", new { createThreadDto.BoardShortName, threadId });
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Ошибка при создании топика.");
-                return StatusCode(500, "Произошла ошибка при обработке запроса.");
+                _logger.LogError(ex, "Ошибка при создании треда.");
+                return StatusCode(500, "Ошибка при создании треда.");
             }
         }
 
@@ -89,6 +94,21 @@ namespace MyForum.Web.Controllers
                 _logger.LogError(ex, "Ошибка при удалении топика");
                 return StatusCode(500, "Произошла ошибка при обработке запроса.");
             }
+        }
+
+        private string GetClientIpAddress()
+        {
+            if (Request.Headers.TryGetValue("X-Forwarded-For", out var forwardedFor))
+            {
+                return forwardedFor.FirstOrDefault()?.Split(',').FirstOrDefault()?.Trim();
+            }
+
+            if (Request.Headers.TryGetValue("X-Real-IP", out var realIp))
+            {
+                return realIp.FirstOrDefault();
+            }
+
+            return HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
         }
     }
 }

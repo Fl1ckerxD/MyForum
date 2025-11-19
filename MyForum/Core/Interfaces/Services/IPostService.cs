@@ -2,6 +2,9 @@
 {
     public interface IPostService
     {
-        Task ToggleLikeAsync(int postId, int userId);
+        Task CreateAsync(int threadId, string content,
+            string authorName, string postPassword,
+            bool isOriginalPost, string ipAddress,
+            string userAgent, CancellationToken cancellationToken = default);
     }
 }
