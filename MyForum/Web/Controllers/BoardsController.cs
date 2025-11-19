@@ -1,19 +1,19 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using MyForum.Core.Interfaces.Repositories;
+using MyForum.Core.Interfaces.Services;
 
 namespace MyForum.Web.Controllers
 {
     public class BoardsController : Controller
     {
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly IBoardService _boardService;
         private readonly ILogger<BoardsController> _logger;
-        public BoardsController(ILogger<BoardsController> logger, IUnitOfWork unitOfWork)
+        public BoardsController(ILogger<BoardsController> logger, IBoardService boardService)
         {
             _logger = logger;
-            _unitOfWork = unitOfWork;
+            _boardService = boardService;
         }
 
-        public async Task<IActionResult> Index(string boardShortName)
+        public async Task<IActionResult> Index(string boardShortName, CancellationToken cancellationToken)
         {
             if (string.IsNullOrWhiteSpace(boardShortName))
             {
@@ -23,11 +23,11 @@ namespace MyForum.Web.Controllers
 
             try
             {
-                var board = await _unitOfWork.Boards.GetByShortNameAsync(boardShortName);
+                var board = await _boardService.GetBoardWithThreadsAndPostsAsync(boardShortName, cancellationToken);
 
                 if (board == null)
                 {
-                    _logger.LogWarning($"Категория с именем '{boardShortName}' не найдена.");
+                    _logger.LogWarning("Категория с именем '{BoardShortName}' не найдена.", boardShortName);
                     return NotFound();
                 }
 
@@ -35,7 +35,7 @@ namespace MyForum.Web.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Ошибка при получении категории '{boardShortName}'.");
+                _logger.LogError(ex, "Ошибка при получении категории '{BoardShortName}'.", boardShortName);
                 return StatusCode(500, "Произошла ошибка при обработке запроса.");
             }
         }

@@ -68,7 +68,8 @@ namespace MyForum
                     try
                     {
                         var context = services.GetRequiredService<ForumDbContext>();
-                        await SeedData.SeedAsync(context, app.Logger);
+                        var logger = services.GetRequiredService<ILogger<SeedData>>();
+                        await SeedData.SeedAsync(context, logger);
                     }
                     catch (Exception ex)
                     {

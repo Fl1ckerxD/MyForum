@@ -1,6 +1,6 @@
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
-using MyForum.Core.Interfaces.Repositories;
+using MyForum.Core.Interfaces.Services;
 using MyForum.Web.ViewModels;
 
 namespace MyForum.Web.Controllers
@@ -8,11 +8,11 @@ namespace MyForum.Web.Controllers
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
-        private readonly IUnitOfWork _unitOfWork;
-        public HomeController(ILogger<HomeController> logger, IUnitOfWork unitOfWork)
+        private readonly IBoardService _boardService;
+        public HomeController(ILogger<HomeController> logger, IBoardService boardService)
         {
             _logger = logger;
-            _unitOfWork = unitOfWork;
+            _boardService = boardService;
         }
 
         [ResponseCache(Duration = 3600, Location = ResponseCacheLocation.Any)]
@@ -20,7 +20,7 @@ namespace MyForum.Web.Controllers
         {
             try
             {
-                var boards = await _unitOfWork.Boards.GetAllNamesAsync().ConfigureAwait(false);
+                var boards = await _boardService.GetAllBoardNamesAsync();
                 return View(boards);
             }
             catch (Exception ex)
