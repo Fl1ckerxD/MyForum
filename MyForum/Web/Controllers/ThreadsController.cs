@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using MyForum.Core.DTOs;
+using MyForum.Application.Extensions;
 using MyForum.Core.Interfaces.Services;
+using MyForum.Web.Requests;
 
 namespace MyForum.Web.Controllers
 {
@@ -40,12 +41,12 @@ namespace MyForum.Web.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(CreateThreadDto createThreadDto, CancellationToken cancellationToken)
+        public async Task<IActionResult> Create([FromBody] CreateThreadRequest request, CancellationToken cancellationToken)
         {
-            if (string.IsNullOrWhiteSpace(createThreadDto.Subject))
-                ModelState.AddModelError(nameof(createThreadDto.Subject), "Введите название трэда.");
-            else if (createThreadDto.Subject.Length > 100)
-                ModelState.AddModelError(nameof(createThreadDto.Subject), "Длина не должна превышать больше 100 символов.");
+            if (string.IsNullOrWhiteSpace(request.Subject))
+                ModelState.AddModelError(nameof(request.Subject), "Введите название трэда.");
+            else if (request.Subject.Length > 100)
+                ModelState.AddModelError(nameof(request.Subject), "Длина не должна превышать больше 100 символов.");
 
             if (!ModelState.IsValid)
             {
@@ -54,61 +55,27 @@ namespace MyForum.Web.Controllers
 
             try
             {
-                var threadId = await _threadService.CreateThreadAsync(createThreadDto.BoardId, createThreadDto.Subject, cancellationToken);
-
-                var ipAddress = GetClientIpAddress();
+                var threadId = await _threadService.CreateThreadAsync(request.BoardId, request.Subject, cancellationToken);
+                var ipAddress = HttpContext.GetClientIp();
                 var userAgent = Request.Headers["User-Agent"].ToString();
 
                 await _postService.CreateAsync(
                     threadId: threadId,
-                    content: createThreadDto.OriginalPost.Content,
-                    authorName: createThreadDto.OriginalPost.AuthorName,
-                    postPassword: createThreadDto.OriginalPost.PostPassword ?? string.Empty,
+                    content: request.OriginalPost.Content,
+                    authorName: request.OriginalPost.AuthorName,
+                    postPassword: request.OriginalPost.PostPassword ?? string.Empty,
                     isOriginalPost: true,
                     ipAddress: ipAddress,
                     userAgent: userAgent,
                     cancellationToken: cancellationToken);
 
-                return RedirectToAction("Index", "Threads", new { createThreadDto.BoardShortName, threadId });
+                return RedirectToAction("Index", "Threads", new { request.BoardShortName, threadId });
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Ошибка при создании треда.");
                 return StatusCode(500, "Ошибка при создании треда.");
             }
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> Delete(int topicId)
-        {
-            try
-            {
-                //await _uow.Topics.DeleteAsync(topicId);
-                //await _uow.SaveAsync();
-
-                //_logger.LogInformation($"Пользователь {User.Identity.Name}({User.GetUserId()}) удалил топик {topicId}");
-                return Ok();
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Ошибка при удалении топика");
-                return StatusCode(500, "Произошла ошибка при обработке запроса.");
-            }
-        }
-
-        private string GetClientIpAddress()
-        {
-            if (Request.Headers.TryGetValue("X-Forwarded-For", out var forwardedFor))
-            {
-                return forwardedFor.FirstOrDefault()?.Split(',').FirstOrDefault()?.Trim();
-            }
-
-            if (Request.Headers.TryGetValue("X-Real-IP", out var realIp))
-            {
-                return realIp.FirstOrDefault();
-            }
-
-            return HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
         }
     }
 }

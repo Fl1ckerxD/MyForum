@@ -1,6 +1,6 @@
-namespace MyForum.Core.DTOs
+namespace MyForum.Web.Requests
 {
-    public record CreatePostDto
+    public record CreatePostRequest
     (
         int ThreadId,
         string Content,
