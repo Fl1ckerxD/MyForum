@@ -5,6 +5,7 @@ namespace MyForum.Web.Requests
         int ThreadId,
         string Content,
         string AuthorName,
-        string? PostPassword
+        string? PostPassword,
+        List<IFormFile>? Files
     );
 }

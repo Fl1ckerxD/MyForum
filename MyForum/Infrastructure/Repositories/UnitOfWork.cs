@@ -12,7 +12,7 @@ namespace MyForum.Infrastructure.Repositories
         public IBoardRepository _boards;
         public IRepository<BoardModerator> _boardModerators;
         public IRepository<Post> _posts;
-        public IRepository<PostFile> _postFiles;
+        public IPostFileRepository _postFiles;
         public IThreadRepository _threads;
 
         public UnitOfWork(ForumDbContext context)
@@ -24,7 +24,7 @@ namespace MyForum.Infrastructure.Repositories
         public IBoardRepository Boards => _boards ??= new BoardRepository(_context);
         public IRepository<BoardModerator> BoardModerators => _boardModerators ??= new Repository<BoardModerator>(_context);
         public IRepository<Post> Posts => _posts ??= new Repository<Post>(_context);
-        public IRepository<PostFile> PostFiles => _postFiles ??= new Repository<PostFile>(_context);
+        public IPostFileRepository PostFiles => _postFiles ??= new PostFileRepository(_context);
         public IThreadRepository Threads => _threads ??= new ThreadRepository(_context);
 
         public async Task<int> SaveAsync(CancellationToken cancellationToken = default)

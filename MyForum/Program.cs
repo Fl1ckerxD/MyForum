@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
+using Minio;
+using Minio.AspNetCore;
 using MyForum.Core.Interfaces.Repositories;
 using MyForum.Core.Interfaces.Services;
 using MyForum.Core.MappingProfiles;
@@ -45,6 +47,13 @@ namespace MyForum
                     opt.EnableForHttps = true;
                     opt.Providers.Add(new GzipCompressionProvider(new GzipCompressionProviderOptions()));
                 });
+                builder.Services.AddMinio(options =>
+                {
+                    options.Endpoint = builder.Configuration["MinIO:Endpoint"] ?? "localhost:9000";
+                    options.AccessKey = builder.Configuration["MinIO:AccessKey"] ?? "minioadmin";
+                    options.SecretKey = builder.Configuration["MinIO:SecretKey"] ?? "minioadmin";
+                    options.ConfigureClient(client => client.WithSSL(bool.Parse(builder.Configuration["MinIO:WithSSL"] ?? "false")));
+                });
 
                 var conString = builder.Configuration.GetConnectionString(nameof(ForumDbContext)) ??
                         throw new InvalidOperationException($"Connection string not found.");
@@ -55,6 +64,7 @@ namespace MyForum
                 builder.Services.AddScoped<IThreadService, ThreadService>();
                 builder.Services.AddScoped<IPostService, PostService>();
                 builder.Services.AddScoped<IIPHasher, SHA256IPHasher>();
+                builder.Services.AddScoped<IFileService, MinioFileService>();
 
                 builder.Services.AddAuthentication("Cookies").AddCookie("Cookies", options =>
                 {

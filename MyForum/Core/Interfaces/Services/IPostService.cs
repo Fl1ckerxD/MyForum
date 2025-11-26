@@ -2,9 +2,8 @@
 {
     public interface IPostService
     {
-        Task CreateAsync(int threadId, string content,
-            string authorName, string postPassword,
-            bool isOriginalPost, string ipAddress,
-            string userAgent, CancellationToken cancellationToken = default);
+        Task CreateAsync(int threadId, string content, string authorName, string postPassword, 
+            bool isOriginalPost, string ipAddress, string userAgent, 
+            List<IFormFile>? files = null, CancellationToken cancellationToken = default);
     }
 }

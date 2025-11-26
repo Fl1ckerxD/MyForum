@@ -8,7 +8,7 @@ namespace MyForum.Core.Interfaces.Repositories
         IBoardRepository Boards { get; }
         IRepository<BoardModerator> BoardModerators { get; }
         IRepository<Post> Posts { get; }
-        IRepository<PostFile> PostFiles { get; }
+        IPostFileRepository PostFiles { get; }
         IThreadRepository Threads { get; }
         Task<int> SaveAsync(CancellationToken cancellationToken = default);
     }

@@ -17,7 +17,7 @@ namespace MyForum.Web.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([FromBody] CreatePostRequest request, CancellationToken cancellationToken)
+        public async Task<IActionResult> Create([FromForm] CreatePostRequest request, CancellationToken cancellationToken)
         {
             if (string.IsNullOrWhiteSpace(request.Content))
                 return BadRequest(new { message = "Комментарий не может быть пустым." });
@@ -38,9 +38,15 @@ namespace MyForum.Web.Controllers
                     isOriginalPost: false,
                     ipAddress: ipAddress,
                     userAgent: userAgent,
+                    files: request.Files,
                     cancellationToken: cancellationToken);
 
-                return Ok();
+                return Ok(new { success = true, message = "Пост создан" });
+            }
+            catch (InvalidOperationException ex)
+            {
+                _logger.LogWarning(ex, "Неверная операция при добавлении комментария.");
+                return BadRequest(new { success = false, message = ex.Message });
             }
             catch (Exception ex)
             {
