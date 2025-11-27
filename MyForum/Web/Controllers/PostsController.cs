@@ -1,7 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using MyForum.Application.Extensions;
 using MyForum.Core.Interfaces.Services;
-using MyForum.Web.Requests;
+using MyForum.Core.DTOs.Requests;
+using FluentValidation;
 
 namespace MyForum.Web.Controllers
 {
@@ -9,21 +10,26 @@ namespace MyForum.Web.Controllers
     {
         private readonly IPostService _postService;
         private readonly ILogger<PostsController> _logger;
-        public PostsController(ILogger<PostsController> logger, IPostService postService)
+        private readonly IValidator<CreatePostRequest> _createPostRequestValidator;
+        public PostsController(ILogger<PostsController> logger, IPostService postService, IValidator<CreatePostRequest> createPostRequestValidator)
         {
             _postService = postService;
             _logger = logger;
+            _createPostRequestValidator = createPostRequestValidator;
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([FromForm] CreatePostRequest request, CancellationToken cancellationToken)
         {
-            if (string.IsNullOrWhiteSpace(request.Content))
-                return BadRequest(new { message = "Комментарий не может быть пустым." });
-
-            else if (request.Content.Length > 15000)
-                return BadRequest(new { message = "Длина комментария не должна превышать 15000 символов." });
+            var validationResult = await _createPostRequestValidator.ValidateAsync(request, cancellationToken);
+            
+            if (!validationResult.IsValid)
+            {
+                foreach (var error in validationResult.Errors)
+                    ModelState.AddModelError(error.PropertyName, error.ErrorMessage);
+                return BadRequest(ModelState);
+            }
 
             try
             {

@@ -1,3 +1,4 @@
+using FluentValidation;
 using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
@@ -6,6 +7,7 @@ using Minio.AspNetCore;
 using MyForum.Core.Interfaces.Repositories;
 using MyForum.Core.Interfaces.Services;
 using MyForum.Core.MappingProfiles;
+using MyForum.Core.Validations;
 using MyForum.Infrastructure.Data;
 using MyForum.Infrastructure.Repositories;
 using MyForum.Infrastructure.Services;
@@ -42,6 +44,7 @@ namespace MyForum
                 // Add services to the container.
                 builder.Services.AddControllersWithViews();
                 builder.Services.AddAutoMapper(typeof(AppMappingProfile));
+                builder.Services.AddValidatorsFromAssemblyContaining<CreatePostRequestValidator>();
                 builder.Services.AddResponseCompression(opt =>
                 {
                     opt.EnableForHttps = true;

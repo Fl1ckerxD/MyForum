@@ -23,9 +23,6 @@ namespace MyForum.Infrastructure.Services
             bool isOriginalPost, string ipAddress, string userAgent,
             List<IFormFile>? files = null, CancellationToken cancellationToken = default)
         {
-            // Валидация файлов
-            //ValidateFiles(files);
-
             var hashedIp = _ipHasher.HashIP(ipAddress);
 
             var post = new Post
@@ -46,11 +43,8 @@ namespace MyForum.Infrastructure.Services
                 if (files != null && files.Any())
                     await ProcessPostFilesAsync(post.Id, files, cancellationToken);
 
-
                 if (isOriginalPost)
-                {
                     await UpdateThreadOriginalPostAsync(threadId, post.Id, cancellationToken);
-                }
             }
             catch (Exception ex)
             {
@@ -95,10 +89,9 @@ namespace MyForum.Infrastructure.Services
             try
             {
                 var postFiles = await _uow.PostFiles.GetByPostIdAsync(postId);
+                
                 foreach (var postFile in postFiles)
-                {
                     await _fileService.DeleteFileAsync(postFile);
-                }
             }
             catch (Exception ex)
             {

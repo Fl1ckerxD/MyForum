@@ -1,7 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using MyForum.Application.Extensions;
 using MyForum.Core.Interfaces.Services;
-using MyForum.Web.Requests;
+using MyForum.Core.DTOs.Requests;
+using FluentValidation;
 
 namespace MyForum.Web.Controllers
 {
@@ -10,12 +11,14 @@ namespace MyForum.Web.Controllers
         private readonly ILogger<ThreadsController> _logger;
         private readonly IThreadService _threadService;
         private readonly IPostService _postService;
+        private readonly IValidator<CreateThreadRequest> _createThreadRequestValidator;
 
-        public ThreadsController(ILogger<ThreadsController> logger, IThreadService threadService, IPostService postService)
+        public ThreadsController(ILogger<ThreadsController> logger, IThreadService threadService, IPostService postService, IValidator<CreateThreadRequest> createThreadRequestValidator)
         {
             _logger = logger;
             _threadService = threadService;
             _postService = postService;
+            _createThreadRequestValidator = createThreadRequestValidator;
         }
 
         public async Task<IActionResult> Index(string boardShortName, int threadId, CancellationToken cancellationToken)
@@ -41,15 +44,14 @@ namespace MyForum.Web.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([FromBody] CreateThreadRequest request, CancellationToken cancellationToken)
+        public async Task<IActionResult> Create([FromForm] CreateThreadRequest request, CancellationToken cancellationToken)
         {
-            if (string.IsNullOrWhiteSpace(request.Subject))
-                ModelState.AddModelError(nameof(request.Subject), "Введите название трэда.");
-            else if (request.Subject.Length > 100)
-                ModelState.AddModelError(nameof(request.Subject), "Длина не должна превышать больше 100 символов.");
+            var validationResult = await _createThreadRequestValidator.ValidateAsync(request, cancellationToken);
 
-            if (!ModelState.IsValid)
+            if (!validationResult.IsValid)
             {
+                foreach (var error in validationResult.Errors)
+                    ModelState.AddModelError(error.PropertyName, error.ErrorMessage);
                 return BadRequest(ModelState);
             }
 

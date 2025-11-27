@@ -1,4 +1,4 @@
-namespace MyForum.Web.Requests
+namespace MyForum.Core.DTOs.Requests
 {
     public record CreateThreadRequest
     (
