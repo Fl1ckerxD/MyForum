@@ -37,65 +37,74 @@ namespace MyForum.Infrastructure.Services
 
             try
             {
-                await _uow.Posts.AddAsync(post, cancellationToken);
-                await _uow.SaveAsync(cancellationToken);
 
                 if (files != null && files.Any())
-                    await ProcessPostFilesAsync(post.Id, files, cancellationToken);
+                    await ProcessPostFilesAsync(post, files, cancellationToken);
+
+                await _uow.Posts.AddAsync(post, cancellationToken);
 
                 if (isOriginalPost)
-                    await UpdateThreadOriginalPostAsync(threadId, post.Id, cancellationToken);
+                    await UpdateThreadOriginalPostAsync(threadId, post, cancellationToken);
+
+                await _uow.SaveAsync(cancellationToken);
             }
             catch (Exception ex)
             {
-                await RollbackFileUploadAsync(post.Id);
+                await RollbackFileUploadAsync(post);
                 _logger.LogError(ex, "Ошибка при создании поста. {@Post}", post);
                 throw;
             }
         }
 
-        private async Task ProcessPostFilesAsync(int postId, List<IFormFile> files, CancellationToken cancellationToken)
+        private async Task ProcessPostFilesAsync(Post post, List<IFormFile> files, CancellationToken cancellationToken)
         {
+            var postFiles = new List<PostFile>();
+
             foreach (var file in files)
             {
                 try
                 {
-                    var postFile = await _fileService.SaveFileAsync(file, postId, cancellationToken);
-                    await _uow.PostFiles.AddAsync(postFile, cancellationToken);
+                    var postFile = await _fileService.SaveFileAsync(file, post, cancellationToken);
+                    postFiles.Add(postFile);
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, "Ошибка при обработке файла для поста с ID '{PostId}'. Файл: {@File}", postId, file.FileName);
+                    // Откатываем уже сохраненные файлы
+                    foreach (var savedFile in postFiles)
+                        await _fileService.DeleteFileAsync(savedFile);
+
+                    _logger.LogError(ex, "Ошибка при обработке файла. Файл: {@File}", file.FileName);
                     throw;
                 }
             }
 
-            await _uow.SaveAsync(cancellationToken);
+            post.Files = postFiles;
         }
 
-        private async Task UpdateThreadOriginalPostAsync(int threadId, int postId, CancellationToken cancellationToken)
+        private async Task UpdateThreadOriginalPostAsync(int threadId, Post post, CancellationToken cancellationToken)
         {
             var thread = await _uow.Threads.GetByIdAsync(threadId, cancellationToken);
             if (thread != null)
             {
-                thread.OriginalPostId = postId;
+                thread.OriginalPost = post;
                 _uow.Threads.Update(thread);
-                await _uow.SaveAsync(cancellationToken);
             }
         }
 
-        private async Task RollbackFileUploadAsync(int postId)
+        private async Task RollbackFileUploadAsync(Post post)
         {
             try
             {
-                var postFiles = await _uow.PostFiles.GetByPostIdAsync(postId);
-                
-                foreach (var postFile in postFiles)
-                    await _fileService.DeleteFileAsync(postFile);
+                // Удаляем файлы из MinIO если они были созданы
+                if (post.Files?.Any() == true)
+                {
+                    foreach (var postFile in post.Files)
+                        await _fileService.DeleteFileAsync(postFile);
+                }
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Ошибка при откате загрузки файлов для поста {PostId}", postId);
+                _logger.LogError(ex, "Ошибка при откате загрузки файлов");
             }
         }
     }

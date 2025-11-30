@@ -14,24 +14,21 @@ namespace MyForum.Infrastructure.Services
 {
     public class MinioFileService : IFileService
 {
-    private readonly MinioClient _minioClient;
+    private readonly IMinioClient _minioClient;
     private readonly IConfiguration _configuration;
-    private readonly IWebHostEnvironment _environment;
     private readonly ILogger<MinioFileService> _logger;
 
     public MinioFileService(
-        MinioClient minioClient, 
+        IMinioClient minioClient, 
         IConfiguration configuration, 
-        IWebHostEnvironment environment,
         ILogger<MinioFileService> logger)
     {
         _minioClient = minioClient;
         _configuration = configuration;
-        _environment = environment;
         _logger = logger;
     }
 
-    public async Task<PostFile> SaveFileAsync(IFormFile file, int postId, CancellationToken cancellationToken = default)
+    public async Task<PostFile> SaveFileAsync(IFormFile file, Post post, CancellationToken cancellationToken = default)
     {
         // Создаем уникальное имя файла
         var extension = Path.GetExtension(file.FileName).ToLowerInvariant();
@@ -70,7 +67,7 @@ namespace MyForum.Infrastructure.Services
                 imageHeight = image.Height;
                 
                 // Создаем превью
-                thumbnailKey = await CreateThumbnailAsync(file, bucketName, storedFileName, extension, cancellationToken);
+                thumbnailKey = await CreateThumbnailAsync(fileStream, bucketName, storedFileName, extension, cancellationToken);
                 
                 // Получаем размеры превью
                 var thumbnailSize = await GetImageDimensionsAsync(bucketName, thumbnailKey);
@@ -95,17 +92,17 @@ namespace MyForum.Infrastructure.Services
             ThumbnailKey = thumbnailKey,
             ThumbnailWidth = thumbnailWidth,
             ThumbnailHeight = thumbnailHeight,
-            PostId = postId,
+            Post = post,
             BucketName = bucketName
         };
     }
 
-    private async Task<string> CreateThumbnailAsync(IFormFile file, string bucketName, string originalKey, string extension, CancellationToken cancellationToken)
+    private async Task<string> CreateThumbnailAsync(Stream fileStream, string bucketName, string originalKey, string extension, CancellationToken cancellationToken)
     {
         var thumbnailKey = $"{Path.GetFileNameWithoutExtension(originalKey)}_thumb{Path.GetExtension(originalKey)}";
         
-        using var stream = file.OpenReadStream();
-        using var image = await Image.LoadAsync(stream);
+        fileStream.Position = 0;
+        using var image = await Image.LoadAsync(fileStream);
         
         // Ресайзим изображение с сохранением пропорций
         var resizeOptions = new ResizeOptions

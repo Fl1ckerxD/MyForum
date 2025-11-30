@@ -43,7 +43,7 @@ namespace MyForum.Core.Validations
 
         private bool BeSupportedFileType(string fileName)
         {
-            var allowedExtensions = _configuration.GetValue<string[]>("MinIO:AllowedExtensions");
+            var allowedExtensions = _configuration.GetSection("MinIO:AllowedExtensions").Get<string[]>();
             var extension = Path.GetExtension(fileName).ToLowerInvariant();
             return allowedExtensions.Contains(extension);
         }
