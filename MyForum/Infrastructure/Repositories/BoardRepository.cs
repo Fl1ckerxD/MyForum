@@ -21,10 +21,9 @@ namespace MyForum.Infrastructure.Repositories
         public async Task<Board?> GetBoardWithThreadsAndPostsAsync(string boardShortName, CancellationToken cancellationToken = default)
         {
             return await _context.Boards
-                .Where(b => b.ShortName == boardShortName)
                 .Include(b => b.Threads)
                     .ThenInclude(p => p.Posts)
-                .FirstOrDefaultAsync(cancellationToken);
+                .FirstOrDefaultAsync(b => b.ShortName == boardShortName, cancellationToken);
         }
     }
 }

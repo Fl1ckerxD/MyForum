@@ -3,9 +3,9 @@ using MyForum.Core.DTOs.Requests;
 
 namespace MyForum.Core.Validations
 {
-    public class CreateThreadsRequestValidator : AbstractValidator<CreateThreadRequest>
+    public class CreateThreadRequestValidator : AbstractValidator<CreateThreadRequest>
     {
-        public CreateThreadsRequestValidator(IConfiguration configuration)
+        public CreateThreadRequestValidator(IConfiguration configuration)
         {
             RuleFor(x => x.Subject)
                 .NotEmpty().WithMessage("Тема треда обязательна")

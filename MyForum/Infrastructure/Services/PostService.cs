@@ -37,7 +37,6 @@ namespace MyForum.Infrastructure.Services
 
             try
             {
-
                 if (files != null && files.Any())
                     await ProcessPostFilesAsync(post, files, cancellationToken);
 

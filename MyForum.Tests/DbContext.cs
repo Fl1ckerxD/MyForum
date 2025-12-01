@@ -5,10 +5,10 @@ namespace MyForum.Tests
 {
     public static class DbContext
     {
-        public static DbContextOptions<ForumDbContext> GetOptions()
+        public static DbContextOptions<ForumDbContext> GetOptions(string dbName = "TestDb")
         {
             return new DbContextOptionsBuilder<ForumDbContext>()
-                .UseInMemoryDatabase(databaseName: "TestDatabase")
+                .UseInMemoryDatabase(databaseName: dbName)
                 .Options;
         }
 
