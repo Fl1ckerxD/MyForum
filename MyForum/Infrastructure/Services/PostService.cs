@@ -1,6 +1,8 @@
+using System.Transactions;
 using MyForum.Core.Entities;
 using MyForum.Core.Interfaces.Repositories;
 using MyForum.Core.Interfaces.Services;
+using Thread = MyForum.Core.Entities.Thread;
 
 namespace MyForum.Infrastructure.Services
 {
@@ -19,21 +21,51 @@ namespace MyForum.Infrastructure.Services
             _ipHasher = ipHasher;
         }
 
+        /// <summary>
+        /// Создает пост, привязанный к существующему треду по его ID
+        /// </summary>
         public async Task CreateAsync(int threadId, string content, string authorName, string postPassword,
-            bool isOriginalPost, string ipAddress, string userAgent,
-            List<IFormFile>? files = null, CancellationToken cancellationToken = default)
+            string ipAddress, string userAgent, List<IFormFile>? files = null, CancellationToken cancellationToken = default)
         {
-            var hashedIp = _ipHasher.HashIP(ipAddress);
-
             var post = new Post
             {
                 ThreadId = threadId,
                 Content = content,
                 AuthorName = authorName,
                 PostPassword = postPassword,
-                IpAddress = hashedIp,
-                UserAgent = userAgent,
+                UserAgent = userAgent
             };
+
+            await CreateAsync(post, ipAddress, files, cancellationToken);
+        }
+
+        /// <summary>
+        /// Создает оригинальный пост для нового треда
+        /// </summary>
+        /// <param name="thread">Объект треда (будет сохранен вместе с постом)</param>
+        public async Task CreateAsync(Thread thread, string content, string authorName, string postPassword,
+            string ipAddress, string userAgent, List<IFormFile>? files = null, CancellationToken cancellationToken = default)
+        {
+            var post = new Post
+            {
+                Thread = thread,
+                Content = content,
+                AuthorName = authorName,
+                PostPassword = postPassword,
+                UserAgent = userAgent
+            };
+
+            thread.OriginalPost = post;
+
+            await CreateAsync(post, ipAddress, files, cancellationToken);
+        }
+
+        private async Task CreateAsync(Post post, string ipAddress, List<IFormFile>? files = null, CancellationToken cancellationToken = default)
+        {
+            var hashedIp = _ipHasher.HashIP(ipAddress);
+            post.IpAddress = hashedIp;
+
+            using var transactionScope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
 
             try
             {
@@ -41,11 +73,9 @@ namespace MyForum.Infrastructure.Services
                     await ProcessPostFilesAsync(post, files, cancellationToken);
 
                 await _uow.Posts.AddAsync(post, cancellationToken);
-
-                if (isOriginalPost)
-                    await UpdateThreadOriginalPostAsync(threadId, post, cancellationToken);
-
                 await _uow.SaveAsync(cancellationToken);
+
+                transactionScope.Complete();
             }
             catch (Exception ex)
             {
@@ -78,16 +108,6 @@ namespace MyForum.Infrastructure.Services
             }
 
             post.Files = postFiles;
-        }
-
-        private async Task UpdateThreadOriginalPostAsync(int threadId, Post post, CancellationToken cancellationToken)
-        {
-            var thread = await _uow.Threads.GetByIdAsync(threadId, cancellationToken);
-            if (thread != null)
-            {
-                thread.OriginalPost = post;
-                _uow.Threads.Update(thread);
-            }
         }
 
         private async Task RollbackFileUploadAsync(Post post)

@@ -10,14 +10,12 @@ namespace MyForum.Web.Controllers
     {
         private readonly ILogger<ThreadsController> _logger;
         private readonly IThreadService _threadService;
-        private readonly IPostService _postService;
         private readonly IValidator<CreateThreadRequest> _createThreadRequestValidator;
 
-        public ThreadsController(ILogger<ThreadsController> logger, IThreadService threadService, IPostService postService, IValidator<CreateThreadRequest> createThreadRequestValidator)
+        public ThreadsController(ILogger<ThreadsController> logger, IThreadService threadService, IValidator<CreateThreadRequest> createThreadRequestValidator)
         {
             _logger = logger;
             _threadService = threadService;
-            _postService = postService;
             _createThreadRequestValidator = createThreadRequestValidator;
         }
 
@@ -57,16 +55,15 @@ namespace MyForum.Web.Controllers
 
             try
             {
-                var threadId = await _threadService.CreateThreadAsync(request.BoardId, request.Subject, cancellationToken);
                 var ipAddress = HttpContext.GetClientIp();
                 var userAgent = Request.Headers["User-Agent"].ToString();
 
-                await _postService.CreateAsync(
-                    threadId: threadId,
-                    content: request.OriginalPost.Content,
+                var threadId = await _threadService.CreateThreadWithPostAsync(
+                    boardId: request.BoardId,
+                    subject: request.Subject,
+                    postContent: request.OriginalPost.Content,
                     authorName: request.OriginalPost.AuthorName,
                     postPassword: request.OriginalPost.PostPassword ?? string.Empty,
-                    isOriginalPost: true,
                     ipAddress: ipAddress,
                     userAgent: userAgent,
                     cancellationToken: cancellationToken);

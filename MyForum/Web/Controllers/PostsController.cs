@@ -41,7 +41,6 @@ namespace MyForum.Web.Controllers
                     content: request.Content,
                     authorName: request.AuthorName,
                     postPassword: request.PostPassword ?? string.Empty,
-                    isOriginalPost: false,
                     ipAddress: ipAddress,
                     userAgent: userAgent,
                     files: request.Files,

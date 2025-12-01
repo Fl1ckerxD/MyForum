@@ -41,7 +41,6 @@ namespace MyForum.Tests.Services
             var content = "Test content";
             var authorName = "Test Author";
             var postPassword = "password";
-            var isOriginalPost = false;
             var ipAddress = "192.168.1.1";
             var userAgent = "UnitTestAgent";
 
@@ -52,7 +51,7 @@ namespace MyForum.Tests.Services
 
             // Act
             await _postService.CreateAsync(threadId, content, authorName, postPassword,
-                isOriginalPost, ipAddress, userAgent, null);
+                ipAddress, userAgent, null);
 
             // Assert
             mockPostRepo.Verify(repo => repo.AddAsync(It.Is<Post>(p =>
@@ -75,7 +74,6 @@ namespace MyForum.Tests.Services
             var content = "Test content";
             var authorName = "Test Author";
             var postPassword = "password";
-            var isOriginalPost = false;
             var ipAddress = "192.168.1.1";
             var userAgent = "UnitTestAgent";
 
@@ -98,7 +96,7 @@ namespace MyForum.Tests.Services
 
             // Act
             await _postService.CreateAsync(threadId, content, authorName, postPassword,
-                isOriginalPost, ipAddress, userAgent, files);
+                ipAddress, userAgent, files);
 
             // Assert
             mockPostRepo.Verify(repo => repo.AddAsync(It.Is<Post>(p =>
@@ -115,39 +113,37 @@ namespace MyForum.Tests.Services
         }
 
         [Fact]
-        public async Task CreateAsync_AsOriginalPost_ShouldUpdateThread()
+        public async Task CreateAsync_AsOriginalPost_ShouldCreatePostWithThread()
         {
             // Arrange
-            var threadId = 1;
+            var thread = new Thread
+            {
+                Subject = "Test Thread",
+                BoardId = 1
+            };
+
             var postId = 123;
             var content = "Test content";
             var authorName = "Test Author";
             var postPassword = "password";
-            var isOriginalPost = true;
             var ipAddress = "192.168.1.1";
             var userAgent = "UnitTestAgent";
 
             var mockPostRepo = new Mock<IRepository<Post>>();
-            var mockThreadRepo = new Mock<IThreadRepository>();
 
             _mockUnitOfWork.Setup(uow => uow.Posts).Returns(mockPostRepo.Object);
-            _mockUnitOfWork.Setup(uow => uow.Threads).Returns(mockThreadRepo.Object);
             _mockUnitOfWork.Setup(uow => uow.SaveAsync(It.IsAny<CancellationToken>())).ReturnsAsync(1);
-
-            var thread = new Thread { Id = threadId };
-            mockThreadRepo.Setup(repo => repo.GetByIdAsync(threadId, It.IsAny<CancellationToken>()))
-                .ReturnsAsync(thread);
 
             mockPostRepo.Setup(repo => repo.AddAsync(It.IsAny<Post>(), It.IsAny<CancellationToken>()))
                 .Callback<Post, CancellationToken>((post, ct) => post.Id = postId);
 
             // Act
-            await _postService.CreateAsync(threadId, content, authorName, postPassword,
-                isOriginalPost, ipAddress, userAgent, null);
+            await _postService.CreateAsync(thread, content, authorName, postPassword,
+                ipAddress, userAgent, null);
 
             // Assert
             mockPostRepo.Verify(repo => repo.AddAsync(It.Is<Post>(p =>
-                p.ThreadId == threadId &&
+                p.Thread == thread &&
                 p.Content == content &&
                 p.AuthorName == authorName &&
                 p.PostPassword == postPassword &&
@@ -155,7 +151,6 @@ namespace MyForum.Tests.Services
                 p.UserAgent == userAgent
             ), It.IsAny<CancellationToken>()), Times.Once);
 
-            mockThreadRepo.Verify(repo => repo.Update(It.Is<Thread>(t => t.OriginalPost.Id == postId && t.Id == threadId)), Times.Once);
             _mockUnitOfWork.Verify(uow => uow.SaveAsync(It.IsAny<CancellationToken>()), Times.Once);
         }
     }
