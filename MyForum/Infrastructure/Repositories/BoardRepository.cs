@@ -25,5 +25,11 @@ namespace MyForum.Infrastructure.Repositories
                     .ThenInclude(p => p.Posts)
                 .FirstOrDefaultAsync(b => b.ShortName == boardShortName, cancellationToken);
         }
+
+        public Task<Board?> GetByShortNameAsync(string shortName, CancellationToken cancellationToken = default)
+        {
+            return _context.Boards
+                .FirstOrDefaultAsync(b => b.ShortName == shortName, cancellationToken);
+        }
     }
 }

@@ -1,5 +1,6 @@
 using AutoMapper;
 using MyForum.Core.DTOs;
+using MyForum.Core.DTOs.Common;
 using MyForum.Core.Interfaces.Repositories;
 using MyForum.Core.Interfaces.Services;
 using Thread = MyForum.Core.Entities.Thread;
@@ -23,7 +24,7 @@ namespace MyForum.Infrastructure.Services
 
         public async Task<ThreadDto?> GetThreadWithPostsById(string boardShortName, int id, CancellationToken cancellationToken = default)
         {
-            var thread = await _uow.Threads.GetThreadWithPostsById(boardShortName, id, cancellationToken);
+            var thread = await _uow.Threads.GetThreadWithPostsByIdAsync(boardShortName, id, cancellationToken);
             return _mapper.Map<ThreadDto?>(thread);
         }
 
@@ -40,6 +41,18 @@ namespace MyForum.Infrastructure.Services
             await _postService.CreateAsync(thread, postContent, authorName, postPassword, ipAddress, userAgent, files, cancellationToken);
 
             return thread.Id;
+        }
+
+        public async Task<PagedResult<ThreadDto>> GetThreadsPagedAsync(string boardShortName, int pageNumber, int pageSize, CancellationToken cancellationToken = default)
+        {
+            var board = await _uow.Boards.GetByShortNameAsync(boardShortName, cancellationToken);
+            if (board == null) throw new KeyNotFoundException($"Доска '{boardShortName}' не найдена");
+
+            var pagedThreads = await _uow.Threads.GetPagedThreadsByBoardWithPostsAsync(
+            board.Id, pageNumber, pageSize, cancellationToken);
+
+            var threadDtos = _mapper.Map<List<ThreadDto>>(pagedThreads.Items);
+            return new PagedResult<ThreadDto>(threadDtos, pagedThreads.TotalCount, pageNumber, pageSize);
         }
     }
 }
