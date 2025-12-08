@@ -1,4 +1,7 @@
 using System.Transactions;
+using AutoMapper;
+using MyForum.Core.DTOs;
+using MyForum.Core.DTOs.Common;
 using MyForum.Core.Entities;
 using MyForum.Core.Interfaces.Repositories;
 using MyForum.Core.Interfaces.Services;
@@ -12,13 +15,15 @@ namespace MyForum.Infrastructure.Services
         private readonly IUnitOfWork _uow;
         private readonly IFileService _fileService;
         private readonly IIPHasher _ipHasher;
+        private readonly IMapper _mapper;
 
-        public PostService(ILogger<PostService> logger, IUnitOfWork uow, IFileService fileService, IIPHasher ipHasher)
+        public PostService(ILogger<PostService> logger, IUnitOfWork uow, IFileService fileService, IIPHasher ipHasher, IMapper mapper)
         {
             _logger = logger;
             _uow = uow;
             _fileService = fileService;
             _ipHasher = ipHasher;
+            _mapper = mapper;
         }
 
         /// <summary>
@@ -58,6 +63,23 @@ namespace MyForum.Infrastructure.Services
             thread.OriginalPost = post;
 
             await CreateAsync(post, ipAddress, files, cancellationToken);
+        }
+
+        public async Task<PagedResult<PostDto>> GetPagedPostsByThreadIdAsync(int threadId, int pageNumber, int pageSize, CancellationToken cancellationToken = default)
+        {
+            var thread = await _uow.Threads.GetByIdAsync(threadId, cancellationToken);
+            if (thread == null) throw new KeyNotFoundException($"Тред {threadId} не найден");
+
+            var pagedPosts = await _uow.Posts.GetPagedPostsByThreadIdAsync(
+                threadId, pageNumber, pageSize, cancellationToken);
+
+            var postDtos = _mapper.Map<List<PostDto>>(pagedPosts.Items);
+
+            return new PagedResult<PostDto>(
+                postDtos,
+                pagedPosts.TotalCount,
+                pagedPosts.PageNumber,
+                pagedPosts.PageSize);
         }
 
         private async Task CreateAsync(Post post, string ipAddress, List<IFormFile>? files = null, CancellationToken cancellationToken = default)

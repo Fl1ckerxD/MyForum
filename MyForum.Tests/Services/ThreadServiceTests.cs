@@ -27,7 +27,6 @@ namespace MyForum.Tests.Services
                 _mockUnitOfWork.Object,
                 _mockMapper.Object,
                 _mockPostService.Object);
-
         }
 
         [Fact]

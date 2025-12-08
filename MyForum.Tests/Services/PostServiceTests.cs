@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Moq;
 using MyForum.Core.Entities;
@@ -15,6 +16,7 @@ namespace MyForum.Tests.Services
         private readonly Mock<ILogger<PostService>> _mockLogger;
         private readonly Mock<IFileService> _mockFileService;
         private readonly Mock<IIPHasher> _mockIpHasher;
+        private readonly Mock<IMapper> _mockMapper;
         private readonly PostService _postService;
         public PostServiceTests()
         {
@@ -22,6 +24,7 @@ namespace MyForum.Tests.Services
             _mockLogger = new Mock<ILogger<PostService>>();
             _mockFileService = new Mock<IFileService>();
             _mockIpHasher = new Mock<IIPHasher>();
+            _mockMapper = new Mock<IMapper>();
 
             _mockIpHasher.Setup(hasher => hasher.HashIP(It.IsAny<string>())).Returns("hashed_ip");
 
@@ -29,7 +32,8 @@ namespace MyForum.Tests.Services
                 _mockLogger.Object,
                 _mockUnitOfWork.Object,
                 _mockFileService.Object,
-                _mockIpHasher.Object);
+                _mockIpHasher.Object,
+                _mockMapper.Object);
 
         }
 
@@ -44,7 +48,7 @@ namespace MyForum.Tests.Services
             var ipAddress = "192.168.1.1";
             var userAgent = "UnitTestAgent";
 
-            var mockPostRepo = new Mock<IRepository<Post>>();
+            var mockPostRepo = new Mock<IPostRepository>();
 
             _mockUnitOfWork.Setup(uow => uow.Posts).Returns(mockPostRepo.Object);
             _mockUnitOfWork.Setup(uow => uow.SaveAsync(It.IsAny<CancellationToken>())).ReturnsAsync(1);
@@ -84,7 +88,7 @@ namespace MyForum.Tests.Services
 
             var files = new List<IFormFile> { mockFile.Object };
 
-            var mockPostRepo = new Mock<IRepository<Post>>();
+            var mockPostRepo = new Mock<IPostRepository>();
             var mockPostFileRepo = new Mock<IPostFileRepository>();
 
             _mockUnitOfWork.Setup(uow => uow.Posts).Returns(mockPostRepo.Object);
@@ -129,7 +133,7 @@ namespace MyForum.Tests.Services
             var ipAddress = "192.168.1.1";
             var userAgent = "UnitTestAgent";
 
-            var mockPostRepo = new Mock<IRepository<Post>>();
+            var mockPostRepo = new Mock<IPostRepository>();
 
             _mockUnitOfWork.Setup(uow => uow.Posts).Returns(mockPostRepo.Object);
             _mockUnitOfWork.Setup(uow => uow.SaveAsync(It.IsAny<CancellationToken>())).ReturnsAsync(1);

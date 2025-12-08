@@ -3,9 +3,6 @@ using MyForum.Core.DTOs.Common;
 using MyForum.Core.Interfaces.Repositories;
 using MyForum.Infrastructure.Data;
 using Thread = MyForum.Core.Entities.Thread;
-using X.PagedList;
-using X.PagedList.Extensions;
-using X.PagedList.Mvc.Core;
 
 namespace MyForum.Infrastructure.Repositories
 {

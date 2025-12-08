@@ -11,7 +11,7 @@ namespace MyForum.Infrastructure.Repositories
         public IRepository<Ban> _bans;
         public IBoardRepository _boards;
         public IRepository<BoardModerator> _boardModerators;
-        public IRepository<Post> _posts;
+        public IPostRepository _posts;
         public IPostFileRepository _postFiles;
         public IThreadRepository _threads;
 
@@ -23,7 +23,7 @@ namespace MyForum.Infrastructure.Repositories
         public IRepository<Ban> Bans => _bans ??= new Repository<Ban>(_context);
         public IBoardRepository Boards => _boards ??= new BoardRepository(_context);
         public IRepository<BoardModerator> BoardModerators => _boardModerators ??= new Repository<BoardModerator>(_context);
-        public IRepository<Post> Posts => _posts ??= new Repository<Post>(_context);
+        public IPostRepository Posts => _posts ??= new PostRepository(_context);
         public IPostFileRepository PostFiles => _postFiles ??= new PostFileRepository(_context);
         public IThreadRepository Threads => _threads ??= new ThreadRepository(_context);
 
