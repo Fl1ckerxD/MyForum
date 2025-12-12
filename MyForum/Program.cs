@@ -1,9 +1,12 @@
 using FluentValidation;
+using HealthChecks.UI.Client;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
 using Minio;
 using Minio.AspNetCore;
+using Minio.AspNetCore.HealthChecks;
 using MyForum.Core.Interfaces.Repositories;
 using MyForum.Core.Interfaces.Services;
 using MyForum.Core.MappingProfiles;
@@ -61,6 +64,10 @@ namespace MyForum
                 var conString = builder.Configuration.GetConnectionString(nameof(ForumDbContext)) ??
                         throw new InvalidOperationException($"Connection string not found.");
                 builder.Services.AddDbContext<ForumDbContext>(options => options.UseNpgsql(conString));
+
+                builder.Services.AddHealthChecks()
+                    .AddNpgSql(conString)
+                    .AddMinio(sp => sp.GetRequiredService<IMinioClient>());
 
                 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
                 builder.Services.AddScoped<IBoardService, BoardService>();
@@ -126,6 +133,11 @@ namespace MyForum
                     response.ContentType = "text/html; charset=UTF-8";
                     if (response.StatusCode == 404)
                         await response.SendFileAsync("Views/Shared/NotFound.cshtml");
+                });
+
+                app.MapHealthChecks("/health", new HealthCheckOptions
+                {
+                    ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
                 });
 
                 app.MapControllerRoute(
