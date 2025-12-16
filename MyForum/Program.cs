@@ -5,15 +5,15 @@ using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
 using Minio;
-using Minio.AspNetCore;
-using Minio.AspNetCore.HealthChecks;
 using MyForum.Core.Interfaces.Repositories;
 using MyForum.Core.Interfaces.Services;
 using MyForum.Core.MappingProfiles;
 using MyForum.Core.Validations;
 using MyForum.Infrastructure.Data;
+using MyForum.Infrastructure.HealthChecks;
 using MyForum.Infrastructure.Repositories;
 using MyForum.Infrastructure.Services;
+using OpenTelemetry.Metrics;
 using Serilog;
 
 namespace MyForum
@@ -28,9 +28,18 @@ namespace MyForum
                 .WriteTo.Console()
                 .CreateBootstrapLogger();
 
+
             try
             {
                 var builder = WebApplication.CreateBuilder(args);
+
+                var conString = builder.Configuration.GetConnectionString(nameof(ForumDbContext)) ??
+                            throw new InvalidOperationException($"Connection string not found.");
+
+                var minioEndpoint = builder.Configuration["MinIO:Endpoint"];
+                var minioAccessKey = builder.Configuration["MinIO:AccessKey"];
+                var minioSecretKey = builder.Configuration["MinIO:SecretKey"];
+                var minioWithSsl = builder.Configuration.GetValue<bool>("MinIO:WithSSL");
 
                 builder.Host.UseSerilog((context, services, configuration) => configuration
                     .ReadFrom.Configuration(context.Configuration)
@@ -48,26 +57,38 @@ namespace MyForum
                 builder.Services.AddControllersWithViews();
                 builder.Services.AddAutoMapper(typeof(AppMappingProfile));
                 builder.Services.AddValidatorsFromAssemblyContaining<CreatePostRequestValidator>();
+
                 builder.Services.AddResponseCompression(opt =>
                 {
                     opt.EnableForHttps = true;
                     opt.Providers.Add(new GzipCompressionProvider(new GzipCompressionProviderOptions()));
                 });
-                builder.Services.AddMinio(options =>
-                {
-                    options.Endpoint = builder.Configuration["MinIO:Endpoint"] ?? "localhost:9000";
-                    options.AccessKey = builder.Configuration["MinIO:AccessKey"] ?? "minioadmin";
-                    options.SecretKey = builder.Configuration["MinIO:SecretKey"] ?? "minioadmin";
-                    options.ConfigureClient(client => client.WithSSL(bool.Parse(builder.Configuration["MinIO:WithSSL"] ?? "false")));
-                });
 
-                var conString = builder.Configuration.GetConnectionString(nameof(ForumDbContext)) ??
-                        throw new InvalidOperationException($"Connection string not found.");
+                builder.Services.AddMinio(configureClient => configureClient
+                    .WithEndpoint(minioEndpoint)
+                    .WithCredentials(minioAccessKey, minioSecretKey)
+                    .WithSSL(minioWithSsl)
+                    .Build());
+
                 builder.Services.AddDbContext<ForumDbContext>(options => options.UseNpgsql(conString));
 
                 builder.Services.AddHealthChecks()
                     .AddNpgSql(conString)
-                    .AddMinio(sp => sp.GetRequiredService<IMinioClient>());
+                    .AddCheck<MinioHealthCheck>("MinIO_Health_Check");
+
+                builder.Services.AddOpenTelemetry()
+                    .WithMetrics(metrics =>
+                    {
+                        metrics.AddPrometheusExporter();
+
+                        // Встроенные метрики ASP.NET Core
+                        metrics.AddAspNetCoreInstrumentation();
+                        metrics.AddHttpClientInstrumentation();
+                        metrics.AddRuntimeInstrumentation();
+
+                        // Собственные метрики для форума
+                        metrics.AddMeter("MyForum.Metrics");
+                    });
 
                 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
                 builder.Services.AddScoped<IBoardService, BoardService>();
@@ -139,6 +160,8 @@ namespace MyForum
                 {
                     ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
                 });
+
+                app.UseOpenTelemetryPrometheusScrapingEndpoint();
 
                 app.MapControllerRoute(
                     name: "thread",

@@ -11,10 +11,21 @@ namespace MyForum.Infrastructure.Data
 
             try
             {
-                logger.LogInformation("Starting database migration...");
+                logger.LogInformation("Checking for pending migrations...");
 
                 if (context.Database.IsNpgsql())
-                    await context.Database.MigrateAsync();
+                {
+                    var pendingMigrations = await context.Database.GetPendingMigrationsAsync();
+                    if (pendingMigrations.Any())
+                    {
+                        logger.LogInformation("Applying {Count} pending migrations...", pendingMigrations.Count());
+                        await context.Database.MigrateAsync();
+                    }
+                    else
+                    {
+                        logger.LogInformation("Database is up to date, no migrations needed.");
+                    }
+                }
 
                 logger.LogInformation("Checking for existing boards...");
 
@@ -36,7 +47,7 @@ namespace MyForum.Infrastructure.Data
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, "An error occurred while seeding the database (Attempt {Retry}/{MaxRetry})", retry+1, maxRetryCount);
+                logger.LogError(ex, "An error occurred while seeding the database (Attempt {Retry}/{MaxRetry})", retry + 1, maxRetryCount);
                 if (retry >= maxRetryCount - 1)
                 {
                     logger.LogError("Max retry count reached, stopping seed attempts");

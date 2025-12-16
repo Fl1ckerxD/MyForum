@@ -3,6 +3,7 @@ using MyForum.Core.DTOs;
 using MyForum.Core.DTOs.Common;
 using MyForum.Core.Interfaces.Repositories;
 using MyForum.Core.Interfaces.Services;
+using MyForum.Core.Metrics;
 using Thread = MyForum.Core.Entities.Thread;
 
 namespace MyForum.Infrastructure.Services
@@ -40,6 +41,7 @@ namespace MyForum.Infrastructure.Services
 
             await _postService.CreateAsync(thread, postContent, authorName, postPassword, ipAddress, userAgent, files, cancellationToken);
 
+            ForumMetrics.ThreadsCreated.Add(1);
             return thread.Id;
         }
 

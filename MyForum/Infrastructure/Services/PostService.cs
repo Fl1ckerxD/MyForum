@@ -5,6 +5,7 @@ using MyForum.Core.DTOs.Common;
 using MyForum.Core.Entities;
 using MyForum.Core.Interfaces.Repositories;
 using MyForum.Core.Interfaces.Services;
+using MyForum.Core.Metrics;
 using Thread = MyForum.Core.Entities.Thread;
 
 namespace MyForum.Infrastructure.Services
@@ -98,6 +99,8 @@ namespace MyForum.Infrastructure.Services
                 await _uow.SaveAsync(cancellationToken);
 
                 transactionScope.Complete();
+                
+                ForumMetrics.PostsCreated.Add(1);
             }
             catch (Exception ex)
             {

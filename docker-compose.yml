@@ -1,0 +1,102 @@
+services:
+  nginx:
+      image: nginx:alpine
+      ports:
+        - "80:80"
+        - "443:443"
+      depends_on:
+        - myforum
+      networks:
+        - myforum-network
+
+  myforum:
+    build:
+      context: .
+      dockerfile: MyForum/Dockerfile
+    container_name: MyForum
+    ports:
+      - "8080:80"
+    environment:
+        - ASPNETCORE_ENVIRONMENT=Production
+        - ASPNETCORE_URLS=http://+:80
+    depends_on:
+      - db
+      - minio
+    networks:
+      - myforum-network
+    restart: unless-stopped
+
+  db:
+    image: postgres:15
+    container_name: MyForum-postgresql
+    environment:
+      - POSTGRES_USER=forum
+      - POSTGRES_PASSWORD=MyStrong@Passw0rd
+      - POSTGRES_DB=myforumdb
+    volumes:
+      - psql-data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - myforum-network
+    restart: unless-stopped
+  
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: myforum-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=200h'
+      - '--web.enable-lifecycle'
+    networks:
+      - myforum-network
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana-oss:latest
+    container_name: myforum-grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_USERS_ALLOW_SIGN_UP=false
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning
+    networks:
+      - myforum-network
+    restart: unless-stopped
+    depends_on:
+      - prometheus
+
+  minio:
+    image: minio/minio:latest
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      - MINIO_ROOT_USER=minioadmin
+      - MINIO_ROOT_PASSWORD=MyStrong@Passw0rd
+    command: server /data
+    volumes:
+      - minio-data:/data
+    networks:
+      - myforum-network
+
+networks:
+  myforum-network:
+    driver: bridge
+  
+volumes:
+  psql-data:
+  grafana_data:
+  minio-data:
+  prometheus_data:
