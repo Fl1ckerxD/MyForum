@@ -22,13 +22,6 @@ namespace MyForum
     {
         public static async Task Main(string[] args)
         {
-            Log.Logger = new LoggerConfiguration()
-                .MinimumLevel.Override("Microsoft", Serilog.Events.LogEventLevel.Information)
-                .Enrich.FromLogContext()
-                .WriteTo.Console()
-                .CreateBootstrapLogger();
-
-
             try
             {
                 var builder = WebApplication.CreateBuilder(args);
@@ -43,9 +36,7 @@ namespace MyForum
 
                 builder.Host.UseSerilog((context, services, configuration) => configuration
                     .ReadFrom.Configuration(context.Configuration)
-                    .ReadFrom.Services(services)
-                    .Enrich.FromLogContext()
-                    .WriteTo.Console());
+                    .ReadFrom.Services(services));
 
                 builder.Services.AddControllersWithViews().AddRazorOptions(options =>
                 {

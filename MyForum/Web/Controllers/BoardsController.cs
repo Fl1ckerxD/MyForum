@@ -30,7 +30,7 @@ namespace MyForum.Web.Controllers
                     _logger.LogWarning("Категория с именем '{BoardShortName}' не найдена.", boardShortName);
                     return NotFound();
                 }
-
+                _logger.LogInformation("Категория '{BoardShortName}' успешно получена.", boardShortName);
                 return View(board);
             }
             catch (Exception ex)

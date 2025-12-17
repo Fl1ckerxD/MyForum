@@ -21,6 +21,7 @@ namespace MyForum.Web.Controllers
             try
             {
                 var boards = await _boardService.GetAllBoardNamesAsync();
+                _logger.LogInformation("Названия досок успешно загружены");
                 return View(boards);
             }
             catch (Exception ex)
