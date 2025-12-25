@@ -1,4 +1,5 @@
 using FluentValidation;
+using HealthChecks.Prometheus.Metrics;
 using HealthChecks.UI.Client;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Mvc.Razor;
@@ -8,6 +9,7 @@ using Minio;
 using MyForum.Core.Interfaces.Repositories;
 using MyForum.Core.Interfaces.Services;
 using MyForum.Core.MappingProfiles;
+using MyForum.Core.Metrics;
 using MyForum.Core.Validations;
 using MyForum.Infrastructure.Data;
 using MyForum.Infrastructure.HealthChecks;
@@ -65,19 +67,17 @@ namespace MyForum
 
                 builder.Services.AddHealthChecks()
                     .AddNpgSql(conString)
-                    .AddCheck<MinioHealthCheck>("MinIO_Health_Check");
+                    .AddCheck<MinioHealthCheck>("MinIO");
 
                 builder.Services.AddOpenTelemetry()
                     .WithMetrics(metrics =>
                     {
                         metrics.AddPrometheusExporter();
 
-                        // Встроенные метрики ASP.NET Core
                         metrics.AddAspNetCoreInstrumentation();
                         metrics.AddHttpClientInstrumentation();
                         metrics.AddRuntimeInstrumentation();
 
-                        // Собственные метрики для форума
                         metrics.AddMeter("MyForum.Metrics");
                     });
 
@@ -87,6 +87,8 @@ namespace MyForum
                 builder.Services.AddScoped<IPostService, PostService>();
                 builder.Services.AddScoped<IIPHasher, SHA256IPHasher>();
                 builder.Services.AddScoped<IFileService, MinioFileService>();
+
+                builder.Services.AddSingleton<ForumMetrics>();
 
                 builder.Services.AddAuthentication("Cookies").AddCookie("Cookies", options =>
                 {
@@ -147,12 +149,14 @@ namespace MyForum
                         await response.SendFileAsync("Views/Shared/NotFound.cshtml");
                 });
 
+                app.UseHealthChecksPrometheusExporter("/healthmetrics");
+
                 app.MapHealthChecks("/health", new HealthCheckOptions
                 {
                     ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
                 });
 
-                app.UseOpenTelemetryPrometheusScrapingEndpoint();
+                app.MapPrometheusScrapingEndpoint();
 
                 app.MapControllerRoute(
                     name: "thread",

@@ -14,11 +14,13 @@ namespace MyForum.Infrastructure.Services
         private readonly IUnitOfWork _uow;
         private readonly IMapper _mapper;
         private readonly IPostService _postService;
+        private readonly ForumMetrics _forumMetrics;
 
-        public ThreadService(ILogger<ThreadService> logger, IUnitOfWork uow, IMapper mapper, IPostService postService)
+        public ThreadService(ILogger<ThreadService> logger, IUnitOfWork uow, IMapper mapper, IPostService postService, ForumMetrics forumMetrics)
         {
             _logger = logger;
             _uow = uow;
+            _forumMetrics = forumMetrics;
             _mapper = mapper;
             _postService = postService;
         }
@@ -41,7 +43,7 @@ namespace MyForum.Infrastructure.Services
 
             await _postService.CreateAsync(thread, postContent, authorName, postPassword, ipAddress, userAgent, files, cancellationToken);
 
-            ForumMetrics.ThreadsCreated.Add(1);
+            _forumMetrics.AddThread();
             return thread.Id;
         }
 

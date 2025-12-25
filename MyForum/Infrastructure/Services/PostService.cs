@@ -6,6 +6,7 @@ using MyForum.Core.Entities;
 using MyForum.Core.Interfaces.Repositories;
 using MyForum.Core.Interfaces.Services;
 using MyForum.Core.Metrics;
+using Prometheus;
 using Thread = MyForum.Core.Entities.Thread;
 
 namespace MyForum.Infrastructure.Services
@@ -17,14 +18,16 @@ namespace MyForum.Infrastructure.Services
         private readonly IFileService _fileService;
         private readonly IIPHasher _ipHasher;
         private readonly IMapper _mapper;
+        private readonly ForumMetrics _forumMetrics;
 
-        public PostService(ILogger<PostService> logger, IUnitOfWork uow, IFileService fileService, IIPHasher ipHasher, IMapper mapper)
+        public PostService(ILogger<PostService> logger, IUnitOfWork uow, IFileService fileService, IIPHasher ipHasher, IMapper mapper, ForumMetrics forumMetrics)
         {
             _logger = logger;
             _uow = uow;
             _fileService = fileService;
             _ipHasher = ipHasher;
             _mapper = mapper;
+            _forumMetrics = forumMetrics;
         }
 
         /// <summary>
@@ -99,8 +102,8 @@ namespace MyForum.Infrastructure.Services
                 await _uow.SaveAsync(cancellationToken);
 
                 transactionScope.Complete();
-                
-                ForumMetrics.PostsCreated.Add(1);
+
+                _forumMetrics.AddPost(post.Thread.Board.ShortName);
             }
             catch (Exception ex)
             {

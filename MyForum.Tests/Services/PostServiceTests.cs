@@ -5,6 +5,7 @@ using Moq;
 using MyForum.Core.Entities;
 using MyForum.Core.Interfaces.Repositories;
 using MyForum.Core.Interfaces.Services;
+using MyForum.Core.Metrics;
 using MyForum.Infrastructure.Services;
 using Thread = MyForum.Core.Entities.Thread;
 
@@ -33,7 +34,8 @@ namespace MyForum.Tests.Services
                 _mockUnitOfWork.Object,
                 _mockFileService.Object,
                 _mockIpHasher.Object,
-                _mockMapper.Object);
+                _mockMapper.Object,
+                new Mock<ForumMetrics>().Object);
 
         }
 

@@ -4,6 +4,7 @@ using Moq;
 using MyForum.Core.Entities;
 using MyForum.Core.Interfaces.Repositories;
 using MyForum.Core.Interfaces.Services;
+using MyForum.Core.Metrics;
 using MyForum.Infrastructure.Services;
 
 namespace MyForum.Tests.Services
@@ -26,7 +27,8 @@ namespace MyForum.Tests.Services
                 _mockLogger.Object,
                 _mockUnitOfWork.Object,
                 _mockMapper.Object,
-                _mockPostService.Object);
+                _mockPostService.Object,
+                new Mock<ForumMetrics>().Object);
         }
 
         [Fact]
