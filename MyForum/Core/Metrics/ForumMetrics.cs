@@ -1,8 +1,9 @@
 using System.Diagnostics.Metrics;
+using MyForum.Core.Interfaces.Metrics;
 
 namespace MyForum.Core.Metrics
 {
-    public class ForumMetrics
+    public class ForumMetrics : IForumMetrics
     {
         private readonly Counter<int> _postsCreated;
         private readonly Counter<int> _threadsCreated;
@@ -28,7 +29,7 @@ namespace MyForum.Core.Metrics
                 description: "Current number of active users");
         }
 
-        public void AddPost(string boardName) => _postsCreated.Add(1, new KeyValuePair<string, object?>("board", boardName));
+        public void AddPost() => _postsCreated.Add(1);
         public void AddThread() => _threadsCreated.Add(1);
         public void UserLoggedIn() => _activeUsers.Add(1);
         public void UserLoggedOut() => _activeUsers.Add(-1);

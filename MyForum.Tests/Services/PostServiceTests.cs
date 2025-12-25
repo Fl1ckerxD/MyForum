@@ -3,9 +3,9 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Moq;
 using MyForum.Core.Entities;
+using MyForum.Core.Interfaces.Metrics;
 using MyForum.Core.Interfaces.Repositories;
 using MyForum.Core.Interfaces.Services;
-using MyForum.Core.Metrics;
 using MyForum.Infrastructure.Services;
 using Thread = MyForum.Core.Entities.Thread;
 
@@ -18,6 +18,7 @@ namespace MyForum.Tests.Services
         private readonly Mock<IFileService> _mockFileService;
         private readonly Mock<IIPHasher> _mockIpHasher;
         private readonly Mock<IMapper> _mockMapper;
+        private readonly Mock<IForumMetrics> _mockForumMetrics;
         private readonly PostService _postService;
         public PostServiceTests()
         {
@@ -26,6 +27,7 @@ namespace MyForum.Tests.Services
             _mockFileService = new Mock<IFileService>();
             _mockIpHasher = new Mock<IIPHasher>();
             _mockMapper = new Mock<IMapper>();
+            _mockForumMetrics = new Mock<IForumMetrics>();
 
             _mockIpHasher.Setup(hasher => hasher.HashIP(It.IsAny<string>())).Returns("hashed_ip");
 
@@ -35,7 +37,7 @@ namespace MyForum.Tests.Services
                 _mockFileService.Object,
                 _mockIpHasher.Object,
                 _mockMapper.Object,
-                new Mock<ForumMetrics>().Object);
+                _mockForumMetrics.Object);
 
         }
 

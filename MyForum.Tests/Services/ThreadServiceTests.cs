@@ -2,6 +2,7 @@ using AutoMapper;
 using Microsoft.Extensions.Logging;
 using Moq;
 using MyForum.Core.Entities;
+using MyForum.Core.Interfaces.Metrics;
 using MyForum.Core.Interfaces.Repositories;
 using MyForum.Core.Interfaces.Services;
 using MyForum.Core.Metrics;
@@ -16,19 +17,21 @@ namespace MyForum.Tests.Services
         private readonly Mock<IMapper> _mockMapper;
         private readonly ThreadService _threadService;
         private readonly Mock<IPostService> _mockPostService;
+        private readonly Mock<IForumMetrics> _mockForumMetrics;
         public ThreadServiceTests()
         {
             _mockLogger = new Mock<ILogger<ThreadService>>();
             _mockUnitOfWork = new Mock<IUnitOfWork>();
             _mockMapper = new Mock<IMapper>();
             _mockPostService = new Mock<IPostService>();
+            _mockForumMetrics = new Mock<IForumMetrics>();
 
             _threadService = new ThreadService(
                 _mockLogger.Object,
                 _mockUnitOfWork.Object,
                 _mockMapper.Object,
                 _mockPostService.Object,
-                new Mock<ForumMetrics>().Object);
+                _mockForumMetrics.Object);
         }
 
         [Fact]

@@ -1,11 +1,11 @@
 using FluentValidation;
-using HealthChecks.Prometheus.Metrics;
 using HealthChecks.UI.Client;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
 using Minio;
+using MyForum.Core.Interfaces.Metrics;
 using MyForum.Core.Interfaces.Repositories;
 using MyForum.Core.Interfaces.Services;
 using MyForum.Core.MappingProfiles;
@@ -88,7 +88,7 @@ namespace MyForum
                 builder.Services.AddScoped<IIPHasher, SHA256IPHasher>();
                 builder.Services.AddScoped<IFileService, MinioFileService>();
 
-                builder.Services.AddSingleton<ForumMetrics>();
+                builder.Services.AddSingleton<IForumMetrics, ForumMetrics>();
 
                 builder.Services.AddAuthentication("Cookies").AddCookie("Cookies", options =>
                 {

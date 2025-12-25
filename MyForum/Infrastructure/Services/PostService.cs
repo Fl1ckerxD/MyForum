@@ -3,10 +3,9 @@ using AutoMapper;
 using MyForum.Core.DTOs;
 using MyForum.Core.DTOs.Common;
 using MyForum.Core.Entities;
+using MyForum.Core.Interfaces.Metrics;
 using MyForum.Core.Interfaces.Repositories;
 using MyForum.Core.Interfaces.Services;
-using MyForum.Core.Metrics;
-using Prometheus;
 using Thread = MyForum.Core.Entities.Thread;
 
 namespace MyForum.Infrastructure.Services
@@ -18,9 +17,9 @@ namespace MyForum.Infrastructure.Services
         private readonly IFileService _fileService;
         private readonly IIPHasher _ipHasher;
         private readonly IMapper _mapper;
-        private readonly ForumMetrics _forumMetrics;
+        private readonly IForumMetrics _forumMetrics;
 
-        public PostService(ILogger<PostService> logger, IUnitOfWork uow, IFileService fileService, IIPHasher ipHasher, IMapper mapper, ForumMetrics forumMetrics)
+        public PostService(ILogger<PostService> logger, IUnitOfWork uow, IFileService fileService, IIPHasher ipHasher, IMapper mapper, IForumMetrics forumMetrics)
         {
             _logger = logger;
             _uow = uow;
@@ -103,7 +102,7 @@ namespace MyForum.Infrastructure.Services
 
                 transactionScope.Complete();
 
-                _forumMetrics.AddPost(post.Thread.Board.ShortName);
+                _forumMetrics.AddPost();
             }
             catch (Exception ex)
             {

@@ -1,9 +1,9 @@
 using AutoMapper;
 using MyForum.Core.DTOs;
 using MyForum.Core.DTOs.Common;
+using MyForum.Core.Interfaces.Metrics;
 using MyForum.Core.Interfaces.Repositories;
 using MyForum.Core.Interfaces.Services;
-using MyForum.Core.Metrics;
 using Thread = MyForum.Core.Entities.Thread;
 
 namespace MyForum.Infrastructure.Services
@@ -14,9 +14,9 @@ namespace MyForum.Infrastructure.Services
         private readonly IUnitOfWork _uow;
         private readonly IMapper _mapper;
         private readonly IPostService _postService;
-        private readonly ForumMetrics _forumMetrics;
+        private readonly IForumMetrics _forumMetrics;
 
-        public ThreadService(ILogger<ThreadService> logger, IUnitOfWork uow, IMapper mapper, IPostService postService, ForumMetrics forumMetrics)
+        public ThreadService(ILogger<ThreadService> logger, IUnitOfWork uow, IMapper mapper, IPostService postService, IForumMetrics forumMetrics)
         {
             _logger = logger;
             _uow = uow;
