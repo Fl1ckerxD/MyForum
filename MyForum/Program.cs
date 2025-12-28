@@ -17,6 +17,7 @@ using MyForum.Infrastructure.Repositories;
 using MyForum.Infrastructure.Services;
 using OpenTelemetry.Metrics;
 using Serilog;
+using StackExchange.Redis;
 
 namespace MyForum
 {
@@ -28,8 +29,11 @@ namespace MyForum
             {
                 var builder = WebApplication.CreateBuilder(args);
 
-                var conString = builder.Configuration.GetConnectionString(nameof(ForumDbContext)) ??
+                var dbConnectionString = builder.Configuration.GetConnectionString(nameof(ForumDbContext)) ??
                             throw new InvalidOperationException($"Connection string not found.");
+                
+                var redisConnectionString = builder.Configuration.GetConnectionString("Redis") ??
+                            throw new InvalidOperationException($"Redis connection string not found.");
 
                 var minioEndpoint = builder.Configuration["MinIO:Endpoint"];
                 var minioAccessKey = builder.Configuration["MinIO:AccessKey"];
@@ -63,10 +67,11 @@ namespace MyForum
                     .WithSSL(minioWithSsl)
                     .Build());
 
-                builder.Services.AddDbContext<ForumDbContext>(options => options.UseNpgsql(conString));
+                builder.Services.AddDbContext<ForumDbContext>(options => options.UseNpgsql(dbConnectionString));
 
                 builder.Services.AddHealthChecks()
-                    .AddNpgSql(conString)
+                    .AddNpgSql(dbConnectionString)
+                    .AddRedis(redisConnectionString)
                     .AddCheck<MinioHealthCheck>("MinIO");
 
                 builder.Services.AddOpenTelemetry()
@@ -80,6 +85,12 @@ namespace MyForum
 
                         metrics.AddMeter("MyForum.Metrics");
                     });
+                
+                builder.Services.AddStackExchangeRedisCache(options =>
+                {
+                    options.Configuration = redisConnectionString;
+                    options.InstanceName = "MyForum_";
+                });
 
                 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
                 builder.Services.AddScoped<IBoardService, BoardService>();
@@ -89,6 +100,8 @@ namespace MyForum
                 builder.Services.AddScoped<IFileService, MinioFileService>();
 
                 builder.Services.AddSingleton<IForumMetrics, ForumMetrics>();
+                builder.Services.AddSingleton<IConnectionMultiplexer>(sp => 
+                    ConnectionMultiplexer.Connect(redisConnectionString));
 
                 builder.Services.AddAuthentication("Cookies").AddCookie("Cookies", options =>
                 {

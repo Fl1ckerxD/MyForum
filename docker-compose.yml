@@ -22,6 +22,7 @@ services:
     depends_on:
       - db
       - minio
+      - redis
     networks:
       - myforum-network
     restart: unless-stopped
@@ -34,9 +35,20 @@ services:
       - POSTGRES_PASSWORD=MyStrong@Passw0rd
       - POSTGRES_DB=myforumdb
     volumes:
-      - psql-data:/var/lib/postgresql/data
+      - psql_data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
+    networks:
+      - myforum-network
+    restart: unless-stopped
+
+  redis:
+    image: redis:alpine
+    container_name: MyForum-redis
+    volumes:
+      - redis_data:/data
+    ports:
+      - "6379:6379"
     networks:
       - myforum-network
     restart: unless-stopped
@@ -106,7 +118,7 @@ services:
       - MINIO_ROOT_PASSWORD=MyStrong@Passw0rd
     command: server /data
     volumes:
-      - minio-data:/data
+      - minio_data:/data
     networks:
       - myforum-network
 
@@ -115,7 +127,8 @@ networks:
     driver: bridge
   
 volumes:
-  psql-data:
+  psql_data:
   grafana_data:
-  minio-data:
+  minio_data:
   prometheus_data:
+  redis_data:
