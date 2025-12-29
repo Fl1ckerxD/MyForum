@@ -2,12 +2,12 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Moq;
-using MyForum.Core.Entities;
-using MyForum.Core.Interfaces.Metrics;
-using MyForum.Core.Interfaces.Repositories;
-using MyForum.Core.Interfaces.Services;
-using MyForum.Infrastructure.Services;
-using Thread = MyForum.Core.Entities.Thread;
+using MyForum.Api.Core.Entities;
+using MyForum.Api.Core.Interfaces.Metrics;
+using MyForum.Api.Core.Interfaces.Repositories;
+using MyForum.Api.Core.Interfaces.Services;
+using MyForum.Api.Infrastructure.Services;
+using Thread = MyForum.Api.Core.Entities.Thread;
 
 namespace MyForum.Tests.Services
 {

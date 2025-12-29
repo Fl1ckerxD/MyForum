@@ -1,7 +1,7 @@
 using FluentValidation.TestHelper;
 using Microsoft.Extensions.Configuration;
-using MyForum.Core.DTOs.Requests;
-using MyForum.Core.Validations;
+using MyForum.Api.Core.DTOs.Requests;
+using MyForum.Api.Core.Validations;
 
 namespace MyForum.Tests.Validations
 {

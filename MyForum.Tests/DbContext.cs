@@ -1,5 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using MyForum.Infrastructure.Data;
+using MyForum.Api.Infrastructure.Data;
 
 namespace MyForum.Tests
 {

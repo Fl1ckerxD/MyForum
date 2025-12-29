@@ -6,8 +6,8 @@ using Minio;
 using Minio.DataModel.Args;
 using Minio.DataModel.Response;
 using Moq;
-using MyForum.Core.Entities;
-using MyForum.Infrastructure.Services;
+using MyForum.Api.Core.Entities;
+using MyForum.Api.Infrastructure.Services;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 

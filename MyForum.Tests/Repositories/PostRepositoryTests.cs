@@ -1,7 +1,7 @@
-using MyForum.Core.Entities;
-using MyForum.Infrastructure.Data;
-using MyForum.Infrastructure.Repositories;
-using Thread = MyForum.Core.Entities.Thread;
+using MyForum.Api.Core.Entities;
+using MyForum.Api.Infrastructure.Data;
+using MyForum.Api.Infrastructure.Repositories;
+using Thread = MyForum.Api.Core.Entities.Thread;
 
 namespace MyForum.Tests.Repositories
 {

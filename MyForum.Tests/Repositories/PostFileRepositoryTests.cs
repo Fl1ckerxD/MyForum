@@ -1,6 +1,6 @@
-using MyForum.Core.Entities;
-using MyForum.Infrastructure.Data;
-using MyForum.Infrastructure.Repositories;
+using MyForum.Api.Core.Entities;
+using MyForum.Api.Infrastructure.Data;
+using MyForum.Api.Infrastructure.Repositories;
 
 namespace MyForum.Tests.Repositories
 {

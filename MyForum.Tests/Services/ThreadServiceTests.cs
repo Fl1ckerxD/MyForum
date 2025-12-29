@@ -1,12 +1,12 @@
 using AutoMapper;
 using Microsoft.Extensions.Logging;
 using Moq;
-using MyForum.Core.Entities;
-using MyForum.Core.Interfaces.Metrics;
-using MyForum.Core.Interfaces.Repositories;
-using MyForum.Core.Interfaces.Services;
-using MyForum.Core.Metrics;
-using MyForum.Infrastructure.Services;
+using MyForum.Api.Core.Entities;
+using MyForum.Api.Core.Interfaces.Metrics;
+using MyForum.Api.Core.Interfaces.Repositories;
+using MyForum.Api.Core.Interfaces.Services;
+using MyForum.Api.Core.Metrics;
+using MyForum.Api.Infrastructure.Services;
 
 namespace MyForum.Tests.Services
 {

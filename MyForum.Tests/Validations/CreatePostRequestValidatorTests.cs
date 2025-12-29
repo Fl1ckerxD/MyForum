@@ -2,8 +2,8 @@ using FluentValidation.TestHelper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Moq;
-using MyForum.Core.DTOs.Requests;
-using MyForum.Core.Validations;
+using MyForum.Api.Core.DTOs.Requests;
+using MyForum.Api.Core.Validations;
 
 namespace MyForum.Tests.Validations
 {

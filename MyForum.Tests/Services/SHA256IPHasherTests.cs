@@ -1,4 +1,4 @@
-using MyForum.Infrastructure.Services;
+using MyForum.Api.Infrastructure.Services;
 
 namespace MyForum.Tests.Services
 {
