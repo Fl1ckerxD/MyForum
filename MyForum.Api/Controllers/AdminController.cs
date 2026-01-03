@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using MyForum.Api.Core.Interfaces.Repositories;
 
-namespace MyForum.Api.Web.Controllers
+namespace MyForum.Api.Controllers
 {
     [Authorize(Roles = "Admin")]
     public class AdminController : Controller
@@ -33,7 +33,7 @@ namespace MyForum.Api.Web.Controllers
             // if (user == null)
             // {
             //     ModelState.AddModelError(nameof(username), "Пользователь не найден.");
-                return View();
+            return View();
             //}
 
             //return View(user);

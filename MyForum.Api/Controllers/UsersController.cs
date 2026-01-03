@@ -7,7 +7,7 @@
 // using MyForum.Api.Web.ViewModels;
 // using System.Security.Claims;
 
-// namespace MyForum.Api.Web.Controllers
+// namespace MyForum.Api.Controllers
 // {
 //     public class UsersController : Controller
 //     {

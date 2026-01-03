@@ -1,7 +1,7 @@
 using FluentValidation;
 using HealthChecks.UI.Client;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
-using Microsoft.AspNetCore.Mvc.Razor;
+// using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
 using Minio;
@@ -44,14 +44,15 @@ namespace MyForum.Api
                     .ReadFrom.Configuration(context.Configuration)
                     .ReadFrom.Services(services));
 
-                builder.Services.AddControllersWithViews().AddRazorOptions(options =>
-                {
-                    options.ViewLocationFormats.Add("/Web/Views/{1}/{0}" + RazorViewEngine.ViewExtension);
-                    options.ViewLocationFormats.Add("/Web/Views/Shared/{0}" + RazorViewEngine.ViewExtension);
-                });
+                // builder.Services.AddControllersWithViews().AddRazorOptions(options =>
+                // {
+                //     options.ViewLocationFormats.Add("/Web/Views/{1}/{0}" + RazorViewEngine.ViewExtension);
+                //     options.ViewLocationFormats.Add("/Web/Views/Shared/{0}" + RazorViewEngine.ViewExtension);
+                // });
 
                 // Add services to the container.
-                builder.Services.AddControllersWithViews();
+                // builder.Services.AddControllersWithViews();
+                builder.Services.AddControllers();
                 builder.Services.AddAutoMapper(typeof(AppMappingProfile));
                 builder.Services.AddValidatorsFromAssemblyContaining<CreatePostRequestValidator>();
 
@@ -92,6 +93,17 @@ namespace MyForum.Api
                     options.InstanceName = "MyForum_";
                 });
 
+                builder.Services.AddCors(options =>
+                {
+                    options.AddPolicy("AllowFrontend", policy =>
+                    {
+                        policy.WithOrigins("http://localhost:5173")
+                            .AllowAnyMethod()
+                            .AllowAnyHeader()
+                            .AllowCredentials();
+                    });
+                });
+
                 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
                 builder.Services.AddScoped<IBoardService, BoardService>();
                 builder.Services.AddScoped<IThreadService, ThreadService>();
@@ -103,13 +115,13 @@ namespace MyForum.Api
                 builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
                     ConnectionMultiplexer.Connect(redisConnectionString));
 
-                builder.Services.AddAuthentication("Cookies").AddCookie("Cookies", options =>
-                {
-                    options.Cookie.Name = "MyForum.Auth";
-                    options.LoginPath = "/Users/Login";
-                    options.AccessDeniedPath = "/Users/AccessDenied";
-                    options.ExpireTimeSpan = TimeSpan.FromDays(1);
-                });
+                // builder.Services.AddAuthentication("Cookies").AddCookie("Cookies", options =>
+                // {
+                //     options.Cookie.Name = "MyForum.Auth";
+                //     options.LoginPath = "/Users/Login";
+                //     options.AccessDeniedPath = "/Users/AccessDenied";
+                //     options.ExpireTimeSpan = TimeSpan.FromDays(1);
+                // });
 
                 builder.Services.AddMemoryCache();
 
@@ -134,18 +146,18 @@ namespace MyForum.Api
                 // Configure the HTTP request pipeline.
                 if (!app.Environment.IsDevelopment())
                 {
-                    app.UseExceptionHandler("/Home/Error");
-                    app.UseHsts();
+                    // app.UseExceptionHandler("/Home/Error");
+                    // app.UseHsts();
                 }
 
                 app.UseHttpsRedirection();
-                app.UseStaticFiles(new StaticFileOptions()
-                {
-                    //OnPrepareResponse = ctx =>
-                    //{
-                    //    ctx.Context.Response.Headers.Add("Cache-Control", "public,max-age=600");
-                    //}
-                });
+                // app.UseStaticFiles(new StaticFileOptions()
+                // {
+                //OnPrepareResponse = ctx =>
+                //{
+                //    ctx.Context.Response.Headers.Add("Cache-Control", "public,max-age=600");
+                //}
+                // });
 
                 app.UseRouting();
 
@@ -153,14 +165,15 @@ namespace MyForum.Api
                 app.UseAuthorization();
 
                 app.UseResponseCompression();
+                app.UseCors("AllowFrontend");
 
-                app.UseStatusCodePages(async statusCodeContext =>
-                {
-                    var response = statusCodeContext.HttpContext.Response;
-                    response.ContentType = "text/html; charset=UTF-8";
-                    if (response.StatusCode == 404)
-                        await response.SendFileAsync("Views/Shared/NotFound.cshtml");
-                });
+                // app.UseStatusCodePages(async statusCodeContext =>
+                // {
+                //     var response = statusCodeContext.HttpContext.Response;
+                //     response.ContentType = "text/html; charset=UTF-8";
+                //     if (response.StatusCode == 404)
+                //         await response.SendFileAsync("Views/Shared/NotFound.cshtml");
+                // });
 
                 app.UseHealthChecksPrometheusExporter("/healthmetrics");
 
@@ -171,21 +184,23 @@ namespace MyForum.Api
 
                 app.MapPrometheusScrapingEndpoint();
 
-                app.MapControllerRoute(
-                    name: "thread",
-                    pattern: "{boardShortName}/{threadId:int}",
-                    defaults: new { controller = "Threads", action = "Index" }
-                    );
+                app.MapControllers();
 
-                app.MapControllerRoute(
-                    name: "board",
-                    pattern: "{boardShortName}",
-                    defaults: new { controller = "Boards", action = "Index" }
-                    );
+                // app.MapControllerRoute(
+                //     name: "thread",
+                //     pattern: "{boardShortName}/{threadId:int}",
+                //     defaults: new { controller = "Threads", action = "Index" }
+                //     );
 
-                app.MapControllerRoute(
-                    name: "default",
-                    pattern: "{controller=Home}/{action=Index}/{id?}");
+                // app.MapControllerRoute(
+                //     name: "board",
+                //     pattern: "{boardShortName}",
+                //     defaults: new { controller = "Boards", action = "Index" }
+                //     );
+
+                // app.MapControllerRoute(
+                //     name: "default",
+                //     pattern: "{controller=Home}/{action=Index}/{id?}");
 
                 app.Run();
             }

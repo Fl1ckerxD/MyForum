@@ -3,10 +3,14 @@ using MyForum.Api.Application.Extensions;
 using MyForum.Api.Core.Interfaces.Services;
 using MyForum.Api.Core.DTOs.Requests;
 using FluentValidation;
+using MyForum.Api.Core.DTOs;
+using MyForum.Api.Core.DTOs.Responses;
 
-namespace MyForum.Api.Web.Controllers
+namespace MyForum.Api.Controllers
 {
-    public class ThreadsController : Controller
+    [ApiController]
+    [Route("api/[controller]")]
+    public class ThreadsController : ControllerBase
     {
         private readonly ILogger<ThreadsController> _logger;
         private readonly IThreadService _threadService;
@@ -19,7 +23,8 @@ namespace MyForum.Api.Web.Controllers
             _createThreadRequestValidator = createThreadRequestValidator;
         }
 
-        public async Task<IActionResult> Index(string boardShortName, int threadId, CancellationToken cancellationToken)
+        [HttpGet("{boardShortName}/{threadId}")]
+        public async Task<ActionResult<ThreadDto>> GetThread(string boardShortName, int threadId, CancellationToken cancellationToken)
         {
             try
             {
@@ -31,27 +36,23 @@ namespace MyForum.Api.Web.Controllers
                     return NotFound();
                 }
 
-                return View(thread);
+                return Ok(thread);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Ошибка при загрузке страницы.");
-                return StatusCode(500, "Произошла ошибка при обработке запроса.");
+                return StatusCode(StatusCodes.Status500InternalServerError, new ApiErrorResponse("Произошла ошибка при обработке запроса."));
             }
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([FromForm] CreateThreadRequest request, CancellationToken cancellationToken)
+        [Consumes("multipart/form-data")]
+        public async Task<ActionResult<CreateThreadResponse>> Create([FromForm] CreateThreadRequest request, CancellationToken cancellationToken)
         {
             var validationResult = await _createThreadRequestValidator.ValidateAsync(request, cancellationToken);
 
             if (!validationResult.IsValid)
-            {
-                foreach (var error in validationResult.Errors)
-                    ModelState.AddModelError(error.PropertyName, error.ErrorMessage);
-                return BadRequest(ModelState);
-            }
+                return BadRequest(validationResult.Errors);
 
             try
             {
@@ -68,12 +69,18 @@ namespace MyForum.Api.Web.Controllers
                     userAgent: userAgent,
                     cancellationToken: cancellationToken);
 
-                return RedirectToAction("Index", "Threads", new { request.BoardShortName, threadId });
+                return Created($"/api/{request.BoardShortName}/{threadId}",
+                    new CreateThreadResponse
+                    {
+                        ThreadId = threadId,
+                        BoardShortName = request.BoardShortName,
+                        Message = "Тред создан"
+                    });
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Ошибка при создании треда.");
-                return StatusCode(500, "Ошибка при создании треда.");
+                return StatusCode(StatusCodes.Status500InternalServerError, new ApiErrorResponse("Ошибка при создании треда."));
             }
         }
     }

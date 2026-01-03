@@ -1,4 +1,7 @@
-const API_BASE_URL = "http://localhost:8080/api";
+const API_BASE_URL =
+  import.meta.env.MODE === "development"
+    ? "https://localhost:7027/api"
+    : "http://localhost:8080/api";
 
 export async function api<T>(url: string, options?: RequestInit): Promise<T> {
   const response = await fetch(`${API_BASE_URL}${url}`, {

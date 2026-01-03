@@ -3,14 +3,18 @@ using MyForum.Api.Application.Extensions;
 using MyForum.Api.Core.Interfaces.Services;
 using MyForum.Api.Core.DTOs.Requests;
 using FluentValidation;
+using MyForum.Api.Core.DTOs.Responses;
 
-namespace MyForum.Api.Web.Controllers
+namespace MyForum.Api.Controllers
 {
-    public class PostsController : Controller
+    [ApiController]
+    [Route("api/[controller]")]
+    public class PostsController : ControllerBase
     {
         private readonly IPostService _postService;
         private readonly ILogger<PostsController> _logger;
         private readonly IValidator<CreatePostRequest> _createPostRequestValidator;
+
         public PostsController(ILogger<PostsController> logger, IPostService postService, IValidator<CreatePostRequest> createPostRequestValidator)
         {
             _postService = postService;
@@ -19,24 +23,20 @@ namespace MyForum.Api.Web.Controllers
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([FromForm] CreatePostRequest request, CancellationToken cancellationToken)
+        [Consumes("multipart/form-data")]
+        public async Task<ActionResult<CreatePostResponse>> Create([FromForm] CreatePostRequest request, CancellationToken cancellationToken)
         {
             var validationResult = await _createPostRequestValidator.ValidateAsync(request, cancellationToken);
-            
+
             if (!validationResult.IsValid)
-            {
-                foreach (var error in validationResult.Errors)
-                    ModelState.AddModelError(error.PropertyName, error.ErrorMessage);
-                return BadRequest(ModelState);
-            }
+                return BadRequest(validationResult.Errors);
 
             try
             {
                 var ipAddress = HttpContext.GetClientIp();
                 var userAgent = Request.Headers["User-Agent"].ToString();
 
-                await _postService.CreateAsync(
+                var postId = await _postService.CreateAsync(
                     threadId: request.ThreadId,
                     content: request.Content,
                     authorName: request.AuthorName,
@@ -46,17 +46,22 @@ namespace MyForum.Api.Web.Controllers
                     files: request.Files,
                     cancellationToken: cancellationToken);
 
-                return Ok(new { success = true, message = "Пост создан" });
+                return Created($"/api/posts/{postId}",
+                    new CreatePostResponse
+                    {
+                        PostId = postId,
+                        Message = "Пост создан"
+                    });
             }
             catch (InvalidOperationException ex)
             {
-                _logger.LogWarning(ex, "Неверная операция при добавлении комментария.");
-                return BadRequest(new { success = false, message = ex.Message });
+                _logger.LogWarning(ex, "Неверная операция при добавлении поста.");
+                return BadRequest(new ApiErrorResponse(ex.Message));
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Ошибка при добавлении комментария.");
-                return StatusCode(500, "Произошла ошибка при добавлении комментария.");
+                _logger.LogError(ex, "Ошибка при добавлении поста.");
+                return StatusCode(StatusCodes.Status500InternalServerError, new ApiErrorResponse("Произошла ошибка при добавлении поста."));
             }
         }
     }

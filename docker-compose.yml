@@ -12,8 +12,8 @@ services:
   myforum:
     build:
       context: .
-      dockerfile: MyForum/Dockerfile
-    container_name: MyForum
+      dockerfile: MyForum.Api/Dockerfile
+    container_name: MyForum-api
     ports:
       - "8080:80"
     environment:
