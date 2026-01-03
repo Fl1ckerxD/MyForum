@@ -31,7 +31,7 @@ namespace MyForum.Api
 
                 var dbConnectionString = builder.Configuration.GetConnectionString(nameof(ForumDbContext)) ??
                             throw new InvalidOperationException($"Connection string not found.");
-                
+
                 var redisConnectionString = builder.Configuration.GetConnectionString("Redis") ??
                             throw new InvalidOperationException($"Redis connection string not found.");
 
@@ -85,7 +85,7 @@ namespace MyForum.Api
 
                         metrics.AddMeter("MyForum.Metrics");
                     });
-                
+
                 builder.Services.AddStackExchangeRedisCache(options =>
                 {
                     options.Configuration = redisConnectionString;
@@ -100,7 +100,7 @@ namespace MyForum.Api
                 builder.Services.AddScoped<IFileService, MinioFileService>();
 
                 builder.Services.AddSingleton<IForumMetrics, ForumMetrics>();
-                builder.Services.AddSingleton<IConnectionMultiplexer>(sp => 
+                builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
                     ConnectionMultiplexer.Connect(redisConnectionString));
 
                 builder.Services.AddAuthentication("Cookies").AddCookie("Cookies", options =>
