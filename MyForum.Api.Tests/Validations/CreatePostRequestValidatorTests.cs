@@ -5,7 +5,7 @@ using Moq;
 using MyForum.Api.Core.DTOs.Requests;
 using MyForum.Api.Core.Validations;
 
-namespace MyForum.Tests.Validations
+namespace MyForum.Api.Tests.Validations
 {
     public class CreatePostRequestValidatorTests
     {

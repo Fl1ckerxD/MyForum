@@ -1,6 +1,6 @@
 using MyForum.Api.Infrastructure.Services;
 
-namespace MyForum.Tests.Services
+namespace MyForum.Api.Tests.Services
 {
     public class SHA256IPHasherTests
     {

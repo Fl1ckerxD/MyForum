@@ -11,7 +11,7 @@ using MyForum.Api.Infrastructure.Services;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 
-namespace MyForum.Tests.Services
+namespace MyForum.Api.Tests.Services
 {
     public class MinioFileServiceTests
     {

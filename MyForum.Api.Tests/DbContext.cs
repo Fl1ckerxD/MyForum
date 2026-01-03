@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using MyForum.Api.Infrastructure.Data;
 
-namespace MyForum.Tests
+namespace MyForum.Api.Tests
 {
     public static class DbContext
     {

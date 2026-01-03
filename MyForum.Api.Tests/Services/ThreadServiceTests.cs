@@ -8,7 +8,7 @@ using MyForum.Api.Core.Interfaces.Services;
 using MyForum.Api.Core.Metrics;
 using MyForum.Api.Infrastructure.Services;
 
-namespace MyForum.Tests.Services
+namespace MyForum.Api.Tests.Services
 {
     public class ThreadServiceTests
     {

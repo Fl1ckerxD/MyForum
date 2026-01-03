@@ -19,12 +19,12 @@ jobs:
       - name: Test
         run: >
           dotnet test
-          MyForum.Tests/bin/Debug/**/MyForum.Tests.dll
+          MyForum.Api.Tests/bin/Debug/**/MyForum.Api.Tests.dll
           --logger "trx;LogFileName=TestResults.trx"
 
       - name: Upload Test Results
         uses: actions/upload-artifact@v4.6.2
         if: ${{ always() }}
         with:
-          name: MyForum-test-results
+          name: MyForum-api-test-results
           path: ${{github.workspace}}/TestResults/TestResults.trx

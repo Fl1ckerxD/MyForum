@@ -3,7 +3,7 @@ using MyForum.Api.Infrastructure.Data;
 using MyForum.Api.Infrastructure.Repositories;
 using Thread = MyForum.Api.Core.Entities.Thread;
 
-namespace MyForum.Tests.Repositories
+namespace MyForum.Api.Tests.Repositories
 {
     public class PostRepositoryTests
     {

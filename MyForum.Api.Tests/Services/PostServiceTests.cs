@@ -9,7 +9,7 @@ using MyForum.Api.Core.Interfaces.Services;
 using MyForum.Api.Infrastructure.Services;
 using Thread = MyForum.Api.Core.Entities.Thread;
 
-namespace MyForum.Tests.Services
+namespace MyForum.Api.Tests.Services
 {
     public class PostServiceTests
     {
