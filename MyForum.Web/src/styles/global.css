@@ -1,0 +1,57 @@
+:root {
+    --background: #1c2231;
+    --foreground: #ecf0f8;
+    --primary: #ff9500;
+    --primary-hover: #A66100;
+    --secondary: #2a303d;
+    --secondary-hover: #353d4f; 
+    --muted: #485267;
+    --muted-foreground: #a1adcf;
+    --border: #2a303d;
+    /*--radius: 0.5rem; 
+    --input-bg: #1a202e;
+    --button-bg: #2a303d;
+    --button-text: #ecf0f8;
+    --button-hover: #353d4f;
+    --button-delete: #b82a2a;
+    --button-info: #27c29d; */
+}
+
+/* * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    border-color: var(--border);
+} */
+
+body {
+    background-color: var(--background);
+    color: var(--foreground);
+    font-family: 'Inter', sans-serif;
+    line-height: 1.6;
+    font-synthesis: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* a {
+    color: var(--primary);
+    margin: 0;
+    padding: 0;
+    font-size: 100%;
+    vertical-align: baseline;
+    text-decoration: none;
+    background: transparent;
+    cursor: pointer;
+}
+
+a:hover {
+    color: var(--primary-hover);
+} */
+
+/* ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+} */

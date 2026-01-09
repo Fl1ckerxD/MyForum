@@ -1,0 +1,9 @@
+.highlight {
+    color: var(--primary);
+    font-weight: 500;
+}
+
+.muted {
+    color: var(--muted-foreground);
+    font-size: 0.8rem;
+}

@@ -15,7 +15,7 @@ namespace MyForum.Api.Tests.Services
     {
         private readonly Mock<IUnitOfWork> _mockUnitOfWork;
         private readonly Mock<ILogger<PostService>> _mockLogger;
-        private readonly Mock<IFileService> _mockFileService;
+        private readonly Mock<IObjectStorageService> _mockFileService;
         private readonly Mock<IIPHasher> _mockIpHasher;
         private readonly Mock<IMapper> _mockMapper;
         private readonly Mock<IForumMetrics> _mockForumMetrics;
@@ -24,7 +24,7 @@ namespace MyForum.Api.Tests.Services
         {
             _mockUnitOfWork = new Mock<IUnitOfWork>();
             _mockLogger = new Mock<ILogger<PostService>>();
-            _mockFileService = new Mock<IFileService>();
+            _mockFileService = new Mock<IObjectStorageService>();
             _mockIpHasher = new Mock<IIPHasher>();
             _mockMapper = new Mock<IMapper>();
             _mockForumMetrics = new Mock<IForumMetrics>();

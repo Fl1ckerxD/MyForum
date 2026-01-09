@@ -5,13 +5,15 @@ import BoardPage from "./pages/BoardPage";
 
 const App = () => {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/:boardShortName" element={<BoardPage />} />
-        <Route path="/:boardShortName/:threadId" element={<ThreadPage />} />
-      </Routes>
-    </BrowserRouter>
+    <>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/:boardShortName" element={<BoardPage />} />
+          <Route path="/:boardShortName/:threadId" element={<ThreadPage />} />
+        </Routes>
+      </BrowserRouter>
+    </>
   );
 };
 

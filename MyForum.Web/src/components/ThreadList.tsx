@@ -1,54 +1,35 @@
+import { Link } from "react-router-dom";
 import type { Thread } from "../types/thread";
+import "../styles/layout/section.css";
+import "../styles/ui/link.css";
+import "../styles/ui/span.css";
 
 interface ThreadListProps {
+  boardShortName: string;
   threads: Thread[];
-  onDelete: (threadId: number) => void;
-  onLike: (threadId: number) => void;
 }
 
-const ThreadList = ({ threads, onDelete, onLike }: ThreadListProps) => {
+const ThreadList = ({ boardShortName, threads }: ThreadListProps) => {
   return (
-    <section className="topic-section fade-in-up">
-      <div className="table-bordered">
-        <ul className="navbar-nav flex-grow-1">
-          {threads.map((thread) => (
-            <li key={thread.id}>
-              <strong>{thread.user.username}</strong>
-              <label className="welcome-text topic-time">
-                {thread.createdAt}
-              </label>
-              <button
-                type="button"
-                className="button-transparent"
-                onClick={() => onDelete(thread.id)}
-              >
-                <svg
-                  className="delete-button-circle"
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                >
-                  <circle cx="12" cy="12" r="10" />
-                  <path
-                    d="M15 9L9 15M9 9L15 15"
-                    stroke="#ffff"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                  />
-                </svg>
-              </button>
-              <p>{thread.content}</p>
-              <button
-                type="button"
-                className="like-button submit-button"
-                onClick={() => onLike(thread.id)}
-              >
-                Понравилось {thread.likes.length}
-              </button>
-            </li>
-          ))}
-        </ul>
-      </div>
+    <section className="thread-section fade-in-up delay-200ms">
+      <ul className="navbar-nav flex-grow-1">
+        {threads.map((thread) => (
+          <li className="section-bordered pt-3" key={thread.id}>
+            <div className="d-flex align-items-center gap-3">
+              <Link className="link" to={`/${boardShortName}/${thread.id}`}>
+                {thread.subject}
+              </Link>
+              <strong>{thread.originalPost.authorName}</strong>
+              <span className="muted align-self-center">
+                {thread.createdAt.toLocaleDateString()}
+              </span>
+            </div>
+            <div>
+              <p>{thread.originalPost.content}</p>
+            </div>
+          </li>
+        ))}
+      </ul>
     </section>
   );
 };

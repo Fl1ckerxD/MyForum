@@ -1,7 +1,6 @@
 using FluentValidation;
 using HealthChecks.UI.Client;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
-// using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
 using Minio;
@@ -15,6 +14,7 @@ using MyForum.Api.Infrastructure.Data;
 using MyForum.Api.Infrastructure.HealthChecks;
 using MyForum.Api.Infrastructure.Repositories;
 using MyForum.Api.Infrastructure.Services;
+using Npgsql;
 using OpenTelemetry.Metrics;
 using Serilog;
 using StackExchange.Redis;
@@ -30,28 +30,28 @@ namespace MyForum.Api
                 var builder = WebApplication.CreateBuilder(args);
 
                 var dbConnectionString = builder.Configuration.GetConnectionString(nameof(ForumDbContext)) ??
-                            throw new InvalidOperationException($"Connection string not found.");
+                    throw new InvalidOperationException($"Connection string not found.");
+
+                var csb = new NpgsqlConnectionStringBuilder(dbConnectionString)
+                {
+                    Password = builder.Configuration["POSTGRES_PASSWORD"] ??
+                        throw new InvalidOperationException("POSTGRES_PASSWORD is not set"),
+                    Username = builder.Configuration["POSTGRES_USER"] ??
+                        throw new InvalidOperationException("POSTGRES_USER is not set")
+                };
 
                 var redisConnectionString = builder.Configuration.GetConnectionString("Redis") ??
-                            throw new InvalidOperationException($"Redis connection string not found.");
+                    throw new InvalidOperationException($"Redis connection string not found.");
 
                 var minioEndpoint = builder.Configuration["MinIO:Endpoint"];
-                var minioAccessKey = builder.Configuration["MinIO:AccessKey"];
-                var minioSecretKey = builder.Configuration["MinIO:SecretKey"];
+                var minioAccessKey = builder.Configuration["MINIO_ACCESS_KEY"];
+                var minioSecretKey = builder.Configuration["MINIO_SECRET_KEY"];
                 var minioWithSsl = builder.Configuration.GetValue<bool>("MinIO:WithSSL");
 
                 builder.Host.UseSerilog((context, services, configuration) => configuration
                     .ReadFrom.Configuration(context.Configuration)
                     .ReadFrom.Services(services));
 
-                // builder.Services.AddControllersWithViews().AddRazorOptions(options =>
-                // {
-                //     options.ViewLocationFormats.Add("/Web/Views/{1}/{0}" + RazorViewEngine.ViewExtension);
-                //     options.ViewLocationFormats.Add("/Web/Views/Shared/{0}" + RazorViewEngine.ViewExtension);
-                // });
-
-                // Add services to the container.
-                // builder.Services.AddControllersWithViews();
                 builder.Services.AddControllers();
                 builder.Services.AddAutoMapper(typeof(AppMappingProfile));
                 builder.Services.AddValidatorsFromAssemblyContaining<CreatePostRequestValidator>();
@@ -68,10 +68,10 @@ namespace MyForum.Api
                     .WithSSL(minioWithSsl)
                     .Build());
 
-                builder.Services.AddDbContext<ForumDbContext>(options => options.UseNpgsql(dbConnectionString));
+                builder.Services.AddDbContext<ForumDbContext>(options => options.UseNpgsql(csb.ConnectionString));
 
                 builder.Services.AddHealthChecks()
-                    .AddNpgSql(dbConnectionString)
+                    .AddNpgSql(csb.ConnectionString)
                     .AddRedis(redisConnectionString)
                     .AddCheck<MinioHealthCheck>("MinIO");
 
@@ -109,19 +109,11 @@ namespace MyForum.Api
                 builder.Services.AddScoped<IThreadService, ThreadService>();
                 builder.Services.AddScoped<IPostService, PostService>();
                 builder.Services.AddScoped<IIPHasher, SHA256IPHasher>();
-                builder.Services.AddScoped<IFileService, MinioFileService>();
+                builder.Services.AddScoped<IObjectStorageService, MinioObjectStorageService>();
 
                 builder.Services.AddSingleton<IForumMetrics, ForumMetrics>();
                 builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
                     ConnectionMultiplexer.Connect(redisConnectionString));
-
-                // builder.Services.AddAuthentication("Cookies").AddCookie("Cookies", options =>
-                // {
-                //     options.Cookie.Name = "MyForum.Auth";
-                //     options.LoginPath = "/Users/Login";
-                //     options.AccessDeniedPath = "/Users/AccessDenied";
-                //     options.ExpireTimeSpan = TimeSpan.FromDays(1);
-                // });
 
                 builder.Services.AddMemoryCache();
 
@@ -134,7 +126,8 @@ namespace MyForum.Api
                     {
                         var context = services.GetRequiredService<ForumDbContext>();
                         var logger = services.GetRequiredService<ILogger<SeedData>>();
-                        await SeedData.SeedAsync(context, logger);
+                        var ipHasher = services.GetRequiredService<IIPHasher>();
+                        await SeedData.SeedAsync(context, logger, ipHasher);
                     }
                     catch (Exception ex)
                     {
@@ -143,21 +136,7 @@ namespace MyForum.Api
                     }
                 }
 
-                // Configure the HTTP request pipeline.
-                if (!app.Environment.IsDevelopment())
-                {
-                    // app.UseExceptionHandler("/Home/Error");
-                    // app.UseHsts();
-                }
-
                 app.UseHttpsRedirection();
-                // app.UseStaticFiles(new StaticFileOptions()
-                // {
-                //OnPrepareResponse = ctx =>
-                //{
-                //    ctx.Context.Response.Headers.Add("Cache-Control", "public,max-age=600");
-                //}
-                // });
 
                 app.UseRouting();
 
@@ -166,14 +145,6 @@ namespace MyForum.Api
 
                 app.UseResponseCompression();
                 app.UseCors("AllowFrontend");
-
-                // app.UseStatusCodePages(async statusCodeContext =>
-                // {
-                //     var response = statusCodeContext.HttpContext.Response;
-                //     response.ContentType = "text/html; charset=UTF-8";
-                //     if (response.StatusCode == 404)
-                //         await response.SendFileAsync("Views/Shared/NotFound.cshtml");
-                // });
 
                 app.UseHealthChecksPrometheusExporter("/healthmetrics");
 
@@ -185,22 +156,6 @@ namespace MyForum.Api
                 app.MapPrometheusScrapingEndpoint();
 
                 app.MapControllers();
-
-                // app.MapControllerRoute(
-                //     name: "thread",
-                //     pattern: "{boardShortName}/{threadId:int}",
-                //     defaults: new { controller = "Threads", action = "Index" }
-                //     );
-
-                // app.MapControllerRoute(
-                //     name: "board",
-                //     pattern: "{boardShortName}",
-                //     defaults: new { controller = "Boards", action = "Index" }
-                //     );
-
-                // app.MapControllerRoute(
-                //     name: "default",
-                //     pattern: "{controller=Home}/{action=Index}/{id?}");
 
                 app.Run();
             }

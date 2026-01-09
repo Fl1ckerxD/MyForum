@@ -1,4 +1,6 @@
+import { Link } from "react-router-dom";
 import type { BoardName } from "../types/boardName";
+import "../styles/ui/link.css";
 
 interface BoardListProps {
   boards: BoardName[];
@@ -6,22 +8,18 @@ interface BoardListProps {
 
 const MainBoardList = ({ boards }: BoardListProps) => {
   return (
-    <section className="categories-section fade-in-up delay-500ms">
-      <div className="categories-grid">
-        <div className="category-group staggered-fade-in">
-          <h3 className="category-items">Доски</h3>
-          <div className="category-items">
-            <ul className="navbar-nav flex-grow-1">
-              {boards.map((board) => (
-                <li key={board.shortName}>
-                  <a href={`/${board.shortName}`} className="category-item">
-                    {board.name}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </div>
-        </div>
+    <section className="fade-in-up delay-500ms">
+      <div className="container mb-5">
+        <h3 className="board-title">Доски</h3>
+        <ul className="navbar-nav flex-grow-1">
+          {boards.map((board) => (
+            <li key={board.shortName}>
+              <Link to={`/${board.shortName}`} className="link">
+                {board.name}
+              </Link>
+            </li>
+          ))}
+        </ul>
       </div>
     </section>
   );

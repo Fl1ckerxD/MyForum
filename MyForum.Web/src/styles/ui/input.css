@@ -1,0 +1,31 @@
+:root{
+  --input-bg: #1a202e;
+}
+
+.input {
+  width: 100%;
+  padding: 6px 10px;
+  background-color: var(--input-bg);
+  border: 1px solid var(--border);
+  color: var(--foreground);
+  font-size: 14px;
+  outline: none;
+}
+
+.input:focus {
+  border-color: var(--primary);
+}
+
+/* Textarea */
+.textarea {
+  width: 100%;
+  min-height: 180px;
+  padding: 10px;
+  background-color: var(--input-bg);
+  border: none;
+  color: var(--foreground);
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  resize: vertical;
+  outline: none;
+}

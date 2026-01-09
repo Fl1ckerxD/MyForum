@@ -39,10 +39,10 @@ namespace MyForum.Api.Core.Entities
         public Post Post { get; set; }
 
         // Вычисляемое свойство для URL
-        public string GetFileUrl(IFileService fileService)
+        public string GetFileUrl(IObjectStorageService fileService)
             => fileService.GetFileUrl(BucketName, ObjectKey);
 
-        public string? GetThumbnailUrl(IFileService fileService)
+        public string? GetThumbnailUrl(IObjectStorageService fileService)
             => ThumbnailKey != null ? fileService.GetFileUrl(BucketName, ThumbnailKey) : null;
     }
 }

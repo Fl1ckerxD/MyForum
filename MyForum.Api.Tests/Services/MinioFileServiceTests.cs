@@ -17,16 +17,16 @@ namespace MyForum.Api.Tests.Services
     {
         private readonly Mock<IMinioClient> _mockMinioClient;
         private readonly Mock<IConfiguration> _mockConfiguration;
-        private readonly Mock<ILogger<MinioFileService>> _mockLogger;
-        private readonly MinioFileService _fileService;
+        private readonly Mock<ILogger<MinioObjectStorageService>> _mockLogger;
+        private readonly MinioObjectStorageService _fileService;
 
         public MinioFileServiceTests()
         {
             _mockMinioClient = new Mock<IMinioClient>();
             _mockConfiguration = new Mock<IConfiguration>();
-            _mockLogger = new Mock<ILogger<MinioFileService>>();
+            _mockLogger = new Mock<ILogger<MinioObjectStorageService>>();
 
-            _fileService = new MinioFileService(
+            _fileService = new MinioObjectStorageService(
                 _mockMinioClient.Object,
                 _mockConfiguration.Object,
                 _mockLogger.Object);

@@ -14,12 +14,12 @@ namespace MyForum.Api.Infrastructure.Services
     {
         private readonly ILogger<PostService> _logger;
         private readonly IUnitOfWork _uow;
-        private readonly IFileService _fileService;
+        private readonly IObjectStorageService _fileService;
         private readonly IIPHasher _ipHasher;
         private readonly IMapper _mapper;
         private readonly IForumMetrics _forumMetrics;
 
-        public PostService(ILogger<PostService> logger, IUnitOfWork uow, IFileService fileService, IIPHasher ipHasher, IMapper mapper, IForumMetrics forumMetrics)
+        public PostService(ILogger<PostService> logger, IUnitOfWork uow, IObjectStorageService fileService, IIPHasher ipHasher, IMapper mapper, IForumMetrics forumMetrics)
         {
             _logger = logger;
             _uow = uow;

@@ -15,13 +15,13 @@
     {
         <section class="fade-in-up delay-200ms">
             <div class="form-container">
-                <form class="comment-form" method="post" asp-action="Create" asp-controller="Topics"
+                <form class="post-form" method="post" asp-action="Create" asp-controller="Topics"
                     asp-route-categoryId="@Model.Id" asp-route-categoryName="@Model.Name">
                     <div class="form-header form-group">
                         <input type="text" name="title" class="form-input" placeholder="Название" />
                     </div>
                     <div class="form-group">
-                        <textarea class="comment-textarea" name="content"
+                        <textarea class="post-textarea" name="content"
                         placeholder="Комментарий. Макс. длина 15000"></textarea>
                     </div>
                     <div class="error-message" asp-validation-summary="All"></div>
@@ -34,7 +34,7 @@
         </section>
     }
 
-    <section class="topic-section fade-in-up delay-200ms">
+    <section class="thread-section fade-in-up delay-200ms">
         <div class="table-bordered">
             <ul class="navbar-nav flex-grow-1">
                 @foreach (var thread in @Model.Threads)

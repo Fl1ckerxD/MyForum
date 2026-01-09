@@ -1,0 +1,52 @@
+:root{
+  --button-bg: #2a303d;
+  --button-text: #ecf0f8;
+  --button-hover: #353d4f;
+  --button-delete: #b82a2a;
+  --button-info: #27c29d;
+}
+
+/* Base button */
+.mf-btn {
+  padding: 5px 12px;
+  background-color: var(--button-bg);
+  color: var(--button-text);
+  border: 1px solid var(--border);
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.2s ease;
+}
+
+/* Hover */
+.mf-btn:hover {
+  background-color: var(--button-hover);
+}
+
+/* Sizes */
+.mf-btn-sm {
+  padding: 4px 8px;
+  font-size: 12px;
+}
+
+.mf-btn-lg {
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+}
+
+.mf-btn-full {
+  width: 100%;
+}
+
+/* Link-style button */
+.mf-btn-link {
+  background: none;
+  border: none;
+  text-decoration: none;
+  color: var(--primary);
+  padding: 0;
+  font-weight: bold;
+}
+
+.mf-btn-link:hover {
+  color: var(--primary-hover);
+}
