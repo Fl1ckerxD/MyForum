@@ -1,7 +1,15 @@
-FROM node:20-alpine AS build
-WORKDIR /app
-COPY . .
-RUN npm install && npm run build
+FROM node:25-alpine AS build
 
-FROM nginx:alpine
-COPY --from=build /app/dist /usr/share/nginx/html
+WORKDIR /app
+
+COPY package.json package-lock.json ./
+RUN npm ci
+
+COPY . .
+RUN npm run build
+
+FROM alpine:latest
+WORKDIR /output
+COPY --from=build /app/dist ./dist
+
+CMD ["sh", "-c", "cp -r dist/* /dist-output/"]
