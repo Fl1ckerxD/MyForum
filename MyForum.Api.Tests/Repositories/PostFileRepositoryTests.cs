@@ -20,7 +20,7 @@ namespace MyForum.Api.Tests.Repositories
         public async Task GetByPostIdAsync_ShouldReturnPostFilesForGivenPostId()
         {
             // Arrange
-            var post = new Post { Content = "Sample Post" };
+            var post = new Post { Content = "Sample Post", IpAddressHash = "hashed" };
             var postFile1 = new PostFile { FileName = "file1.png", StoredFileName = "stored_file1.png", Post = post };
             var postFile2 = new PostFile { FileName = "file2.png", StoredFileName = "stored_file2.png", Post = post };
             await _context.Posts.AddAsync(post);

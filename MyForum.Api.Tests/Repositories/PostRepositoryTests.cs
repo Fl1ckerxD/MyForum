@@ -28,7 +28,7 @@ namespace MyForum.Api.Tests.Repositories
 
             for (int i = 1; i <= 12; i++)
             {
-                var post = new Post { Content = $"Post {i}", Thread = thread, CreatedAt = DateTime.UtcNow.AddMinutes(i) };
+                var post = new Post { Content = $"Post {i}", Thread = thread, CreatedAt = DateTime.UtcNow.AddMinutes(i), IpAddressHash = "hashed" };
                 await _context.Posts.AddAsync(post);
             }
             await _context.SaveChangesAsync();

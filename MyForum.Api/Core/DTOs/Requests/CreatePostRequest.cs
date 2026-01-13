@@ -5,7 +5,6 @@ namespace MyForum.Api.Core.DTOs.Requests
         int ThreadId,
         string Content,
         string AuthorName,
-        string? PostPassword,
         List<IFormFile>? Files
     );
 }

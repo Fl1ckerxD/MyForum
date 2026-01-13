@@ -15,10 +15,10 @@ namespace MyForum.Api.Tests.Validations
         {
             var inMemory = new Dictionary<string, string?>
             {
-                ["MinIO:MaxFilesPerPost"] = "4",
-                ["MinIO:MaxFileSize"] = (4 * 1024 * 1024).ToString(),
-                ["MinIO:AllowedExtensions:0"] = ".jpg",
-                ["MinIO:AllowedExtensions:1"] = ".png"
+                ["FileUpload:MaxFilesPerPost"] = "4",
+                ["FileUpload:MaxFileSize"] = (4 * 1024 * 1024).ToString(),
+                ["FileUpload:AllowedExtensions:0"] = ".jpg",
+                ["FileUpload:AllowedExtensions:1"] = ".png"
             };
 
             var configuration = new ConfigurationBuilder()
@@ -36,7 +36,6 @@ namespace MyForum.Api.Tests.Validations
                 ThreadId: 1,
                 Content: "",
                 AuthorName: "TestUser",
-                PostPassword: "password",
                 Files: null
             );
 
@@ -57,7 +56,6 @@ namespace MyForum.Api.Tests.Validations
                 ThreadId: 1,
                 Content: longContent,
                 AuthorName: "TestUser",
-                PostPassword: "password",
                 Files: null
             );
 
@@ -77,7 +75,6 @@ namespace MyForum.Api.Tests.Validations
                 ThreadId: 1,
                 Content: "Test content",
                 AuthorName: "Invalid@Name!",
-                PostPassword: "password",
                 Files: null
             );
 
@@ -99,7 +96,6 @@ namespace MyForum.Api.Tests.Validations
                 ThreadId: 1,
                 Content: "Test content",
                 AuthorName: validName,
-                PostPassword: "password",
                 Files: null
             );
 
@@ -119,7 +115,6 @@ namespace MyForum.Api.Tests.Validations
                 ThreadId: 1,
                 Content: "Test content",
                 AuthorName: longName,
-                PostPassword: "password",
                 Files: null
             );
 
@@ -129,56 +124,6 @@ namespace MyForum.Api.Tests.Validations
             // Assert
             result.ShouldHaveValidationErrorFor(x => x.AuthorName)
                 .WithErrorMessage("Имя не более 50 символов");
-        }
-
-        [Fact]
-        public void ShouldHaveErrorWhenPostPasswordTooLong()
-        {
-            // Arrange
-            var longPassword = new string('a', 21);
-            var model = new CreatePostRequest(
-                ThreadId: 1,
-                Content: "Test content",
-                AuthorName: "TestUser",
-                PostPassword: longPassword,
-                Files: null
-            );
-
-            // Act
-            var result = _validator.TestValidate(model);
-
-            // Assert
-            result.ShouldHaveValidationErrorFor(x => x.PostPassword)
-                .WithErrorMessage("Пароль не более 20 символов");
-        }
-
-        [Fact]
-        public void ShouldNotHaveErrorWhenPostPasswordIsNullOrEmpty()
-        {
-            // Arrange
-            var modelWithNullPassword = new CreatePostRequest(
-                ThreadId: 1,
-                Content: "Test content",
-                AuthorName: "TestUser",
-                PostPassword: null,
-                Files: null
-            );
-
-            var modelWithEmptyPassword = new CreatePostRequest(
-                ThreadId: 1,
-                Content: "Test content",
-                AuthorName: "TestUser",
-                PostPassword: "",
-                Files: null
-            );
-
-            // Act
-            var resultWithNullPassword = _validator.TestValidate(modelWithNullPassword);
-            var resultWithEmptyPassword = _validator.TestValidate(modelWithEmptyPassword);
-
-            // Assert
-            resultWithNullPassword.ShouldNotHaveValidationErrorFor(x => x.PostPassword);
-            resultWithEmptyPassword.ShouldNotHaveValidationErrorFor(x => x.PostPassword);
         }
 
         [Fact]
@@ -198,7 +143,6 @@ namespace MyForum.Api.Tests.Validations
                 ThreadId: 1,
                 Content: "Test content",
                 AuthorName: "TestUser",
-                PostPassword: "password",
                 Files: files
             );
 
@@ -225,7 +169,6 @@ namespace MyForum.Api.Tests.Validations
                 ThreadId: 1,
                 Content: "Test content",
                 AuthorName: "TestUser",
-                PostPassword: "password",
                 Files: files
             );
 
@@ -251,7 +194,6 @@ namespace MyForum.Api.Tests.Validations
                 ThreadId: 1,
                 Content: "Test content",
                 AuthorName: "TestUser",
-                PostPassword: "password",
                 Files: files
             );
 
@@ -277,7 +219,6 @@ namespace MyForum.Api.Tests.Validations
                 ThreadId: 1,
                 Content: "Test content",
                 AuthorName: "TestUser",
-                PostPassword: "password",
                 Files: files
             );
 

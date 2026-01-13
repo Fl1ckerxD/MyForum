@@ -13,10 +13,10 @@ namespace MyForum.Api.Tests.Validations
         {
             var inMemory = new Dictionary<string, string?>
             {
-                ["MinIO:MaxFilesPerPost"] = "4",
-                ["MinIO:MaxFileSize"] = (4 * 1024 * 1024).ToString(),
-                ["MinIO:AllowedExtensions:0"] = ".jpg",
-                ["MinIO:AllowedExtensions:1"] = ".png"
+                ["FileUpload:MaxFilesPerPost"] = "4",
+                ["FileUpload:MaxFileSize"] = (4 * 1024 * 1024).ToString(),
+                ["FileUpload:AllowedExtensions:0"] = ".jpg",
+                ["FileUpload:AllowedExtensions:1"] = ".png"
             };
 
             var configuration = new ConfigurationBuilder()
@@ -38,7 +38,6 @@ namespace MyForum.Api.Tests.Validations
                     ThreadId: 0,
                     Content: "This is the first post in the thread.",
                     AuthorName: "TestUser",
-                    PostPassword: "password",
                     Files: null
                 )
             );
@@ -64,7 +63,6 @@ namespace MyForum.Api.Tests.Validations
                     ThreadId: 0,
                     Content: "This is the first post in the thread.",
                     AuthorName: "TestUser",
-                    PostPassword: "password",
                     Files: null
                 )
             );
@@ -89,7 +87,6 @@ namespace MyForum.Api.Tests.Validations
                     ThreadId: 0,
                     Content: "This is the first post in the thread.",
                     AuthorName: "TestUser",
-                    PostPassword: "password",
                     Files: null
                 )
             );
@@ -114,7 +111,6 @@ namespace MyForum.Api.Tests.Validations
                     ThreadId: 0,
                     Content: "This is the first post in the thread.",
                     AuthorName: "TestUser",
-                    PostPassword: "password",
                     Files: null
                 )
             );
@@ -139,7 +135,6 @@ namespace MyForum.Api.Tests.Validations
                     ThreadId: 0,
                     Content: "", // Invalid content
                     AuthorName: "TestUser",
-                    PostPassword: "password",
                     Files: null
                 )
             );
