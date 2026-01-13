@@ -12,7 +12,7 @@ namespace MyForum.Api.Core.MappingProfiles
             CreateMap<Board, BoardDto>();
             CreateMap<Board, BoardNamesDto>();
             CreateMap<Thread, ThreadDto>()
-                .ForMember(dest => dest.OriginalPost, opt => opt.MapFrom(src => src.Posts.FirstOrDefault()));
+                .ForMember(dest => dest.OriginalPost, opt => opt.MapFrom(src => src.Posts.First(p => p.IsOriginal)));
             CreateMap<Post, PostDto>();
             CreateMap<PostFile, FileDto>();
         }

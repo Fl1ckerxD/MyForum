@@ -64,9 +64,9 @@ namespace MyForum.Api.Controllers
                     subject: request.Subject,
                     postContent: request.OriginalPost.Content,
                     authorName: request.OriginalPost.AuthorName,
-                    postPassword: request.OriginalPost.PostPassword ?? string.Empty,
                     ipAddress: ipAddress,
                     userAgent: userAgent,
+                    files: request.OriginalPost.Files,
                     cancellationToken: cancellationToken);
 
                 return Created($"/api/{request.BoardShortName}/{threadId}",

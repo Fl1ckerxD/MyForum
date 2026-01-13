@@ -3,8 +3,7 @@ interface CreateThreadRequest {
   boardShortName: string;
   subject: string;
   content: string;
-  authorName: string;
-  postPassword?: string;
+  authorName?: string;
   files?: File[];
 }
 
@@ -16,11 +15,7 @@ export async function createThread(request: CreateThreadRequest) {
   formData.append("Subject", request.subject);
 
   formData.append("OriginalPost.Content", request.content);
-  formData.append("OriginalPost.AuthorName", request.authorName);
-
-  if (request.postPassword) {
-    formData.append("OriginalPost.PostPassword", request.postPassword);
-  }
+  formData.append("OriginalPost.AuthorName", request.authorName || "Аноним");
 
   request.files?.forEach((file) => {
     formData.append("OriginalPost.Files", file);

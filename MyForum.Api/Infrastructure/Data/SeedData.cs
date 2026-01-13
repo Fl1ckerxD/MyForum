@@ -133,69 +133,87 @@ namespace MyForum.Api.Infrastructure.Data
 
                     var threads = await context.Threads.ToListAsync();
 
-                    var Posts = new List<Post>();
+                    var posts = new List<Post>();
 
-                    // Для каждого треда создаем оригинальный пост и несколько ответов
+                    // Для каждого треда создаем оригинальный пост
                     foreach (var thread in threads)
                     {
                         // Оригинальный пост (ОП)
                         var originalPost = new Post
                         {
                             AuthorName = "Аноним",
-                            AuthorTripcode = null,
                             Content = GetOriginalPostContent(thread.Subject),
                             CreatedAt = thread.CreatedAt,
                             ThreadId = thread.Id,
-                            IpAddress = ipHasher.HashIP("127.0.0.1")
+                            IsOriginal = true,
+                            IpAddressHash = ipHasher.HashIP("127.0.0.1")
                         };
-                        Posts.Add(originalPost);
 
-                        // Сохраняем оригинальный пост в треде
-                        thread.OriginalPost = originalPost;
+                        posts.Add(originalPost);
+                    }
+
+                    await context.Posts.AddRangeAsync(posts);
+                    await context.SaveChangesAsync();
+
+                    var originalPostsByThreadId = await context.Posts
+                        .Where(p => p.IsOriginal)
+                        .ToDictionaryAsync(p => p.ThreadId);
+
+                    posts.Clear();
+
+                    foreach (var thread in threads)
+                    {
+                        var originalPost = originalPostsByThreadId[thread.Id];
 
                         for (int i = 1; i <= 3; i++)
                         {
-                            Posts.Add(new Post
+                            posts.Add(new Post
                             {
                                 AuthorName = GetRandomAuthorName(),
-                                AuthorTripcode = i == 1 ? "!tripcode" : null,
-                                AuthorId = i == 2 ? "ID:AbCd12" : null,
                                 Content = GetReplyContent(thread.Subject, i),
                                 CreatedAt = thread.CreatedAt.AddMinutes(i * 10),
                                 ThreadId = thread.Id,
-                                ReplyToPost = originalPost,
-                                IpAddress = ipHasher.HashIP("192.168.1." + i)
+                                ReplyToPostId = originalPost.Id,
+                                IsOriginal = false,
+                                IpAddressHash = ipHasher.HashIP($"192.168.1.{i}")
                             });
                         }
 
                         // Ответ на ответ (вложенная дискуссия)
                         if (thread.Id % 3 != 0)
                         {
-                            Posts.Add(new Post
+                            var lastReply = posts.Last(p => p.ThreadId == thread.Id);
+
+                            posts.Add(new Post
                             {
                                 AuthorName = "Скептик",
                                 Content = "А есть доказательства этому утверждению?",
                                 CreatedAt = thread.CreatedAt.AddMinutes(45),
                                 ThreadId = thread.Id,
-                                ReplyToPost = Posts.Last(p => p.ThreadId == thread.Id && p != originalPost),
-                                IpAddress = ipHasher.HashIP("10.0.0.1")
+                                ReplyToPost = lastReply,
+                                IsOriginal = false,
+                                IpAddressHash = ipHasher.HashIP("10.0.0.1")
                             });
                         }
                     }
 
+                    await context.Posts.AddRangeAsync(posts);
+
                     // Обновляем счетчики в тредах
                     foreach (var thread in threads)
                     {
-                        var postCount = Posts.Count(p => p.ThreadId == thread.Id);
-                        thread.PostCount = postCount;
-                        thread.ReplyCount = postCount - 1; // минус ОП
+                        var threadPosts = await context.Posts
+                            .Where(p => p.ThreadId == thread.Id)
+                            .ToListAsync();
+
+                        thread.PostCount = threadPosts.Count;
+                        thread.ReplyCount = threadPosts.Count - 1;
                         thread.FileCount = 0;
                     }
 
-                    await context.Posts.AddRangeAsync(Posts);
                     await context.SaveChangesAsync();
 
-                    logger.LogInformation("Successfully seeded {PostCount} posts", Posts.Count);
+                    logger.LogInformation("Successfully seeded {PostCount} posts", posts.Count);
                 }
                 else
                     logger.LogInformation("Posts already exist, skipping seeding");

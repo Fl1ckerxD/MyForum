@@ -48,7 +48,6 @@ namespace MyForum.Api.Tests.Services
             var threadId = 1;
             var content = "Test content";
             var authorName = "Test Author";
-            var postPassword = "password";
             var ipAddress = "192.168.1.1";
             var userAgent = "UnitTestAgent";
 
@@ -58,16 +57,14 @@ namespace MyForum.Api.Tests.Services
             _mockUnitOfWork.Setup(uow => uow.SaveAsync(It.IsAny<CancellationToken>())).ReturnsAsync(1);
 
             // Act
-            await _postService.CreateAsync(threadId, content, authorName, postPassword,
-                ipAddress, userAgent, null);
+            await _postService.CreateAsync(threadId, content, authorName, ipAddress, userAgent, null);
 
             // Assert
             mockPostRepo.Verify(repo => repo.AddAsync(It.Is<Post>(p =>
                 p.ThreadId == threadId &&
                 p.Content == content &&
                 p.AuthorName == authorName &&
-                p.PostPassword == postPassword &&
-                p.IpAddress == "hashed_ip" &&
+                p.IpAddressHash == "hashed_ip" &&
                 p.UserAgent == userAgent
             ), It.IsAny<CancellationToken>()), Times.Once);
 
@@ -81,7 +78,6 @@ namespace MyForum.Api.Tests.Services
             var threadId = 1;
             var content = "Test content";
             var authorName = "Test Author";
-            var postPassword = "password";
             var ipAddress = "192.168.1.1";
             var userAgent = "UnitTestAgent";
 
@@ -103,16 +99,14 @@ namespace MyForum.Api.Tests.Services
                 .ReturnsAsync(postFile);
 
             // Act
-            await _postService.CreateAsync(threadId, content, authorName, postPassword,
-                ipAddress, userAgent, files);
+            await _postService.CreateAsync(threadId, content, authorName, ipAddress, userAgent, files);
 
             // Assert
             mockPostRepo.Verify(repo => repo.AddAsync(It.Is<Post>(p =>
                 p.ThreadId == threadId &&
                 p.Content == content &&
                 p.AuthorName == authorName &&
-                p.PostPassword == postPassword &&
-                p.IpAddress == "hashed_ip" &&
+                p.IpAddressHash == "hashed_ip" &&
                 p.UserAgent == userAgent
             ), It.IsAny<CancellationToken>()), Times.Once);
 
@@ -133,7 +127,6 @@ namespace MyForum.Api.Tests.Services
             var postId = 123;
             var content = "Test content";
             var authorName = "Test Author";
-            var postPassword = "password";
             var ipAddress = "192.168.1.1";
             var userAgent = "UnitTestAgent";
 
@@ -146,16 +139,14 @@ namespace MyForum.Api.Tests.Services
                 .Callback<Post, CancellationToken>((post, ct) => post.Id = postId);
 
             // Act
-            await _postService.CreateAsync(thread, content, authorName, postPassword,
-                ipAddress, userAgent, null);
+            await _postService.CreateAsync(thread, content, authorName, ipAddress, userAgent, null);
 
             // Assert
             mockPostRepo.Verify(repo => repo.AddAsync(It.Is<Post>(p =>
                 p.Thread == thread &&
                 p.Content == content &&
                 p.AuthorName == authorName &&
-                p.PostPassword == postPassword &&
-                p.IpAddress == "hashed_ip" &&
+                p.IpAddressHash == "hashed_ip" &&
                 p.UserAgent == userAgent
             ), It.IsAny<CancellationToken>()), Times.Once);
 

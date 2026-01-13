@@ -40,7 +40,6 @@ namespace MyForum.Api.Controllers
                     threadId: request.ThreadId,
                     content: request.Content,
                     authorName: request.AuthorName,
-                    postPassword: request.PostPassword ?? string.Empty,
                     ipAddress: ipAddress,
                     userAgent: userAgent,
                     files: request.Files,

@@ -1,4 +1,4 @@
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import type { Board } from "../types/board";
 import { getBoard } from "../api/boards.api";
@@ -11,6 +11,7 @@ export default function BoardPage() {
   const { boardShortName } = useParams<{ boardShortName: string }>();
   const [board, setBoard] = useState<Board | null>(null);
   const [createThreadVisible, setCreateThreadVisible] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (!boardShortName) return;
@@ -48,8 +49,8 @@ export default function BoardPage() {
             <CreateThreadForm
               boardId={board.id}
               boardShortName={board.shortName}
-              onCreated={() => {
-                getBoard(board.shortName).then(setBoard);
+              onCreated={(threadId) => {
+                navigate(`/${board.shortName}/${threadId}`);
               }}
             />
           </>

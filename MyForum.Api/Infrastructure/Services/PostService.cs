@@ -32,15 +32,14 @@ namespace MyForum.Api.Infrastructure.Services
         /// <summary>
         /// Создает пост, привязанный к существующему треду по его ID
         /// </summary>
-        public async Task<int> CreateAsync(int threadId, string content, string authorName, string postPassword,
-            string ipAddress, string userAgent, List<IFormFile>? files = null, CancellationToken cancellationToken = default)
+        public async Task<int> CreateAsync(int threadId, string content, string authorName, string ipAddress,
+            string userAgent, List<IFormFile>? files = null, CancellationToken cancellationToken = default)
         {
             var post = new Post
             {
                 ThreadId = threadId,
                 Content = content,
                 AuthorName = authorName,
-                PostPassword = postPassword,
                 UserAgent = userAgent
             };
 
@@ -51,19 +50,17 @@ namespace MyForum.Api.Infrastructure.Services
         /// Создает оригинальный пост для нового треда
         /// </summary>
         /// <param name="thread">Объект треда (будет сохранен вместе с постом)</param>
-        public async Task<int> CreateAsync(Thread thread, string content, string authorName, string postPassword,
-            string ipAddress, string userAgent, List<IFormFile>? files = null, CancellationToken cancellationToken = default)
+        public async Task<int> CreateAsync(Thread thread, string content, string authorName, string ipAddress,
+            string userAgent, List<IFormFile>? files = null, CancellationToken cancellationToken = default)
         {
             var post = new Post
             {
                 Thread = thread,
                 Content = content,
                 AuthorName = authorName,
-                PostPassword = postPassword,
+                IsOriginal = true,
                 UserAgent = userAgent
             };
-
-            thread.OriginalPost = post;
 
             return await CreateAsync(post, ipAddress, files, cancellationToken);
         }
@@ -87,8 +84,7 @@ namespace MyForum.Api.Infrastructure.Services
 
         private async Task<int> CreateAsync(Post post, string ipAddress, List<IFormFile>? files = null, CancellationToken cancellationToken = default)
         {
-            var hashedIp = _ipHasher.HashIP(ipAddress);
-            post.IpAddress = hashedIp;
+            post.IpAddressHash = _ipHasher.HashIP(ipAddress);
 
             using var transactionScope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
 
@@ -103,6 +99,7 @@ namespace MyForum.Api.Infrastructure.Services
                 transactionScope.Complete();
 
                 _forumMetrics.AddPost();
+                _logger.LogInformation("Создан новый пост с Id {PostId} в треде с Id {ThreadId}", post.Id, post.ThreadId);
 
                 return post.Id;
             }

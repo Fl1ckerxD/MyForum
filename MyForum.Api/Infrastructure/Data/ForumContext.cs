@@ -23,25 +23,19 @@ public partial class ForumDbContext : DbContext
         {
             entity.HasIndex(b => b.ShortName).IsUnique();
             entity.HasIndex(b => b.Position);
-            entity.Property(b => b.CreatedAt).HasDefaultValueSql("NOW()");
         });
 
         // Thread
         modelBuilder.Entity<Core.Entities.Thread>(entity =>
         {
             entity.HasIndex(t => t.BoardId);
-            entity.HasIndex(t => t.LastBumpAt);
             entity.HasIndex(t => t.IsPinned);
+            entity.HasIndex(t => new { t.IsPinned, t.LastBumpAt });
 
             entity.HasOne(t => t.Board)
                 .WithMany(b => b.Threads)
                 .HasForeignKey(t => t.BoardId)
                 .OnDelete(DeleteBehavior.Cascade);
-
-            entity.HasOne(t => t.OriginalPost)
-                .WithMany()
-                .HasForeignKey(t => t.OriginalPostId)
-                .OnDelete(DeleteBehavior.Restrict);
         });
 
         // Post
@@ -50,6 +44,7 @@ public partial class ForumDbContext : DbContext
             entity.HasIndex(p => p.ThreadId);
             entity.HasIndex(p => p.CreatedAt);
             entity.HasIndex(p => p.ReplyToPostId);
+            entity.HasIndex(p => new { p.ThreadId, p.IsOriginal });
 
             entity.HasOne(p => p.Thread)
                 .WithMany(t => t.Posts)

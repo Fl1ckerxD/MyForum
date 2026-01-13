@@ -1,6 +1,6 @@
 const API_BASE_URL =
   import.meta.env.MODE === "development"
-    ? "https://localhost:8080/api"
+    ? "http://localhost:80/api"
     : "/api";
 
 export async function api<T>(url: string, options?: RequestInit): Promise<T> {

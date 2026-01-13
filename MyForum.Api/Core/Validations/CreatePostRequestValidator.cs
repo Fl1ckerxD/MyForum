@@ -9,8 +9,8 @@ namespace MyForum.Api.Core.Validations
         public CreatePostRequestValidator(IConfiguration configuration)
         {
             _configuration = configuration;
-            int maxFilesPerPost = _configuration.GetValue<int>("MinIO:MaxFilesPerPost");
-            int maxFileSize = _configuration.GetValue<int>("MinIO:MaxFileSize");
+            int maxFilesPerPost = _configuration.GetValue<int>("FileUpload:MaxFilesPerPost");
+            int maxFileSize = _configuration.GetValue<int>("FileUpload:MaxFileSize");
 
             RuleFor(x => x.Content)
                 .NotEmpty().WithMessage("Сообщение не может быть пустым")
@@ -18,11 +18,8 @@ namespace MyForum.Api.Core.Validations
 
             RuleFor(x => x.AuthorName)
                 .MaximumLength(50).WithMessage("Имя не более 50 символов")
-                .Matches("^[a-zA-Zа-яА-Я0-9 ]*$").WithMessage("Недопустимые символы в имени");
-
-            RuleFor(x => x.PostPassword)
-                .MaximumLength(20).WithMessage("Пароль не более 20 символов")
-                .When(x => !string.IsNullOrEmpty(x.PostPassword));
+                .Matches("^[a-zA-Zа-яА-Я0-9 ]*$").WithMessage("Недопустимые символы в имени")
+                .When(x => !string.IsNullOrWhiteSpace(x.AuthorName));
 
             RuleFor(x => x.Files)
                 .Must(files => files == null || files.Count <= maxFilesPerPost)
@@ -30,20 +27,20 @@ namespace MyForum.Api.Core.Validations
 
             RuleForEach(x => x.Files)
                 .ChildRules(file =>
-                {
-                    file.RuleFor(f => f.Length)
-                        .LessThanOrEqualTo(maxFileSize)
-                        .WithMessage("Файл слишком большой");
+            {
+                file.RuleFor(f => f.Length)
+                    .LessThanOrEqualTo(maxFileSize)
+                    .WithMessage("Файл слишком большой");
 
-                    file.RuleFor(f => f.FileName)
-                        .Must(BeSupportedFileType)
-                        .WithMessage("Неподдерживаемый тип файла");
-                });
+                file.RuleFor(f => f.FileName)
+                    .Must(BeSupportedFileType)
+                    .WithMessage("Неподдерживаемый тип файла");
+            });
         }
 
         private bool BeSupportedFileType(string fileName)
         {
-            var allowedExtensions = _configuration.GetSection("MinIO:AllowedExtensions").Get<string[]>();
+            var allowedExtensions = _configuration.GetSection("FileUpload:AllowedExtensions").Get<string[]>();
             var extension = Path.GetExtension(fileName).ToLowerInvariant();
             return allowedExtensions.Contains(extension);
         }

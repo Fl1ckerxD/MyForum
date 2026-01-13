@@ -7,7 +7,7 @@ import "../styles/ui/input.css";
 interface CreateThreadFormProps {
   boardId: number;
   boardShortName: string;
-  onCreated?: () => void;
+  onCreated?: (threadId: number) => void;
 }
 
 export default function CreateThreadForm({
@@ -18,7 +18,6 @@ export default function CreateThreadForm({
   const [subject, setSubject] = useState("");
   const [content, setContent] = useState("");
   const [authorName, setAuthorName] = useState("Аноним");
-  const [postPassword, setPostPassword] = useState("");
   const [files, setFiles] = useState<File[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -29,20 +28,19 @@ export default function CreateThreadForm({
     setIsSubmitting(true);
 
     try {
-      await createThread({
+      const response = await createThread({
         boardId,
         boardShortName,
         subject,
         content,
         authorName,
-        postPassword: postPassword || undefined,
         files,
       });
 
       setSubject("");
       setContent("");
       setFiles([]);
-      onCreated?.();
+      onCreated?.(response.threadId);
     } catch (err: any) {
       setError(err.message ?? "Ошибка при создании треда");
     } finally {
@@ -85,16 +83,6 @@ export default function CreateThreadForm({
               placeholder="Имя (необязательно)"
               value={authorName}
               onChange={(e) => setAuthorName(e.target.value)}
-            />
-          </div>
-
-          <div className="form-group">
-            <input
-              type="password"
-              className="input"
-              placeholder="Пароль для удаления"
-              value={postPassword}
-              onChange={(e) => setPostPassword(e.target.value)}
             />
           </div>
 

@@ -4,6 +4,7 @@ using MyForum.Api.Core.DTOs.Common;
 using MyForum.Api.Core.Interfaces.Metrics;
 using MyForum.Api.Core.Interfaces.Repositories;
 using MyForum.Api.Core.Interfaces.Services;
+using Serilog;
 using Thread = MyForum.Api.Core.Entities.Thread;
 
 namespace MyForum.Api.Infrastructure.Services
@@ -32,7 +33,7 @@ namespace MyForum.Api.Infrastructure.Services
         }
 
         public async Task<int> CreateThreadWithPostAsync(int boardId, string subject, string postContent,
-            string authorName, string postPassword, string ipAddress, string userAgent,
+            string authorName, string ipAddress, string userAgent,
             List<IFormFile>? files = null, CancellationToken cancellationToken = default)
         {
             var thread = new Thread
@@ -41,9 +42,10 @@ namespace MyForum.Api.Infrastructure.Services
                 Subject = subject
             };
 
-            await _postService.CreateAsync(thread, postContent, authorName, postPassword, ipAddress, userAgent, files, cancellationToken);
+            await _postService.CreateAsync(thread, postContent, authorName, ipAddress, userAgent, files, cancellationToken);
 
             _forumMetrics.AddThread();
+            _logger.LogInformation("Создан новый тред с Id {ThreadId} на доске с Id {BoardId}", thread.Id, boardId);
             return thread.Id;
         }
 

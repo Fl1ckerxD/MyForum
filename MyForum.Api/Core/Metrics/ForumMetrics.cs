@@ -14,18 +14,15 @@ namespace MyForum.Api.Core.Metrics
             var meter = meterFactory.Create("MyForum.Metrics");
 
             _postsCreated = meter.CreateCounter<int>(
-                name: "forum.posts.created",
-                unit: "posts",
+                name: "forum_posts_created",
                 description: "Total number of posts created");
 
             _threadsCreated = meter.CreateCounter<int>(
-                name: "forum.threads.created",
-                unit: "threads",
+                name: "forum_threads_created",
                 description: "Total number of threads created");
 
             _activeUsers = meter.CreateUpDownCounter<int>(
-                name: "forum.users.active",
-                unit: "users",
+                name: "forum_users_active",
                 description: "Current number of active users");
         }
 

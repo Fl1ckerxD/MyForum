@@ -2,16 +2,16 @@ global:
   scrape_interval: 15s
 
 scrape_configs:
-  - job_name: 'myforum'
+  - job_name: "myforum-api"
     static_configs:
-      - targets: ['myforum:80']
-    metrics_path: '/metrics'
+      - targets: ["myforum-api:80"]
+    metrics_path: /metrics
 
-  - job_name: 'myforum_health'
+  - job_name: "myforum-api_health"
     static_configs:
-      - targets: ['myforum:80']
-    metrics_path: '/healthmetrics'
+      - targets: ["myforum-api:80"]
+    metrics_path: /healthmetrics
 
-  - job_name: 'loki'
+  - job_name: "loki"
     static_configs:
-      - targets: ['loki:3100']
+      - targets: ["loki:3100"]
