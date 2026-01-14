@@ -1,7 +1,10 @@
 export interface File {
   id: number;
   fileName: string;
-  filePath: string;
+  fileUrl: string;
+  thumbnailUrl: string;
   fileSize: number;
+  width: number;
+  height: number;
   uploadedAt: Date;
 }

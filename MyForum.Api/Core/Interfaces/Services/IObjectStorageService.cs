@@ -6,7 +6,7 @@ namespace MyForum.Api.Core.Interfaces.Services
     {
         Task<PostFile> SaveFileAsync(IFormFile file, Post post, CancellationToken cancellationToken = default);
         Task<bool> DeleteFileAsync(PostFile postFile, CancellationToken cancellationToken = default);
-        string GetFileUrl(string bucketName, string objectKey);
+        Task<string?> GetFileUrlAsync(string bucketName, string objectKey, int expiresSeconds = 3600);
         Task<Stream> GetFileStreamAsync(string bucketName, string objectKey);
     }
 }

@@ -4,8 +4,10 @@ namespace MyForum.Api.Core.DTOs
     (
         int Id,
         string FileName,
-        string FilePath,
+        string FileUrl,
+        string? ThumbnailUrl,
         long FileSize,
-        DateTime UploadedAt
+        int? Width,
+        int? Height
     );
 }

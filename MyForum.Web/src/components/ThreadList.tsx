@@ -25,6 +25,21 @@ const ThreadList = ({ boardShortName, threads }: ThreadListProps) => {
               </span>
             </div>
             <div>
+              {thread.originalPost.files.map((file) => (
+                <div key={file.id} className="post-file">
+                  {file.thumbnailUrl ? (
+                    <img
+                      src={file.thumbnailUrl}
+                      alt={file.fileName}
+                      loading="lazy"
+                    />
+                  ) : (
+                    <a href={file.fileUrl} target="_blank" rel="noreferrer">
+                      {file.fileName}
+                    </a>
+                  )}
+                </div>
+              ))}
               <p>{thread.originalPost.content}</p>
             </div>
           </li>

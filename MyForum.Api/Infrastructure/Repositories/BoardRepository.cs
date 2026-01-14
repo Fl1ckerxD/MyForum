@@ -22,7 +22,8 @@ namespace MyForum.Api.Infrastructure.Repositories
         {
             return await _context.Boards
                 .Include(b => b.Threads)
-                    .ThenInclude(p => p.Posts)
+                    .ThenInclude(t => t.Posts)
+                        .ThenInclude(p => p.Files)
                 .FirstOrDefaultAsync(b => b.ShortName == boardShortName, cancellationToken);
         }
 

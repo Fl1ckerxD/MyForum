@@ -171,14 +171,14 @@ namespace MyForum.Api.Infrastructure.Services
             }
         }
 
-        public string GetFileUrl(string bucketName, string objectKey)
+        public async Task<string?> GetFileUrlAsync(string bucketName, string objectKey, int expiresSeconds = 3600)
         {
-            // Для MinIO можно генерировать URL напрямую
-            var endpoint = _configuration["MinIO:Endpoint"] ?? "localhost:9000";
-            var useSsl = _configuration.GetValue<bool>("MinIO:WithSSL");
-            var protocol = useSsl ? "https" : "http";
+            var args = new PresignedGetObjectArgs()
+                .WithBucket(bucketName)
+                .WithObject(objectKey)
+                .WithExpiry(expiresSeconds);
 
-            return $"{protocol}://{endpoint}/{bucketName}/{objectKey}";
+            return await _minioClient.PresignedGetObjectAsync(args);
         }
 
         public async Task<bool> DeleteFileAsync(PostFile postFile, CancellationToken cancellationToken = default)

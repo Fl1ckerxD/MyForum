@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
 using Minio;
+using MyForum.Api.Application.Files;
+using MyForum.Api.Core.Interfaces.Factories;
 using MyForum.Api.Core.Interfaces.Metrics;
 using MyForum.Api.Core.Interfaces.Repositories;
 using MyForum.Api.Core.Interfaces.Services;
@@ -110,6 +112,7 @@ namespace MyForum.Api
                 builder.Services.AddScoped<IPostService, PostService>();
                 builder.Services.AddScoped<IIPHasher, SHA256IPHasher>();
                 builder.Services.AddScoped<IObjectStorageService, MinioObjectStorageService>();
+                builder.Services.AddScoped<IFileDtoFactory, FileDtoFactory>();
 
                 builder.Services.AddSingleton<IForumMetrics, ForumMetrics>();
                 builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
