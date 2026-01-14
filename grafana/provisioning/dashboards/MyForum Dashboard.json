@@ -398,7 +398,7 @@
       "targets": [
         {
           "editorMode": "builder",
-          "expr": "healthcheck{healthcheck=\"MinIO_Health_Check\"}",
+          "expr": "healthcheck{healthcheck=\"MinIO\"}",
           "legendFormat": "{{label_name}}",
           "range": true,
           "refId": "A"
@@ -408,12 +408,102 @@
       "type": "barchart"
     },
     {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PBFA97CFB590B2093"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "fillOpacity": 80,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineWidth": 1,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 17
+      },
+      "id": 123,
+      "options": {
+        "barRadius": 0,
+        "barWidth": 1,
+        "fullHighlight": false,
+        "groupWidth": 0.7,
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": false
+        },
+        "orientation": "auto",
+        "showValue": "auto",
+        "stacking": "none",
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        },
+        "xTickLabelRotation": 0,
+        "xTickLabelSpacing": 100
+      },
+      "pluginVersion": "12.3.1",
+      "targets": [
+        {
+          "editorMode": "builder",
+          "expr": "healthcheck{healthcheck=\"redis\"}",
+          "legendFormat": "{{label_name}}",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Health Check Status (redis)",
+      "type": "barchart"
+    },
+    {
       "collapsed": false,
       "gridPos": {
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 17
+        "y": 25
       },
       "id": 120,
       "panels": [],
@@ -485,7 +575,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 18
+        "y": 26
       },
       "id": 121,
       "options": {
@@ -493,7 +583,7 @@
           "calcs": [],
           "displayMode": "list",
           "placement": "bottom",
-          "showLegend": true
+          "showLegend": false
         },
         "tooltip": {
           "hideZeros": false,
@@ -579,7 +669,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 18
+        "y": 26
       },
       "id": 122,
       "options": {
@@ -587,7 +677,7 @@
           "calcs": [],
           "displayMode": "list",
           "placement": "bottom",
-          "showLegend": true
+          "showLegend": false
         },
         "tooltip": {
           "hideZeros": false,
@@ -614,7 +704,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 26
+        "y": 34
       },
       "id": 10,
       "panels": [],
@@ -705,7 +795,7 @@
         "h": 7,
         "w": 12,
         "x": 0,
-        "y": 27
+        "y": 35
       },
       "id": 66,
       "options": {
@@ -768,7 +858,7 @@
         "h": 7,
         "w": 12,
         "x": 12,
-        "y": 27
+        "y": 35
       },
       "id": 65,
       "options": {
@@ -844,7 +934,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 34
+        "y": 42
       },
       "id": 3,
       "panels": [],
@@ -970,7 +1060,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 35
+        "y": 43
       },
       "id": 8,
       "options": {
@@ -1106,7 +1196,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 35
+        "y": 43
       },
       "id": 7,
       "options": {
@@ -1275,7 +1365,7 @@
         "h": 8,
         "w": 24,
         "x": 0,
-        "y": 43
+        "y": 51
       },
       "id": 14,
       "options": {
@@ -1324,7 +1414,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 51
+        "y": 59
       },
       "id": 69,
       "panels": [],
@@ -1399,7 +1489,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 52
+        "y": 60
       },
       "id": 70,
       "options": {
@@ -1539,7 +1629,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 52
+        "y": 60
       },
       "id": 71,
       "options": {
@@ -1674,7 +1764,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 60
+        "y": 68
       },
       "id": 72,
       "options": {
@@ -1781,7 +1871,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 60
+        "y": 68
       },
       "id": 79,
       "options": {
@@ -1944,7 +2034,7 @@
         "h": 8,
         "w": 24,
         "x": 0,
-        "y": 68
+        "y": 76
       },
       "id": 80,
       "options": {
@@ -1993,7 +2083,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 76
+        "y": 84
       },
       "id": 88,
       "panels": [],
@@ -2098,7 +2188,7 @@
         "h": 8,
         "w": 8,
         "x": 0,
-        "y": 77
+        "y": 85
       },
       "id": 95,
       "options": {
@@ -2206,7 +2296,7 @@
         "h": 8,
         "w": 8,
         "x": 8,
-        "y": 77
+        "y": 85
       },
       "id": 96,
       "options": {
@@ -2279,7 +2369,7 @@
         "h": 8,
         "w": 8,
         "x": 16,
-        "y": 77
+        "y": 85
       },
       "id": 100,
       "options": {
@@ -2323,7 +2413,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 85
+        "y": 93
       },
       "id": 101,
       "panels": [
@@ -2425,7 +2515,7 @@
             "h": 8,
             "w": 8,
             "x": 0,
-            "y": 115
+            "y": 94
           },
           "id": 105,
           "options": {
@@ -2636,7 +2726,7 @@
             "h": 8,
             "w": 8,
             "x": 8,
-            "y": 115
+            "y": 94
           },
           "id": 109,
           "options": {
@@ -2820,7 +2910,7 @@
             "h": 8,
             "w": 8,
             "x": 16,
-            "y": 115
+            "y": 94
           },
           "id": 110,
           "options": {
@@ -3004,7 +3094,7 @@
             "h": 8,
             "w": 8,
             "x": 0,
-            "y": 123
+            "y": 124
           },
           "id": 111,
           "options": {
@@ -3112,7 +3202,7 @@
             "h": 8,
             "w": 8,
             "x": 8,
-            "y": 123
+            "y": 124
           },
           "id": 112,
           "options": {
@@ -3185,7 +3275,7 @@
             "h": 8,
             "w": 4,
             "x": 16,
-            "y": 123
+            "y": 124
           },
           "id": 113,
           "options": {
@@ -3255,7 +3345,7 @@
             "h": 8,
             "w": 4,
             "x": 20,
-            "y": 123
+            "y": 124
           },
           "id": 114,
           "options": {
@@ -3303,7 +3393,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 86
+        "y": 94
       },
       "id": 74,
       "panels": [
@@ -3375,7 +3465,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 116
+            "y": 95
           },
           "id": 84,
           "options": {
@@ -3540,7 +3630,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 124
+            "y": 109
           },
           "id": 76,
           "options": {
@@ -3593,7 +3683,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 87
+        "y": 95
       },
       "id": 67,
       "panels": [
@@ -3610,7 +3700,7 @@
             "h": 6,
             "w": 24,
             "x": 0,
-            "y": 117
+            "y": 96
           },
           "id": 68,
           "options": {
