@@ -2,8 +2,8 @@ import { useEffect, useState } from "react";
 import type { BoardName } from "../types/boardName";
 import { getBoardNames } from "../api/boards.api";
 import MainHeader from "../components/MainHeader/MainHeader";
-import MainDescription from "../components/MainDescription";
-import MainBoardList from "../components/MainBoardList";
+import MainDescription from "../components/HomeDescription";
+import MainBoardList from "../components/HomeBoardList";
 
 export default function HomePage() {
   const [boards, setBoards] = useState<BoardName[]>([]);
