@@ -5,9 +5,10 @@ import type { Thread } from "../types/thread";
 interface Props {
   thread: Thread;
   boardShortName: string;
+  variant?: "list" | "page";
 }
 
-const ThreadPreview = ({ thread, boardShortName }: Props) => {
+const ThreadPreview = ({ thread, boardShortName, variant = "list" }: Props) => {
   return (
     <>
       <ThreadCard
@@ -18,9 +19,10 @@ const ThreadPreview = ({ thread, boardShortName }: Props) => {
         createdAt={thread.createdAt}
         postCount={thread.postCount}
         fileCount={thread.fileCount}
+        variant={variant}
       />
 
-      <PostFilesPreview files={thread.originalPost.files} />
+      <PostFilesPreview files={thread.originalPost.files} variant={variant} />
 
       <p>{thread.originalPost.content}</p>
     </>

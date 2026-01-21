@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import "../styles/ui/text.css";
 
 interface ThreadCardProps {
   id: number;
@@ -8,6 +9,7 @@ interface ThreadCardProps {
   createdAt: Date;
   postCount: number;
   fileCount: number;
+  variant?: "list" | "page";
 }
 
 const ThreadCard = ({
@@ -18,20 +20,27 @@ const ThreadCard = ({
   createdAt,
   postCount,
   fileCount,
+  variant = "list",
 }: ThreadCardProps) => {
   return (
-    <div className="d-flex align-items-center gap-3">
-      <Link className="link" to={`/${boardShortName}/${id}`}>
-        {subject}
-      </Link>
+    <div className="d-flex align-items-center gap-2">
+      {variant === "page" ? (
+        <>
+          <span className="title">{subject}</span>
+          <strong className="muted">{author}</strong>
+        </>
+      ) : (
+        <>
+          <Link className="link" to={`/${boardShortName}/${id}`}>
+            {subject}
+          </Link>
+          <strong>{author}</strong>
+        </>
+      )}
 
-      <strong>{author}</strong>
+      <span className="muted">{createdAt.toLocaleDateString()}</span>
 
-      <span className="muted align-self-center">
-        {createdAt.toLocaleDateString()}
-      </span>
-
-      <span className="muted align-self-center">
+      <span className="muted">
         {postCount} постов / {fileCount} файлов
       </span>
     </div>

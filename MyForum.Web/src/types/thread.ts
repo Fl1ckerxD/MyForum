@@ -1,3 +1,4 @@
+import type { BoardSummary } from "./boardSummary";
 import type { Post } from "./post";
 
 export interface Thread {
@@ -7,5 +8,6 @@ export interface Thread {
   originalPost: Post;
   postCount: number;
   fileCount: number;
+  board: BoardSummary;
   posts: Post[];
 }

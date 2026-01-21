@@ -29,3 +29,9 @@
   border-radius: 4px;
   font-size: 14px;
 }
+
+/* Variants */
+.post-file-middle {
+    max-width: 250px;
+    max-height: 250px;
+}

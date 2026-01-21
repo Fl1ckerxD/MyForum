@@ -1,3 +1,6 @@
+import type { Thread } from "../types/thread";
+import { api } from "./http";
+
 interface CreateThreadRequest {
   boardId: number;
   boardShortName: string;
@@ -5,6 +8,14 @@ interface CreateThreadRequest {
   content: string;
   authorName?: string;
   files?: File[];
+}
+
+export async function getThread(boardShortName: string, threadId: number) {
+  const data = await api<Thread>(`/threads/${boardShortName}/${threadId}`)
+  return {
+    ...data,
+    createdAt: new Date(data.createdAt),
+  }
 }
 
 export async function createThread(request: CreateThreadRequest) {

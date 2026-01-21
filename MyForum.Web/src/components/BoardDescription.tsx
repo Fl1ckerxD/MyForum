@@ -1,4 +1,4 @@
-import "../styles/ui/mf-text.css";
+import "../styles/ui/text.css";
 
 interface Props {
   name: string;
