@@ -1,10 +1,10 @@
 using AutoMapper;
 using MyForum.Api.Core.DTOs;
 using MyForum.Api.Core.DTOs.Common;
+using MyForum.Api.Core.Interfaces.Factories;
 using MyForum.Api.Core.Interfaces.Metrics;
 using MyForum.Api.Core.Interfaces.Repositories;
 using MyForum.Api.Core.Interfaces.Services;
-using Serilog;
 using Thread = MyForum.Api.Core.Entities.Thread;
 
 namespace MyForum.Api.Infrastructure.Services
@@ -16,20 +16,27 @@ namespace MyForum.Api.Infrastructure.Services
         private readonly IMapper _mapper;
         private readonly IPostService _postService;
         private readonly IForumMetrics _forumMetrics;
+        private readonly IThreadDtoFactory _threadDtoFactory;
 
-        public ThreadService(ILogger<ThreadService> logger, IUnitOfWork uow, IMapper mapper, IPostService postService, IForumMetrics forumMetrics)
+        public ThreadService(ILogger<ThreadService> logger, IUnitOfWork uow,
+            IMapper mapper, IPostService postService,
+            IForumMetrics forumMetrics, IThreadDtoFactory threadDtoFactory)
         {
             _logger = logger;
             _uow = uow;
             _forumMetrics = forumMetrics;
             _mapper = mapper;
             _postService = postService;
+            _threadDtoFactory = threadDtoFactory;
         }
 
         public async Task<ThreadDto?> GetThreadWithPostsById(string boardShortName, int id, CancellationToken cancellationToken = default)
         {
             var thread = await _uow.Threads.GetThreadWithPostsByIdAsync(boardShortName, id, cancellationToken);
-            return _mapper.Map<ThreadDto?>(thread);
+
+            if (thread is null) return null;
+
+            return await _threadDtoFactory.CreateAsync(thread, cancellationToken);
         }
 
         public async Task<int> CreateThreadWithPostAsync(int boardId, string subject, string postContent,

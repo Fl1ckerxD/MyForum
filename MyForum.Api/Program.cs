@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
 using Minio;
-using MyForum.Api.Application.Files;
+using MyForum.Api.Application.Factories;
 using MyForum.Api.Core.Interfaces.Factories;
 using MyForum.Api.Core.Interfaces.Metrics;
 using MyForum.Api.Core.Interfaces.Repositories;
@@ -45,7 +45,7 @@ namespace MyForum.Api
                 var redisConnectionString = builder.Configuration.GetConnectionString("Redis") ??
                     throw new InvalidOperationException($"Redis connection string not found.");
 
-                var minioEndpoint = builder.Configuration["MinIO:Endpoint"];
+                var minioEndpoint = builder.Configuration["MinIO:InternalEndpoint"];
                 var minioAccessKey = builder.Configuration["MINIO_ACCESS_KEY"];
                 var minioSecretKey = builder.Configuration["MINIO_SECRET_KEY"];
                 var minioWithSsl = builder.Configuration.GetValue<bool>("MinIO:WithSSL");
@@ -113,6 +113,8 @@ namespace MyForum.Api
                 builder.Services.AddScoped<IIPHasher, SHA256IPHasher>();
                 builder.Services.AddScoped<IObjectStorageService, MinioObjectStorageService>();
                 builder.Services.AddScoped<IFileDtoFactory, FileDtoFactory>();
+                builder.Services.AddScoped<IPostDtoFactory, PostDtoFactory>();
+                builder.Services.AddScoped<IThreadDtoFactory, ThreadDtoFactory>();
 
                 builder.Services.AddSingleton<IForumMetrics, ForumMetrics>();
                 builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>

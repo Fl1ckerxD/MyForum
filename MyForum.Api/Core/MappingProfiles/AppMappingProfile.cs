@@ -11,6 +11,7 @@ namespace MyForum.Api.Core.MappingProfiles
         {
             CreateMap<Board, BoardDto>();
             CreateMap<Board, BoardNamesDto>();
+            CreateMap<Board, BoardSummary>();
             CreateMap<Thread, ThreadDto>()
                 .ForMember(dest => dest.OriginalPost, opt => opt.MapFrom(src => src.Posts.First(p => p.IsOriginal)));
             CreateMap<Post, PostDto>();

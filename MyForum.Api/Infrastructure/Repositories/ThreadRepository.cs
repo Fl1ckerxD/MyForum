@@ -50,8 +50,9 @@ namespace MyForum.Api.Infrastructure.Repositories
         public async Task<Thread?> GetThreadWithPostsByIdAsync(string boardShortName, int id, CancellationToken cancellationToken = default)
         {
             return await _context.Threads
-                .Include(t => t.Posts)
                 .Include(b => b.Board)
+                .Include(t => t.Posts)
+                    .ThenInclude(p => p.Files)
                 .FirstOrDefaultAsync(t => t.Board.ShortName == boardShortName && t.Id == id, cancellationToken);
         }
     }

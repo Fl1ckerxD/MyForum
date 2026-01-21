@@ -3,7 +3,7 @@ using MyForum.Api.Core.Entities;
 using MyForum.Api.Core.Interfaces.Factories;
 using MyForum.Api.Core.Interfaces.Services;
 
-namespace MyForum.Api.Application.Files
+namespace MyForum.Api.Application.Factories
 {
     public class FileDtoFactory : IFileDtoFactory
     {

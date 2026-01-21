@@ -2,7 +2,6 @@ using System.Text.Json;
 using AutoMapper;
 using Microsoft.Extensions.Caching.Distributed;
 using MyForum.Api.Core.DTOs;
-using MyForum.Api.Core.Entities;
 using MyForum.Api.Core.Interfaces.Factories;
 using MyForum.Api.Core.Interfaces.Repositories;
 using MyForum.Api.Core.Interfaces.Services;
@@ -16,16 +15,16 @@ namespace MyForum.Api.Infrastructure.Services
         private readonly IMapper _mapper;
         private readonly IDistributedCache _cache;
         private readonly ILogger<BoardService> _logger;
-        private readonly IFileDtoFactory _fileFactory;
+        private readonly IThreadDtoFactory _threadDtoFactory;
 
         public BoardService(IUnitOfWork unitOfWork, IMapper mapper, IDistributedCache cache,
-            ILogger<BoardService> logger, IFileDtoFactory fileFactory)
+            ILogger<BoardService> logger, IThreadDtoFactory threadDtoFactory)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _cache = cache;
             _logger = logger;
-            _fileFactory = fileFactory;
+            _threadDtoFactory = threadDtoFactory;
         }
         public async Task<IReadOnlyCollection<BoardNamesDto>> GetAllBoardNamesAsync(CancellationToken cancellationToken = default)
         {
@@ -59,31 +58,7 @@ namespace MyForum.Api.Infrastructure.Services
                 Name: board.Name,
                 ShortName: board.ShortName,
                 Description: board.Description,
-                Threads: await Task.WhenAll(board.Threads.Select(async t => new ThreadDto(
-                    Id: t.Id,
-                    Subject: t.Subject,
-                    CreatedAt: t.CreatedAt,
-                    OriginalPost: await MapPostAsync(t.Posts.First(p => p.IsOriginal), cancellationToken),
-                    PostCount: t.PostCount,
-                    FileCount: t.FileCount,
-                    Posts: await Task.WhenAll(t.Posts.Select(p => MapPostAsync(p, cancellationToken)))
-                )))
-            );
-        }
-
-        private async Task<PostDto> MapPostAsync(Post post, CancellationToken cancellationToken)
-        {
-            var fileDtos = post.Files is null
-                ? Enumerable.Empty<FileDto>()
-                : await Task.WhenAll(
-                    post.Files.Select(f => _fileFactory.CreateAsync(f, cancellationToken)));
-
-            return new PostDto(
-                Id: post.Id,
-                AuthorName: post.AuthorName,
-                Content: post.Content,
-                CreatedAt: post.CreatedAt,
-                Files: fileDtos
+                Threads: await Task.WhenAll(board.Threads.Select(async t => await _threadDtoFactory.CreateAsync(t, cancellationToken)))
             );
         }
     }

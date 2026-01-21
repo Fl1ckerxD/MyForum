@@ -8,6 +8,7 @@ namespace MyForum.Api.Core.DTOs
         PostDto OriginalPost,
         int PostCount,
         int FileCount,
-        IEnumerable<PostDto> Posts
+        BoardSummary? Board,
+        IEnumerable<PostDto>? Posts
     );
 }
