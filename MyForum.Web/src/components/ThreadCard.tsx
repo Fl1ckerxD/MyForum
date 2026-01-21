@@ -1,16 +1,39 @@
+import { Link } from "react-router-dom";
+
 interface ThreadCardProps {
-  title: string;
+  id: number;
+  boardShortName: string;
+  subject: string;
   author: string;
-  createdAt: string;
-  onClick: () => void;
+  createdAt: Date;
+  postCount: number;
+  fileCount: number;
 }
 
-const ThreadCard = ({ title, author, createdAt, onClick }: ThreadCardProps) => {
+const ThreadCard = ({
+  id,
+  boardShortName,
+  subject,
+  author,
+  createdAt,
+  postCount,
+  fileCount,
+}: ThreadCardProps) => {
   return (
-    <div className="thread-card" onClick={onClick}>
-      <h2 className="thread-title">{title}</h2>
-      <p className="thread-author">Posted by: {author}</p>
-      <p className="thread-date">{new Date(createdAt).toLocaleDateString()}</p>
+    <div className="d-flex align-items-center gap-3">
+      <Link className="link" to={`/${boardShortName}/${id}`}>
+        {subject}
+      </Link>
+
+      <strong>{author}</strong>
+
+      <span className="muted align-self-center">
+        {createdAt.toLocaleDateString()}
+      </span>
+
+      <span className="muted align-self-center">
+        {postCount} постов / {fileCount} файлов
+      </span>
     </div>
   );
 };

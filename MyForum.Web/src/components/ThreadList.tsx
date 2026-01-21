@@ -1,8 +1,8 @@
-import { Link } from "react-router-dom";
 import type { Thread } from "../types/thread";
 import "../styles/layout/section.css";
 import "../styles/ui/link.css";
 import "../styles/ui/span.css";
+import ThreadPreview from "./ThreadPreview";
 
 interface ThreadListProps {
   boardShortName: string;
@@ -15,33 +15,7 @@ const ThreadList = ({ boardShortName, threads }: ThreadListProps) => {
       <ul className="navbar-nav flex-grow-1">
         {threads.map((thread) => (
           <li className="section-bordered pt-3" key={thread.id}>
-            <div className="d-flex align-items-center gap-3">
-              <Link className="link" to={`/${boardShortName}/${thread.id}`}>
-                {thread.subject}
-              </Link>
-              <strong>{thread.originalPost.authorName}</strong>
-              <span className="muted align-self-center">
-                {thread.createdAt.toLocaleDateString()}
-              </span>
-            </div>
-            <div>
-              {thread.originalPost.files.map((file) => (
-                <div key={file.id} className="post-file">
-                  {file.thumbnailUrl ? (
-                    <img
-                      src={file.thumbnailUrl}
-                      alt={file.fileName}
-                      loading="lazy"
-                    />
-                  ) : (
-                    <a href={file.fileUrl} target="_blank" rel="noreferrer">
-                      {file.fileName}
-                    </a>
-                  )}
-                </div>
-              ))}
-              <p>{thread.originalPost.content}</p>
-            </div>
+            <ThreadPreview thread={thread} boardShortName={boardShortName} />
           </li>
         ))}
       </ul>

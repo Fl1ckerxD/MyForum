@@ -1,0 +1,31 @@
+.post-file {
+    max-width: 200px;
+    max-height: 200px;
+    overflow: hidden;
+    border-radius: 4px;
+}
+
+.post-file img {
+  display: block;
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  cursor: pointer;
+}
+
+.post-file img {
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.post-file img:hover {
+  transform: scale(1.03);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.file-link {
+  display: inline-block;
+  padding: 6px 10px;
+  background: #f2f2f2;
+  border-radius: 4px;
+  font-size: 14px;
+}

@@ -24,10 +24,6 @@ export default function BoardPage() {
     loadBoard();
   }, [boardShortName]);
 
-  if (!boardShortName) {
-    return <div>Invalid board</div>;
-  }
-
   if (!board) {
     return <div>Loading...</div>;
   }
