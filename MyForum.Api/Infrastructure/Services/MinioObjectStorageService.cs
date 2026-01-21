@@ -178,7 +178,9 @@ namespace MyForum.Api.Infrastructure.Services
                 .WithObject(objectKey)
                 .WithExpiry(expiresSeconds);
 
-            return await _minioClient.PresignedGetObjectAsync(args);
+            var url = await _minioClient.PresignedGetObjectAsync(args);
+
+            return ReplaceHost(url, _configuration["MinIO:PublicEndpoint"] ?? "localhost");
         }
 
         public async Task<bool> DeleteFileAsync(PostFile postFile, CancellationToken cancellationToken = default)
@@ -253,5 +255,27 @@ namespace MyForum.Api.Infrastructure.Services
 
         private bool IsImageFile(string extension) =>
             new[] { ".jpg", ".jpeg", ".png", ".gif", ".webp" }.Contains(extension.ToLowerInvariant());
+
+        private string ReplaceHost(string originalUrl, string publicEndpoint)
+        {
+            var originalUri = new Uri(originalUrl);
+
+            if (!publicEndpoint.StartsWith("http://") &&
+                !publicEndpoint.StartsWith("https://"))
+            {
+                publicEndpoint = "http://" + publicEndpoint;
+            }
+
+            var publicUri = new Uri(publicEndpoint);
+
+            var builder = new UriBuilder(originalUri)
+            {
+                Scheme = publicUri.Scheme,
+                Host = publicUri.Host,
+                Port = publicUri.Port
+            };
+
+            return builder.Uri.ToString();
+        }
     }
 }
