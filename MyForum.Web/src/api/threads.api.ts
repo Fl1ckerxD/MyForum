@@ -1,14 +1,6 @@
+import type { CreateThreadRequest } from "../types/requests/createThreadRequest";
 import type { Thread } from "../types/thread";
 import { api } from "./http";
-
-interface CreateThreadRequest {
-  boardId: number;
-  boardShortName: string;
-  subject: string;
-  content: string;
-  authorName?: string;
-  files?: File[];
-}
 
 export async function getThread(boardShortName: string, threadId: number) {
   const data = await api<Thread>(`/threads/${boardShortName}/${threadId}`)

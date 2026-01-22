@@ -6,6 +6,7 @@ import type { Thread } from "../types/thread";
 import ThreadPreview from "../components/ThreadPreview";
 import { getThread } from "../api/threads.api";
 import PostList from "../components/PostList";
+import CreatePostForm from "../components/CreatePostForm";
 
 export default function ThreadPage() {
   const { boardShortName, threadId } = useParams<{
@@ -52,6 +53,7 @@ export default function ThreadPage() {
             <ButtonVisibility onClick={() => setCreatePostVisible(false)}>
               Закрыть форму постинга
             </ButtonVisibility>
+            <CreatePostForm threadId={parsedThreadId} onCreated={() => setCreatePostVisible(false)} />
           </>
         )}
       </section>
