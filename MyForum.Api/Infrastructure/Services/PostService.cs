@@ -2,6 +2,7 @@ using System.Transactions;
 using AutoMapper;
 using MyForum.Api.Core.DTOs;
 using MyForum.Api.Core.DTOs.Common;
+using MyForum.Api.Core.DTOs.Responses;
 using MyForum.Api.Core.Entities;
 using MyForum.Api.Core.Interfaces.Metrics;
 using MyForum.Api.Core.Interfaces.Repositories;
@@ -32,7 +33,7 @@ namespace MyForum.Api.Infrastructure.Services
         /// <summary>
         /// Создает пост, привязанный к существующему треду по его ID
         /// </summary>
-        public async Task<int> CreateAsync(int threadId, string content, string authorName, string ipAddress,
+        public async Task<CreatePostResponse> CreateAsync(int threadId, string content, string authorName, string ipAddress,
             string userAgent, List<IFormFile>? files = null, CancellationToken cancellationToken = default)
         {
             var post = new Post
@@ -43,7 +44,9 @@ namespace MyForum.Api.Infrastructure.Services
                 UserAgent = userAgent
             };
 
-            return await CreateAsync(post, ipAddress, files, cancellationToken);
+            await CreateAsync(post, ipAddress, files, cancellationToken);
+
+            return _mapper.Map<CreatePostResponse>(post);
         }
 
         /// <summary>

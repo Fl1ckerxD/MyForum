@@ -7,6 +7,7 @@ import ThreadPreview from "../components/ThreadPreview";
 import { getThread } from "../api/threads.api";
 import PostList from "../components/PostList";
 import CreatePostForm from "../components/CreatePostForm";
+import type { Post } from "../types/post";
 
 export default function ThreadPage() {
   const { boardShortName, threadId } = useParams<{
@@ -16,6 +17,7 @@ export default function ThreadPage() {
   const parsedThreadId = Number(threadId);
   const [thread, setThread] = useState<Thread | null>(null);
   const [createPostVisible, setCreatePostVisible] = useState(false);
+  const [posts, setPosts] = useState<Post[]>([]);
 
   useEffect(() => {
     if (!boardShortName || !threadId || Number.isNaN(parsedThreadId)) return;
@@ -23,6 +25,7 @@ export default function ThreadPage() {
     const loadThread = async () => {
       const thread = await getThread(boardShortName, parsedThreadId);
       setThread(thread);
+      setPosts(thread.posts);
     };
 
     loadThread();
@@ -53,7 +56,10 @@ export default function ThreadPage() {
             <ButtonVisibility onClick={() => setCreatePostVisible(false)}>
               Закрыть форму постинга
             </ButtonVisibility>
-            <CreatePostForm threadId={parsedThreadId} onCreated={() => setCreatePostVisible(false)} />
+            <CreatePostForm threadId={parsedThreadId} onCreated={post => {
+              setPosts(prev => [...prev, post]);
+              setCreatePostVisible(false);
+            }} />
           </>
         )}
       </section>
@@ -63,7 +69,7 @@ export default function ThreadPage() {
           boardShortName={boardShortName}
           variant="page"
         />
-        <PostList posts={thread.posts} />
+        <PostList posts={posts} />
       </section>
     </>
   );

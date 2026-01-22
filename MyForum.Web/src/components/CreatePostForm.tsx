@@ -3,10 +3,11 @@ import { createPost } from "../api/posts.api";
 import "../styles/layout/form.css";
 import "../styles/ui/button.css";
 import "../styles/ui/input.css";
+import type { Post } from "../types/post";
 
 interface Props {
   threadId: number;
-  onCreated?: () => void;
+  onCreated?: (post: Post) => void;
 }
 
 export default function CreatePostForm({ threadId, onCreated }: Props) {
@@ -22,7 +23,7 @@ export default function CreatePostForm({ threadId, onCreated }: Props) {
     setIsSubmitting(true);
 
     try {
-      await createPost({
+      const createdPost = await createPost({
         threadId,
         content,
         authorName,
@@ -31,7 +32,7 @@ export default function CreatePostForm({ threadId, onCreated }: Props) {
 
       setContent("");
       setFiles([]);
-      onCreated?.();
+      onCreated?.(createdPost);
     } catch (err: any) {
       setError(err.message ?? "Ошибка при создании треда");
     } finally {
@@ -43,18 +44,6 @@ export default function CreatePostForm({ threadId, onCreated }: Props) {
     <>
       <div className="form-container">
         <form className="form-post" onSubmit={handleSubmit}>
-          {/* <div className="form-header form-group">
-            <input
-              type="text"
-              className="input"
-              placeholder="Название"
-              value={subject}
-              onChange={(e) => setSubject(e.target.value)}
-              disabled={isSubmitting}
-              required
-            />
-          </div> */}
-
           <div className="form-group">
             <textarea
               className="textarea"

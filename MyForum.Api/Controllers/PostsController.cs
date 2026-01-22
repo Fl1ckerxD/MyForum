@@ -36,7 +36,7 @@ namespace MyForum.Api.Controllers
                 var ipAddress = HttpContext.GetClientIp();
                 var userAgent = Request.Headers["User-Agent"].ToString();
 
-                var postId = await _postService.CreateAsync(
+                var createdPostRespose = await _postService.CreateAsync(
                     threadId: request.ThreadId,
                     content: request.Content,
                     authorName: request.AuthorName,
@@ -45,12 +45,7 @@ namespace MyForum.Api.Controllers
                     files: request.Files,
                     cancellationToken: cancellationToken);
 
-                return Created($"/api/posts/{postId}",
-                    new CreatePostResponse
-                    {
-                        PostId = postId,
-                        Message = "Пост создан"
-                    });
+                return Created($"/api/posts/{createdPostRespose.Id}", createdPostRespose);
             }
             catch (InvalidOperationException ex)
             {

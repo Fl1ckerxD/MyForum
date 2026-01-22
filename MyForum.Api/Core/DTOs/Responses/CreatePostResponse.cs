@@ -1,8 +1,11 @@
 namespace MyForum.Api.Core.DTOs.Responses
 {
-    public class CreatePostResponse
-    {
-        public long PostId { get; init; }
-        public string Message { get; init; } = string.Empty;
-    }
+    public record CreatePostResponse
+    (
+        int Id,
+        string AuthorName,
+        string Content,
+        DateTime CreatedAt,
+        IEnumerable<FileDto>? Files
+    );
 }

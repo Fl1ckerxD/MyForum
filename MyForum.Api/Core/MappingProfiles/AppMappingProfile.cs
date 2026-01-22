@@ -1,5 +1,6 @@
 using AutoMapper;
 using MyForum.Api.Core.DTOs;
+using MyForum.Api.Core.DTOs.Responses;
 using MyForum.Api.Core.Entities;
 using Thread = MyForum.Api.Core.Entities.Thread;
 
@@ -15,6 +16,7 @@ namespace MyForum.Api.Core.MappingProfiles
             CreateMap<Thread, ThreadDto>()
                 .ForMember(dest => dest.OriginalPost, opt => opt.MapFrom(src => src.Posts.First(p => p.IsOriginal)));
             CreateMap<Post, PostDto>();
+            CreateMap<Post, CreatePostResponse>();
         }
     }
 }
