@@ -6,6 +6,7 @@ namespace MyForum.Api.Core.DTOs.Responses
         string AuthorName,
         string Content,
         DateTime CreatedAt,
-        IEnumerable<FileDto>? Files
+        IEnumerable<FileDto>? Files,
+        int? ReplyToPostId
     );
 }

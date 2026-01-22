@@ -5,6 +5,7 @@ interface ThreadCardProps {
   id: number;
   boardShortName: string;
   subject: string;
+  postId: number;
   author: string;
   createdAt: Date;
   postCount: number;
@@ -16,6 +17,7 @@ const ThreadCard = ({
   id,
   boardShortName,
   subject,
+  postId,
   author,
   createdAt,
   postCount,
@@ -39,6 +41,8 @@ const ThreadCard = ({
       )}
 
       <span className="muted">{createdAt.toLocaleDateString()}</span>
+
+      <span className="muted">№{postId}</span>
 
       <span className="muted">
         {postCount} постов / {fileCount} файлов

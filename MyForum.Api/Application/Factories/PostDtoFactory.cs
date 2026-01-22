@@ -25,7 +25,8 @@ namespace MyForum.Api.Application.Factories
                 AuthorName: post.AuthorName,
                 Content: post.Content,
                 CreatedAt: post.CreatedAt,
-                Files: fileDtos
+                Files: fileDtos,
+                ReplyToPostId: post.ReplyToPostId
             );
         }
     }

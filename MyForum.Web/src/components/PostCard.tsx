@@ -12,7 +12,11 @@ const PostCard = ({ post }: Props) => {
         <span className="muted">
           {new Date(post.createdAt).toLocaleString()}
         </span>
+        <span className="muted">№{post.id}</span>
       </div>
+      {post.replyToPostId && (
+        <span className="highlight">{">"}{">"}{post.replyToPostId}</span>
+      )}
       <p>{post.content}</p>
     </div>
   );

@@ -15,6 +15,7 @@ const ThreadPreview = ({ thread, boardShortName, variant = "list" }: Props) => {
         id={thread.id}
         boardShortName={boardShortName}
         subject={thread.subject}
+        postId={thread.originalPost.id}
         author={thread.originalPost.authorName}
         createdAt={thread.createdAt}
         postCount={thread.postCount}
