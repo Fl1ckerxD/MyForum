@@ -3,6 +3,7 @@ import { createPost } from "../api/posts.api";
 import "../styles/layout/form.css";
 import "../styles/ui/button.css";
 import "../styles/ui/input.css";
+import "../styles/ui/file.css";
 import type { Post } from "../types/post";
 
 interface Props {
@@ -16,6 +17,11 @@ export default function CreatePostForm({ threadId, onCreated }: Props) {
   const [files, setFiles] = useState<File[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    addFiles(Array.from(e.dataTransfer.files))
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -38,6 +44,15 @@ export default function CreatePostForm({ threadId, onCreated }: Props) {
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const addFiles = (newFiles: File[]) => {
+    setFiles(prev => [
+      ...prev,
+      ...newFiles.filter(
+        f => !prev.some(p => p.name === f.name && p.size === f.size)
+      )
+    ]);
   };
 
   return (
@@ -67,15 +82,39 @@ export default function CreatePostForm({ threadId, onCreated }: Props) {
           </div>
 
           <div className="form-group">
-            <input
-              className="input"
-              type="file"
-              multiple
-              onChange={(e) =>
-                setFiles(e.target.files ? Array.from(e.target.files) : [])
-              }
-            />
+            <div
+              className="dropzone"
+              onDrop={handleDrop}
+              onDragOver={(e) => e.preventDefault()}>
+              <input
+                className="input"
+                type="file"
+                multiple
+                onChange={(e) => {
+                  if (e.target.files) {
+                    addFiles(Array.from(e.target.files));
+                    e.target.value = "";
+                  }
+                }}
+              />
+            </div>
           </div>
+
+          <ul className="file-list">
+            {files.map((file, index) => (
+              <li key={index} className="file-item">
+                <span>{file.name}</span>
+                <button
+                  type="button"
+                  onClick={() =>
+                    setFiles(prev => prev.filter((_, i) => i !== index))
+                  }
+                >
+                  ✕
+                </button>
+              </li>
+            ))}
+          </ul>
 
           {error && <div className="error-message">{error}</div>}
 

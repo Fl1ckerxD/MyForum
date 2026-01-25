@@ -1,0 +1,11 @@
+.file-list {
+  margin-top: 8px;
+  list-style: none;
+  padding: 0;
+}
+
+.file-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 4px 0;
+}
