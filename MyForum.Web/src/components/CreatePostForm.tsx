@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { createPost } from "../api/posts.api";
 import "../styles/layout/form.css";
 import "../styles/ui/button.css";
@@ -17,6 +17,7 @@ export default function CreatePostForm({ threadId, onCreated }: Props) {
   const [files, setFiles] = useState<File[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
@@ -84,10 +85,13 @@ export default function CreatePostForm({ threadId, onCreated }: Props) {
           <div className="form-group">
             <div
               className="dropzone"
+              onClick={() => fileInputRef.current?.click()}
               onDrop={handleDrop}
-              onDragOver={(e) => e.preventDefault()}>
+              onDragOver={(e) => e.preventDefault()}
+            >
               <input
-                className="input"
+                ref={fileInputRef}
+                className="input input-file"
                 type="file"
                 multiple
                 onChange={(e) => {
@@ -97,6 +101,7 @@ export default function CreatePostForm({ threadId, onCreated }: Props) {
                   }
                 }}
               />
+              Добавить файл
             </div>
           </div>
 
@@ -105,6 +110,7 @@ export default function CreatePostForm({ threadId, onCreated }: Props) {
               <li key={index} className="file-item">
                 <span>{file.name}</span>
                 <button
+                  className="mf-btn"
                   type="button"
                   onClick={() =>
                     setFiles(prev => prev.filter((_, i) => i !== index))

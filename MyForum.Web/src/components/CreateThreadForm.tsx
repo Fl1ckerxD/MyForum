@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { createThread } from "../api/threads.api";
 import "../styles/layout/form.css";
 import "../styles/ui/button.css";
@@ -21,6 +21,12 @@ export default function CreateThreadForm({
   const [files, setFiles] = useState<File[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    addFiles(Array.from(e.dataTransfer.files))
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -46,6 +52,15 @@ export default function CreateThreadForm({
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const addFiles = (newFiles: File[]) => {
+    setFiles(prev => [
+      ...prev,
+      ...newFiles.filter(
+        f => !prev.some(p => p.name === f.name && p.size === f.size)
+      )
+    ]);
   };
 
   return (
@@ -87,15 +102,44 @@ export default function CreateThreadForm({
           </div>
 
           <div className="form-group">
-            <input
-              className="input"
-              type="file"
-              multiple
-              onChange={(e) =>
-                setFiles(e.target.files ? Array.from(e.target.files) : [])
-              }
-            />
+            <div
+              className="dropzone"
+              onClick={() => fileInputRef.current?.click()}
+              onDrop={handleDrop}
+              onDragOver={(e) => e.preventDefault()}
+            >
+              <input
+                ref={fileInputRef}
+                className="input input-file"
+                type="file"
+                multiple
+                onChange={(e) => {
+                  if (e.target.files) {
+                    addFiles(Array.from(e.target.files));
+                    e.target.value = "";
+                  }
+                }}
+              />
+              Добавить файл
+            </div>
           </div>
+
+          <ul className="file-list">
+            {files.map((file, index) => (
+              <li key={index} className="file-item">
+                <span>{file.name}</span>
+                <button
+                  className="mf-btn"
+                  type="button"
+                  onClick={() =>
+                    setFiles(prev => prev.filter((_, i) => i !== index))
+                  }
+                >
+                  ✕
+                </button>
+              </li>
+            ))}
+          </ul>
 
           {error && <div className="error-message">{error}</div>}
 

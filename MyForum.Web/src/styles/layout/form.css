@@ -38,3 +38,6 @@
   text-align: center;
   cursor: pointer;
 }
+.dropzone:hover {
+  color: var(--muted-foreground);
+}

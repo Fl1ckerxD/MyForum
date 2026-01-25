@@ -1,4 +1,4 @@
-:root{
+:root {
   --input-bg: #1a202e;
 }
 
@@ -24,8 +24,16 @@
   background-color: var(--input-bg);
   border: none;
   color: var(--foreground);
-  font-family: 'Inter', sans-serif;
+  font-family: "Inter", sans-serif;
   font-size: 14px;
   resize: vertical;
   outline: none;
+}
+
+.input-file {
+  position: absolute;
+  width: 0;
+  height: 0;
+  opacity: 0;
+  pointer-events: none;
 }
