@@ -32,3 +32,9 @@
   color: #a0a6b6;
 }
 
+.dropzone {
+  border: 2px dashed #aaa;
+  padding: 16px;
+  text-align: center;
+  cursor: pointer;
+}
