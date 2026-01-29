@@ -15,7 +15,7 @@ const PostList = ({ posts, threadId, onReplyCreated }: Props) => {
     <section className="thread-section fade-in-up delay-200ms">
       <ul className="navbar-nav flex-grow-1">
         {posts.map((post) => (
-          <li className="section-bordered pt-3" key={post.id}>
+          <li id={`post-${post.id}`} className="section-bordered pt-3" key={post.id}>
             <PostCard post={post} threadId={threadId} onReplyCreated={onReplyCreated} />
           </li>
         ))}

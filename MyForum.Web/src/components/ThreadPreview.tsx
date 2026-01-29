@@ -10,7 +10,7 @@ interface Props {
 
 const ThreadPreview = ({ thread, boardShortName, variant = "list" }: Props) => {
   return (
-    <>
+    <div id={`post-${thread.originalPost.id}`}>
       <ThreadCard
         id={thread.id}
         boardShortName={boardShortName}
@@ -26,7 +26,7 @@ const ThreadPreview = ({ thread, boardShortName, variant = "list" }: Props) => {
       <PostFilesPreview files={thread.originalPost.files} variant={variant} />
 
       <p>{thread.originalPost.content}</p>
-    </>
+    </div>
   );
 };
 

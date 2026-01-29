@@ -22,9 +22,12 @@ const PostCard = ({ post, threadId, onReplyCreated }: Props) => {
       </div>
 
       {post.replyToPostId && (
-        <span className="highlight">
+        <button
+          className="mf-btn-link fw-normal"
+          onClick={() => scrollToPost(post.replyToPostId!)}
+        >
           &gt;&gt;{post.replyToPostId}
-        </span>
+        </button>
       )}
 
       <p>{post.content}</p>
@@ -52,5 +55,22 @@ const PostCard = ({ post, threadId, onReplyCreated }: Props) => {
     </div>
   );
 };
+
+const scrollToPost = (postId: number) => {
+  const element = document.getElementById(`post-${postId}`);
+
+  if (!element) return;
+
+  element.scrollIntoView({
+    behavior: "smooth",
+    block: "center",
+  });
+
+  element.classList.add("post-highlight");
+
+  setTimeout(() => {
+    element.classList.remove("post-highlight");
+  }, 1500);
+}
 
 export default PostCard;
