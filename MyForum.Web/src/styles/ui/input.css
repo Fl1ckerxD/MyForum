@@ -30,6 +30,11 @@
   outline: none;
 }
 
+.textarea.reply {
+  min-height: 50px;
+  height: 50px;
+}
+
 .input-file {
   position: absolute;
   width: 0;

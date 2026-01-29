@@ -12,10 +12,11 @@ export async function createPost(request: CreatePostRequest) {
   formData.append("ThreadId", request.threadId.toString());
   formData.append("Content", request.content);
   formData.append("AuthorName", request.authorName || "Аноним");
+  formData.append("ReplyToPostId", request.replyToPostId?.toString() || "");
 
-  request.files?.forEach(file => {
+  request.files?.forEach((file) => {
     formData.append("Files", file);
-  })
+  });
 
   const response = await fetch("/api/posts", {
     method: "POST",

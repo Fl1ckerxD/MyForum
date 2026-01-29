@@ -43,6 +43,7 @@ namespace MyForum.Api.Controllers
                     ipAddress: ipAddress,
                     userAgent: userAgent,
                     files: request.Files,
+                    replyToPostId: request.ReplyToPostId,
                     cancellationToken: cancellationToken);
 
                 return Created($"/api/posts/{createdPostRespose.Id}", createdPostRespose);

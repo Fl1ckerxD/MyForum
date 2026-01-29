@@ -8,7 +8,7 @@ namespace MyForum.Api.Core.Interfaces.Services
     public interface IPostService
     {
         Task<CreatePostResponse> CreateAsync(int threadId, string content, string authorName, string ipAddress,
-            string userAgent, List<IFormFile>? files = null, CancellationToken cancellationToken = default);
+            string userAgent, List<IFormFile>? files = null, int? replyToPostId = null, CancellationToken cancellationToken = default);
 
         Task<int> CreateAsync(Thread thread, string content, string authorName, string ipAddress,
             string userAgent, List<IFormFile>? files = null, CancellationToken cancellationToken = default);

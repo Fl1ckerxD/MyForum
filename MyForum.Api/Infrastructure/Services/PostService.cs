@@ -34,14 +34,22 @@ namespace MyForum.Api.Infrastructure.Services
         /// Создает пост, привязанный к существующему треду по его ID
         /// </summary>
         public async Task<CreatePostResponse> CreateAsync(int threadId, string content, string authorName, string ipAddress,
-            string userAgent, List<IFormFile>? files = null, CancellationToken cancellationToken = default)
+            string userAgent, List<IFormFile>? files = null, int? replyToPostId = null, CancellationToken cancellationToken = default)
         {
+            if (replyToPostId.HasValue)
+            {
+                var replyToPost = await _uow.Posts.GetByIdAsync(replyToPostId.Value, cancellationToken);
+                if(replyToPost == null || replyToPost.ThreadId != threadId)
+                    throw new InvalidOperationException("Пост, на который вы отвечаете, не найден в данном треде.");
+            }
+
             var post = new Post
             {
                 ThreadId = threadId,
                 Content = content,
                 AuthorName = authorName,
-                UserAgent = userAgent
+                UserAgent = userAgent,
+                ReplyToPostId = replyToPostId
             };
 
             await CreateAsync(post, ipAddress, files, cancellationToken);

@@ -8,10 +8,12 @@ import type { Post } from "../types/post";
 
 interface Props {
   threadId: number;
+  replyToPostId?: number;
   onCreated?: (post: Post) => void;
+  variant?: "thread" | "reply";
 }
 
-export default function CreatePostForm({ threadId, onCreated }: Props) {
+export default function CreatePostForm({ threadId, replyToPostId, onCreated, variant = "thread" }: Props) {
   const [content, setContent] = useState("");
   const [authorName, setAuthorName] = useState("Аноним");
   const [files, setFiles] = useState<File[]>([]);
@@ -35,6 +37,7 @@ export default function CreatePostForm({ threadId, onCreated }: Props) {
         content,
         authorName,
         files,
+        replyToPostId,
       });
 
       setContent("");
@@ -59,81 +62,159 @@ export default function CreatePostForm({ threadId, onCreated }: Props) {
   return (
     <>
       <div className="form-container">
-        <form className="form-post" onSubmit={handleSubmit}>
-          <div className="form-group">
-            <textarea
-              className="textarea"
-              placeholder="Комментарий. Макс. длина 15000"
-              value={content}
-              onChange={(e) => setContent(e.target.value)}
-              disabled={isSubmitting}
-              maxLength={15000}
-              required
-            />
-          </div>
-
-          <div className="form-group">
-            <input
-              type="text"
-              className="input"
-              placeholder="Имя (необязательно)"
-              value={authorName}
-              onChange={(e) => setAuthorName(e.target.value)}
-            />
-          </div>
-
-          <div className="form-group">
-            <div
-              className="dropzone"
-              onClick={() => fileInputRef.current?.click()}
-              onDrop={handleDrop}
-              onDragOver={(e) => e.preventDefault()}
-            >
-              <input
-                ref={fileInputRef}
-                className="input input-file"
-                type="file"
-                multiple
-                onChange={(e) => {
-                  if (e.target.files) {
-                    addFiles(Array.from(e.target.files));
-                    e.target.value = "";
-                  }
-                }}
+        {variant === "thread" ? (
+          <form className="form-post" onSubmit={handleSubmit}>
+            <div className="form-group">
+              <textarea
+                className="textarea"
+                placeholder="Комментарий. Макс. длина 15000"
+                value={content}
+                onChange={(e) => setContent(e.target.value)}
+                disabled={isSubmitting}
+                maxLength={15000}
+                required
               />
-              Добавить файл
             </div>
-          </div>
 
-          <ul className="file-list">
-            {files.map((file, index) => (
-              <li key={index} className="file-item">
-                <span>{file.name}</span>
-                <button
-                  className="mf-btn"
-                  type="button"
-                  onClick={() =>
-                    setFiles(prev => prev.filter((_, i) => i !== index))
-                  }
-                >
-                  ✕
-                </button>
-              </li>
-            ))}
-          </ul>
+            <div className="form-group">
+              <input
+                type="text"
+                className="input"
+                placeholder="Имя (необязательно)"
+                value={authorName}
+                onChange={(e) => setAuthorName(e.target.value)}
+              />
+            </div>
 
-          {error && <div className="error-message">{error}</div>}
+            <div className="form-group">
+              <div
+                className="dropzone"
+                onClick={() => fileInputRef.current?.click()}
+                onDrop={handleDrop}
+                onDragOver={(e) => e.preventDefault()}
+              >
+                <input
+                  ref={fileInputRef}
+                  className="input input-file"
+                  type="file"
+                  multiple
+                  onChange={(e) => {
+                    if (e.target.files) {
+                      addFiles(Array.from(e.target.files));
+                      e.target.value = "";
+                    }
+                  }}
+                />
+                Добавить файл
+              </div>
+            </div>
 
-          <div className="form-footer">
-            <button
-              type="submit"
-              className="mf-btn mf-btn-full"
-              disabled={isSubmitting}
-            >
-              {isSubmitting ? "Создание..." : "Создать"}
-            </button>
-          </div>
-        </form>
+            <ul className="file-list">
+              {files.map((file, index) => (
+                <li key={index} className="file-item">
+                  <span>{file.name}</span>
+                  <button
+                    className="mf-btn"
+                    type="button"
+                    onClick={() =>
+                      setFiles(prev => prev.filter((_, i) => i !== index))
+                    }
+                  >
+                    ✕
+                  </button>
+                </li>
+              ))}
+            </ul>
+
+            {error && <div className="error-message">{error}</div>}
+
+            <div className="form-footer">
+              <button
+                type="submit"
+                className="mf-btn mf-btn-full"
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? "Создание..." : "Создать"}
+              </button>
+            </div>
+          </form>
+        ) : (
+          <form className="form-post" onSubmit={handleSubmit}>
+            <div className="form-group">
+              <textarea
+                className={`textarea ${variant === "reply" ? "reply" : ""}`}
+                placeholder="Комментарий. Макс. длина 15000"
+                value={content}
+                onChange={(e) => setContent(e.target.value)}
+                disabled={isSubmitting}
+                maxLength={15000}
+                required
+              />
+            </div>
+
+            <div className="form-group">
+              <input
+                type="text"
+                className="input"
+                placeholder="Имя (необязательно)"
+                value={authorName}
+                onChange={(e) => setAuthorName(e.target.value)}
+              />
+            </div>
+
+            <div className="form-group">
+              <div
+                className="dropzone"
+                onClick={() => fileInputRef.current?.click()}
+                onDrop={handleDrop}
+                onDragOver={(e) => e.preventDefault()}
+              >
+                <input
+                  ref={fileInputRef}
+                  className="input input-file"
+                  type="file"
+                  multiple
+                  onChange={(e) => {
+                    if (e.target.files) {
+                      addFiles(Array.from(e.target.files));
+                      e.target.value = "";
+                    }
+                  }}
+                />
+                Добавить файл
+              </div>
+            </div>
+
+            <ul className="file-list">
+              {files.map((file, index) => (
+                <li key={index} className="file-item">
+                  <span>{file.name}</span>
+                  <button
+                    className="mf-btn"
+                    type="button"
+                    onClick={() =>
+                      setFiles(prev => prev.filter((_, i) => i !== index))
+                    }
+                  >
+                    ✕
+                  </button>
+                </li>
+              ))}
+            </ul>
+
+            {error && <div className="error-message">{error}</div>}
+
+            <div className="form-footer">
+              <button
+                type="submit"
+                className="mf-btn mf-btn-full"
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? "Создание..." : "Ответить"}
+              </button>
+            </div>
+          </form>
+        )}
       </div>
     </>
   );

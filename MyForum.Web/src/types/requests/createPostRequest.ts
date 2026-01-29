@@ -3,4 +3,5 @@ export interface CreatePostRequest {
   content: string;
   authorName?: string;
   files?: File[];
+  replyToPostId?: number;
 }

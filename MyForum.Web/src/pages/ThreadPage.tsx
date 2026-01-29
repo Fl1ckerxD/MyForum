@@ -69,7 +69,9 @@ export default function ThreadPage() {
           boardShortName={boardShortName}
           variant="page"
         />
-        <PostList posts={posts} />
+        <PostList posts={posts} threadId={parsedThreadId} onReplyCreated={newPost => {
+          setPosts(prev => [...prev, newPost])
+        }} />
       </section>
     </>
   );

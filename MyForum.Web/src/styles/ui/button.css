@@ -1,4 +1,4 @@
-:root{
+:root {
   --button-bg: #2a303d;
   --button-text: #ecf0f8;
   --button-hover: #353d4f;
@@ -26,6 +26,10 @@
 .mf-btn-sm {
   padding: 4px 8px;
   font-size: 12px;
+}
+
+.mf-btn-reg {
+  font-size: 15px;
 }
 
 .mf-btn-lg {
