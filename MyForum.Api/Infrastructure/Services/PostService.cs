@@ -4,6 +4,7 @@ using MyForum.Api.Core.DTOs;
 using MyForum.Api.Core.DTOs.Common;
 using MyForum.Api.Core.DTOs.Responses;
 using MyForum.Api.Core.Entities;
+using MyForum.Api.Core.Interfaces.Factories;
 using MyForum.Api.Core.Interfaces.Metrics;
 using MyForum.Api.Core.Interfaces.Repositories;
 using MyForum.Api.Core.Interfaces.Services;
@@ -19,8 +20,11 @@ namespace MyForum.Api.Infrastructure.Services
         private readonly IIPHasher _ipHasher;
         private readonly IMapper _mapper;
         private readonly IForumMetrics _forumMetrics;
+        private readonly ICreatePostResponseFactory _createPostResponseFactory;
 
-        public PostService(ILogger<PostService> logger, IUnitOfWork uow, IObjectStorageService fileService, IIPHasher ipHasher, IMapper mapper, IForumMetrics forumMetrics)
+        public PostService(ILogger<PostService> logger, IUnitOfWork uow,
+            IObjectStorageService fileService, IIPHasher ipHasher,
+            IMapper mapper, IForumMetrics forumMetrics, ICreatePostResponseFactory createPostResponseFactory)
         {
             _logger = logger;
             _uow = uow;
@@ -28,6 +32,7 @@ namespace MyForum.Api.Infrastructure.Services
             _ipHasher = ipHasher;
             _mapper = mapper;
             _forumMetrics = forumMetrics;
+            _createPostResponseFactory = createPostResponseFactory;
         }
 
         /// <summary>
@@ -54,7 +59,7 @@ namespace MyForum.Api.Infrastructure.Services
 
             await CreateAsync(post, ipAddress, files, cancellationToken);
 
-            return _mapper.Map<CreatePostResponse>(post);
+            return await _createPostResponseFactory.CreateAsync(post);
         }
 
         /// <summary>

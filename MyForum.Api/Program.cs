@@ -115,6 +115,7 @@ namespace MyForum.Api
                 builder.Services.AddScoped<IFileDtoFactory, FileDtoFactory>();
                 builder.Services.AddScoped<IPostDtoFactory, PostDtoFactory>();
                 builder.Services.AddScoped<IThreadDtoFactory, ThreadDtoFactory>();
+                builder.Services.AddScoped<ICreatePostResponseFactory, CreatePostResponseFactory>();
 
                 builder.Services.AddSingleton<IForumMetrics, ForumMetrics>();
                 builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>

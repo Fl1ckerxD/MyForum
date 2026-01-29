@@ -1,6 +1,7 @@
 import { useState } from "react";
 import type { Post } from "../types/post";
 import CreatePostForm from "./CreatePostForm";
+import PostFilesPreview from "./PostFilesPreview";
 
 interface Props {
   post: Post;
@@ -31,6 +32,8 @@ const PostCard = ({ post, threadId, onReplyCreated }: Props) => {
       )}
 
       <p>{post.content}</p>
+
+      <PostFilesPreview files={post.files} />
 
       <button
         className="mf-btn-link mf-btn-reg"
