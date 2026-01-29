@@ -36,7 +36,8 @@ namespace MyForum.Api.Tests.Validations
                 ThreadId: 1,
                 Content: "",
                 AuthorName: "TestUser",
-                Files: null
+                Files: null,
+                ReplyToPostId: null
             );
 
             // Act
@@ -56,7 +57,8 @@ namespace MyForum.Api.Tests.Validations
                 ThreadId: 1,
                 Content: longContent,
                 AuthorName: "TestUser",
-                Files: null
+                Files: null,
+                ReplyToPostId: null
             );
 
             // Act
@@ -75,7 +77,8 @@ namespace MyForum.Api.Tests.Validations
                 ThreadId: 1,
                 Content: "Test content",
                 AuthorName: "Invalid@Name!",
-                Files: null
+                Files: null,
+                ReplyToPostId: null
             );
 
             // Act
@@ -96,7 +99,8 @@ namespace MyForum.Api.Tests.Validations
                 ThreadId: 1,
                 Content: "Test content",
                 AuthorName: validName,
-                Files: null
+                Files: null,
+                ReplyToPostId: null
             );
 
             // Act
@@ -115,7 +119,8 @@ namespace MyForum.Api.Tests.Validations
                 ThreadId: 1,
                 Content: "Test content",
                 AuthorName: longName,
-                Files: null
+                Files: null,
+                ReplyToPostId: null
             );
 
             // Act
@@ -143,7 +148,8 @@ namespace MyForum.Api.Tests.Validations
                 ThreadId: 1,
                 Content: "Test content",
                 AuthorName: "TestUser",
-                Files: files
+                Files: files,
+                ReplyToPostId: null
             );
 
             // Act
@@ -169,7 +175,8 @@ namespace MyForum.Api.Tests.Validations
                 ThreadId: 1,
                 Content: "Test content",
                 AuthorName: "TestUser",
-                Files: files
+                Files: files,
+                ReplyToPostId: null
             );
 
             // Act
@@ -194,7 +201,8 @@ namespace MyForum.Api.Tests.Validations
                 ThreadId: 1,
                 Content: "Test content",
                 AuthorName: "TestUser",
-                Files: files
+                Files: files,
+                ReplyToPostId: null
             );
 
             // Act
@@ -219,7 +227,8 @@ namespace MyForum.Api.Tests.Validations
                 ThreadId: 1,
                 Content: "Test content",
                 AuthorName: "TestUser",
-                Files: files
+                Files: files,
+                ReplyToPostId: null
             );
 
             // Act

@@ -38,7 +38,8 @@ namespace MyForum.Api.Tests.Validations
                     ThreadId: 0,
                     Content: "This is the first post in the thread.",
                     AuthorName: "TestUser",
-                    Files: null
+                    Files: null,
+                    ReplyToPostId: null
                 )
             );
 
@@ -63,7 +64,8 @@ namespace MyForum.Api.Tests.Validations
                     ThreadId: 0,
                     Content: "This is the first post in the thread.",
                     AuthorName: "TestUser",
-                    Files: null
+                    Files: null,
+                    ReplyToPostId: null
                 )
             );
 
@@ -87,7 +89,8 @@ namespace MyForum.Api.Tests.Validations
                     ThreadId: 0,
                     Content: "This is the first post in the thread.",
                     AuthorName: "TestUser",
-                    Files: null
+                    Files: null,
+                    ReplyToPostId: null
                 )
             );
 
@@ -111,7 +114,8 @@ namespace MyForum.Api.Tests.Validations
                     ThreadId: 0,
                     Content: "This is the first post in the thread.",
                     AuthorName: "TestUser",
-                    Files: null
+                    Files: null,
+                    ReplyToPostId: null
                 )
             );
 
@@ -135,7 +139,8 @@ namespace MyForum.Api.Tests.Validations
                     ThreadId: 0,
                     Content: "", // Invalid content
                     AuthorName: "TestUser",
-                    Files: null
+                    Files: null,
+                    ReplyToPostId: null
                 )
             );
 
