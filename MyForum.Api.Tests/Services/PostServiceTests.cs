@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Moq;
 using MyForum.Api.Core.Entities;
+using MyForum.Api.Core.Interfaces.Factories;
 using MyForum.Api.Core.Interfaces.Metrics;
 using MyForum.Api.Core.Interfaces.Repositories;
 using MyForum.Api.Core.Interfaces.Services;
@@ -19,6 +20,7 @@ namespace MyForum.Api.Tests.Services
         private readonly Mock<IIPHasher> _mockIpHasher;
         private readonly Mock<IMapper> _mockMapper;
         private readonly Mock<IForumMetrics> _mockForumMetrics;
+        private readonly Mock<ICreatePostResponseFactory> _mockCreatePostResponseFactory;
         private readonly PostService _postService;
         public PostServiceTests()
         {
@@ -28,6 +30,7 @@ namespace MyForum.Api.Tests.Services
             _mockIpHasher = new Mock<IIPHasher>();
             _mockMapper = new Mock<IMapper>();
             _mockForumMetrics = new Mock<IForumMetrics>();
+            _mockCreatePostResponseFactory = new Mock<ICreatePostResponseFactory>();
 
             _mockIpHasher.Setup(hasher => hasher.HashIP(It.IsAny<string>())).Returns("hashed_ip");
 
@@ -37,7 +40,8 @@ namespace MyForum.Api.Tests.Services
                 _mockFileService.Object,
                 _mockIpHasher.Object,
                 _mockMapper.Object,
-                _mockForumMetrics.Object);
+                _mockForumMetrics.Object,
+                _mockCreatePostResponseFactory.Object);
 
         }
 
