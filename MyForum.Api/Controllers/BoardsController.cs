@@ -56,5 +56,24 @@ namespace MyForum.Api.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, new ApiErrorResponse("Произошла ошибка при обработке запроса."));
             }
         }
+
+        [HttpGet("{boardShortName}/threads")]
+        public async Task<ActionResult<BoardThreadsResponse>> GetThreads(
+            string boardShortName,
+            [FromQuery] DateTime? cursor,
+            [FromQuery] int limit = 20,
+            CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                var response = await _boardService.GetThreadsAsync(boardShortName, cursor, limit, cancellationToken);
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Ошибка при получении тем категории '{BoardShortName}'.", boardShortName);
+                return StatusCode(StatusCodes.Status500InternalServerError, new ApiErrorResponse("Произошла ошибка при обработке запроса."));
+            }
+        }
     }
 }

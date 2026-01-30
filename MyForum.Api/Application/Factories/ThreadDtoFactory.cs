@@ -17,11 +17,20 @@ namespace MyForum.Api.Application.Factories
 
         public async Task<ThreadDto> CreateAsync(Core.Entities.Thread thread, CancellationToken cancellationToken = default)
         {
+            var originalPost = thread.Posts.FirstOrDefault(p => p.IsOriginal);
+
+            if (originalPost == null)
+            {
+                throw new InvalidOperationException(
+                    $"В треде {thread.Id} нет оригинального поста.");
+            }
+
             return new ThreadDto
             (
                 Id: thread.Id,
                 Subject: thread.Subject,
                 CreatedAt: thread.CreatedAt,
+                LastBumpAt: thread.LastBumpAt,
                 OriginalPost: await _postDtoFactory.CreateAsync(thread.Posts.First(p => p.IsOriginal), cancellationToken),
                 PostCount: thread.PostCount,
                 FileCount: thread.FileCount,

@@ -5,6 +5,7 @@ namespace MyForum.Api.Core.DTOs
         int Id,
         string Subject,
         DateTime CreatedAt,
+        DateTime LastBumpAt,
         PostDto OriginalPost,
         int PostCount,
         int FileCount,

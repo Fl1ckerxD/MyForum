@@ -47,6 +47,48 @@ namespace MyForum.Api.Infrastructure.Repositories
             return new PagedResult<Thread>(items, totalCount, pageNumber, pageSize);
         }
 
+        public async Task<List<Thread>> GetThreadsAsync(string boardShortName, DateTime? cursor, int limit, CancellationToken cancellationToken = default)
+        {
+            var threadsQuery = _context.Threads
+                .AsNoTracking()
+                .Where(t => t.Board.ShortName == boardShortName);
+
+            if (cursor.HasValue)
+            {
+                threadsQuery = threadsQuery
+                    .Where(t => t.LastBumpAt < cursor.Value);
+            }
+
+            threadsQuery = threadsQuery
+                .OrderByDescending(t => t.IsPinned)
+                .ThenByDescending(t => t.LastBumpAt)
+                .Take(limit);
+
+            var threads = await threadsQuery
+                .Include(t => t.Board)
+                .ToListAsync(cancellationToken);
+
+            var threadIds = threads.Select(t => t.Id).ToList();
+
+            var posts = await _context.Posts
+                .AsNoTracking()
+                .Where(p => threadIds.Contains(p.ThreadId))
+                .Include(p => p.Files)
+                .ToListAsync(cancellationToken);
+
+            foreach (var thread in threads)
+            {
+                thread.Posts = posts
+                    .Where(p => p.ThreadId == thread.Id)
+                    .OrderByDescending(p => p.IsOriginal)
+                    .ThenByDescending(p => p.CreatedAt)
+                    .Take(4)
+                    .ToList();
+            }
+
+            return threads;
+        }
+
         public async Task<Thread?> GetThreadWithPostsByIdAsync(string boardShortName, int id, CancellationToken cancellationToken = default)
         {
             return await _context.Threads

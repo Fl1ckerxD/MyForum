@@ -20,13 +20,42 @@ namespace MyForum.Api.Infrastructure.Repositories
 
         public async Task<Board?> GetBoardWithThreadsAndPostsAsync(string boardShortName, CancellationToken cancellationToken = default)
         {
-            return await _context.Boards
-                .Include(b => b.Threads)
-                    .ThenInclude(t => t.Posts)
-                        .ThenInclude(p => p.Files)
+            var board = await _context.Boards
+                .AsNoTracking()
                 .FirstOrDefaultAsync(b => b.ShortName == boardShortName, cancellationToken);
-        }
 
+            if (board == null)
+                return null;
+
+            var threads = await _context.Threads
+                .AsNoTracking()
+                .Where(t => t.BoardId == board.Id)
+                .OrderByDescending(t => t.IsPinned)
+                .ThenByDescending(t => t.LastBumpAt)
+                .Take(20)
+                .ToListAsync(cancellationToken);
+
+            var threadIds = threads.Select(t => t.Id).ToList();
+
+            var posts = await _context.Posts
+                .AsNoTracking()
+                .Where(p => threadIds.Contains(p.ThreadId))
+                .Include(p => p.Files)
+                .ToListAsync(cancellationToken);
+
+            foreach (var thread in threads)
+            {
+                thread.Posts = posts
+                    .Where(p => p.ThreadId == thread.Id)
+                    .OrderByDescending(p => p.IsOriginal)
+                    .ThenByDescending(p => p.CreatedAt)
+                    .Take(4)
+                    .ToList();
+            }
+
+            board.Threads = threads;
+            return board;
+        }
         public Task<Board?> GetByShortNameAsync(string shortName, CancellationToken cancellationToken = default)
         {
             return _context.Boards

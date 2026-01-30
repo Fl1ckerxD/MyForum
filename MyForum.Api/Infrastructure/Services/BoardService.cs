@@ -2,9 +2,11 @@ using System.Text.Json;
 using AutoMapper;
 using Microsoft.Extensions.Caching.Distributed;
 using MyForum.Api.Core.DTOs;
+using MyForum.Api.Core.DTOs.Responses;
 using MyForum.Api.Core.Interfaces.Factories;
 using MyForum.Api.Core.Interfaces.Repositories;
 using MyForum.Api.Core.Interfaces.Services;
+using Pipelines.Sockets.Unofficial;
 
 
 namespace MyForum.Api.Infrastructure.Services
@@ -60,6 +62,23 @@ namespace MyForum.Api.Infrastructure.Services
                 Description: board.Description,
                 Threads: await Task.WhenAll(board.Threads.Select(async t => await _threadDtoFactory.CreateAsync(t, cancellationToken)))
             );
+        }
+
+        public async Task<BoardThreadsResponse> GetThreadsAsync(string boardShortName, DateTime? cursor, int limit = 20, CancellationToken cancellationToken = default)
+        {
+            var threads = await _unitOfWork.Threads.GetThreadsAsync(boardShortName, cursor, limit, cancellationToken);
+
+            var threadDtos = await Task.WhenAll(threads.Select(t => _threadDtoFactory.CreateAsync(t, cancellationToken)));
+
+            DateTime? nextCursor = threads.Count == limit
+                ? threads.Last().LastBumpAt
+                : null;
+
+            return new BoardThreadsResponse
+            {
+                Threads = threadDtos.ToList(),
+                NextCursor = nextCursor
+            };
         }
     }
 }

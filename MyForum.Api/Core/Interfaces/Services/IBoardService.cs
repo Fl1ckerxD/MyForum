@@ -1,4 +1,5 @@
 using MyForum.Api.Core.DTOs;
+using MyForum.Api.Core.DTOs.Responses;
 
 namespace MyForum.Api.Core.Interfaces.Services
 {
@@ -6,5 +7,6 @@ namespace MyForum.Api.Core.Interfaces.Services
     {
         Task<IReadOnlyCollection<BoardNamesDto>> GetAllBoardNamesAsync(CancellationToken cancellationToken = default);
         Task<BoardDto?> GetBoardWithThreadsAndPostsAsync(string boardShortName, CancellationToken cancellationToken = default);
+        Task<BoardThreadsResponse> GetThreadsAsync(string boardShortName, DateTime? cursor, int limit = 20, CancellationToken cancellationToken = default);
     }
 }

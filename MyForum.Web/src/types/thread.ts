@@ -5,6 +5,7 @@ export interface Thread {
   id: number;
   subject: string;
   createdAt: Date;
+  lastBumpAt: Date;
   originalPost: Post;
   postCount: number;
   fileCount: number;
