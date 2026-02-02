@@ -1,6 +1,7 @@
 using AutoMapper;
 using MyForum.Api.Core.DTOs;
 using MyForum.Api.Core.DTOs.Common;
+using MyForum.Api.Core.DTOs.Responses;
 using MyForum.Api.Core.Interfaces.Factories;
 using MyForum.Api.Core.Interfaces.Metrics;
 using MyForum.Api.Core.Interfaces.Repositories;
@@ -30,15 +31,30 @@ namespace MyForum.Api.Infrastructure.Services
             _threadDtoFactory = threadDtoFactory;
         }
 
+        /// <summary>
+        /// Возвращает тред с постами по короткому имени доски и ID треда
+        /// </summary>
         public async Task<ThreadDto?> GetThreadWithPostsById(string boardShortName, int id, CancellationToken cancellationToken = default)
         {
-            var thread = await _uow.Threads.GetThreadWithPostsByIdAsync(boardShortName, id, cancellationToken);
+            try
+            {
+                var thread = await _uow.Threads.GetThreadWithPostsByIdAsync(boardShortName, id, cancellationToken);
 
-            if (thread is null) return null;
+                if (thread is null) return null;
 
-            return await _threadDtoFactory.CreateAsync(thread, cancellationToken);
+                return await _threadDtoFactory.CreateAsync(thread, cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Ошибка при получении треда с Id {ThreadId} на доске {BoardShortName}", id, boardShortName);
+                throw;
+            }
         }
 
+        /// <summary>
+        /// Создает новый тред с постом
+        /// </summary>
+        /// <returns>ID созданного треда</returns>
         public async Task<int> CreateThreadWithPostAsync(int boardId, string subject, string postContent,
             string authorName, string ipAddress, string userAgent,
             List<IFormFile>? files = null, CancellationToken cancellationToken = default)
@@ -49,23 +65,71 @@ namespace MyForum.Api.Infrastructure.Services
                 Subject = subject
             };
 
-            await _postService.CreateAsync(thread, postContent, authorName, ipAddress, userAgent, files, cancellationToken);
+            try
+            {
+                await _postService.CreateAsync(thread, postContent, authorName, ipAddress, userAgent, files, cancellationToken);
 
-            _forumMetrics.AddThread();
-            _logger.LogInformation("Создан новый тред с Id {ThreadId} на доске с Id {BoardId}", thread.Id, boardId);
-            return thread.Id;
+                _forumMetrics.AddThread();
+                _logger.LogInformation("Создан новый тред с Id {ThreadId} на доске с Id {BoardId}", thread.Id, boardId);
+
+                return thread.Id;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Ошибка при создании треда на доске с Id {BoardId}", boardId);
+                throw;
+            }
         }
 
+        /// <summary>
+        /// Возвращает страницу тредов по короткому имени доски
+        /// </summary>
         public async Task<PagedResult<ThreadDto>> GetThreadsPagedAsync(string boardShortName, int pageNumber, int pageSize, CancellationToken cancellationToken = default)
         {
-            var board = await _uow.Boards.GetByShortNameAsync(boardShortName, cancellationToken);
-            if (board == null) throw new KeyNotFoundException($"Доска '{boardShortName}' не найдена");
+            try
+            {
+                // Проверяем, что доска существует
+                var board = await _uow.Boards.GetByShortNameAsync(boardShortName, cancellationToken);
+                if (board == null) throw new KeyNotFoundException($"Доска '{boardShortName}' не найдена");
 
-            var pagedThreads = await _uow.Threads.GetPagedThreadsByBoardWithPostsAsync(
-            board.Id, pageNumber, pageSize, cancellationToken);
+                // Получаем страницу тредов с постами
+                var pagedThreads = await _uow.Threads.GetPagedThreadsByBoardWithPostsAsync(
+                board.Id, pageNumber, pageSize, cancellationToken);
 
-            var threadDtos = _mapper.Map<List<ThreadDto>>(pagedThreads.Items);
-            return new PagedResult<ThreadDto>(threadDtos, pagedThreads.TotalCount, pageNumber, pageSize);
+                // Маппим сущности в DTO
+                var threadDtos = _mapper.Map<List<ThreadDto>>(pagedThreads.Items);
+                return new PagedResult<ThreadDto>(threadDtos, pagedThreads.TotalCount, pageNumber, pageSize);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Ошибка при получении страницы тредов на доске {BoardShortName}", boardShortName);
+                throw;
+            }
+        }
+
+        public async Task<GetThreadsResponse> GetThreadsByCursorAsync(string boardShortName, DateTime? cursor, int limit = 20, CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                var threads = await _uow.Threads.GetThreadsByCursorAsync(boardShortName, cursor, limit, cancellationToken);
+
+                var threadDtos = await Task.WhenAll(threads.Select(t => _threadDtoFactory.CreateAsync(t, cancellationToken)));
+
+                DateTime? nextCursor = threads.Count == limit
+                    ? threads.Last().LastBumpAt
+                    : null;
+
+                return new GetThreadsResponse
+                {
+                    Threads = threadDtos.ToList(),
+                    NextCursor = nextCursor
+                };
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Ошибка при получении тредов на доске {BoardShortName} по курсору", boardShortName);
+                throw;
+            }
         }
     }
 }

@@ -6,7 +6,6 @@ using MyForum.Api.Core.DTOs.Responses;
 using MyForum.Api.Core.Interfaces.Factories;
 using MyForum.Api.Core.Interfaces.Repositories;
 using MyForum.Api.Core.Interfaces.Services;
-using Pipelines.Sockets.Unofficial;
 
 
 namespace MyForum.Api.Infrastructure.Services
@@ -28,57 +27,95 @@ namespace MyForum.Api.Infrastructure.Services
             _logger = logger;
             _threadDtoFactory = threadDtoFactory;
         }
+
+        /// <summary>
+        /// Возвращает список названий всех досок
+        /// </summary>
+        /// <returns>Список названий досок</returns>
         public async Task<IReadOnlyCollection<BoardNamesDto>> GetAllBoardNamesAsync(CancellationToken cancellationToken = default)
         {
+            // Попытка получить из кэша
             var cacheKey = "AllBoardNames";
-            var cachedBoardNames = await _cache.GetStringAsync(cacheKey, cancellationToken);
-            if (!string.IsNullOrEmpty(cachedBoardNames))
+
+            try
             {
-                _logger.LogDebug("Названия досок получены из кэша");
-                return JsonSerializer.Deserialize<IReadOnlyCollection<BoardNamesDto>>(cachedBoardNames)!;
+                var cachedBoardNames = await _cache.GetStringAsync(cacheKey, cancellationToken);
+                if (!string.IsNullOrEmpty(cachedBoardNames))
+                {
+                    _logger.LogDebug("Названия досок получены из кэша");
+                    return JsonSerializer.Deserialize<IReadOnlyCollection<BoardNamesDto>>(cachedBoardNames)!;
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Ошибка при получении названий досок из кэша");
+                throw;
             }
 
-            var boards = await _unitOfWork.Boards.GetAllAsync(cancellationToken);
-            var boardNames = _mapper.Map<IReadOnlyCollection<BoardNamesDto>>(boards);
-            var serializedBoardNames = JsonSerializer.Serialize(boardNames);
-            await _cache.SetStringAsync(cacheKey, serializedBoardNames, new DistributedCacheEntryOptions
+            try
             {
-                AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(10),
-                SlidingExpiration = TimeSpan.FromMinutes(2)
-            }, cancellationToken);
-            return boardNames;
+                // Если в кэше нет, получить из базы данных
+                var boards = await _unitOfWork.Boards.GetAllAsync(cancellationToken);
+                _logger.LogDebug("Названия досок получены из базы данных");
+
+                var boardNames = _mapper.Map<IReadOnlyCollection<BoardNamesDto>>(boards);
+
+                // Сохранить в кэш
+                var serializedBoardNames = JsonSerializer.Serialize(boardNames);
+                await _cache.SetStringAsync(cacheKey, serializedBoardNames, new DistributedCacheEntryOptions
+                {
+                    AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(10),
+                    SlidingExpiration = TimeSpan.FromMinutes(2)
+                }, cancellationToken);
+
+                _logger.LogDebug("Названия досок сохранены в кэш");
+
+                return boardNames;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Ошибка при получении названий досок из базы данных");
+                throw;
+            }
         }
 
-        public async Task<BoardDto?> GetBoardWithThreadsAndPostsAsync(string boardShortName, CancellationToken cancellationToken = default)
+        /// <summary>
+        /// Возвращает доску с её тредами и постами
+        /// </summary>
+        /// <param name="boardShortName">Короткое имя доски</param>
+        /// <param name="threadLimit">Лимит тредов</param>
+        /// <returns>Доска с тредами и постами или null, если доска не найдена</returns>
+        public async Task<GetBoardResponse?> GetBoardWithThreadsAndPostsAsync(string boardShortName, int threadLimit = 20, CancellationToken cancellationToken = default)
         {
-            var board = await _unitOfWork.Boards.GetBoardWithThreadsAndPostsAsync(boardShortName, cancellationToken);
-
-            if (board is null) return null;
-
-            return new BoardDto(
-                Id: board.Id,
-                Name: board.Name,
-                ShortName: board.ShortName,
-                Description: board.Description,
-                Threads: await Task.WhenAll(board.Threads.Select(async t => await _threadDtoFactory.CreateAsync(t, cancellationToken)))
-            );
-        }
-
-        public async Task<BoardThreadsResponse> GetThreadsAsync(string boardShortName, DateTime? cursor, int limit = 20, CancellationToken cancellationToken = default)
-        {
-            var threads = await _unitOfWork.Threads.GetThreadsAsync(boardShortName, cursor, limit, cancellationToken);
-
-            var threadDtos = await Task.WhenAll(threads.Select(t => _threadDtoFactory.CreateAsync(t, cancellationToken)));
-
-            DateTime? nextCursor = threads.Count == limit
-                ? threads.Last().LastBumpAt
-                : null;
-
-            return new BoardThreadsResponse
+            try
             {
-                Threads = threadDtos.ToList(),
-                NextCursor = nextCursor
-            };
+                var board = await _unitOfWork.Boards.GetBoardWithThreadsAndPostsAsync(boardShortName, threadLimit, cancellationToken);
+
+                if (board is null) return null;
+
+                var boardDto = new BoardDto(
+                    Id: board.Id,
+                    Name: board.Name,
+                    ShortName: board.ShortName,
+                    Description: board.Description,
+                    Threads: await Task.WhenAll(board.Threads.Select(async t => await _threadDtoFactory.CreateAsync(t, cancellationToken)))
+                );
+
+                DateTime? nextCursor = board.Threads.Count == threadLimit
+                                    ? board.Threads.Last().LastBumpAt
+                                    : null;
+
+                return new GetBoardResponse
+                {
+                    Board = boardDto,
+                    NextCursor = nextCursor
+                };
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Ошибка при получении доски с тредами и постами");
+                throw;
+            }
         }
     }
 }

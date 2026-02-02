@@ -28,6 +28,12 @@ namespace MyForum.Api.Infrastructure.Services
             _logger = logger;
         }
 
+        /// <summary>
+        /// Cохраняет файл в MinIO и создает превью для изображений.
+        /// </summary>
+        /// <param name="file">Файл для сохранения</param>
+        /// <param name="post">Пост, к которому прикреплен файл</param>
+        /// <returns>Объект PostFile с информацией о сохраненном файле</returns>
         public async Task<PostFile> SaveFileAsync(IFormFile file, Post post, CancellationToken cancellationToken = default)
         {
             // Создаем уникальное имя файла
@@ -97,6 +103,14 @@ namespace MyForum.Api.Infrastructure.Services
             };
         }
 
+        /// <summary>
+        /// Создает превью для изображения
+        /// </summary>
+        /// <param name="fileStream">Поток с изображением</param>
+        /// <param name="bucketName">Имя бакета</param>
+        /// <param name="originalKey">Ключ оригинального файла</param>
+        /// <param name="extension">Расширение файла</param>
+        /// <returns>Ключ превью</returns>
         private async Task<string> CreateThumbnailAsync(Stream fileStream, string bucketName, string originalKey, string extension, CancellationToken cancellationToken)
         {
             var thumbnailKey = $"{Path.GetFileNameWithoutExtension(originalKey)}_thumb{Path.GetExtension(originalKey)}";
@@ -134,6 +148,13 @@ namespace MyForum.Api.Infrastructure.Services
             return thumbnailKey;
         }
 
+        /// <summary>
+        /// Получает размеры изображения
+        /// </summary>
+        /// <param name="Width">Ширина изображения</param>
+        /// <param name="bucketName">Имя бакета</param>
+        /// <param name="objectKey">Ключ объекта</param>
+        /// <returns>Кортеж с шириной и высотой изображения</returns>
         private async Task<(int Width, int Height)> GetImageDimensionsAsync(string bucketName, string objectKey)
         {
             try
@@ -148,6 +169,12 @@ namespace MyForum.Api.Infrastructure.Services
             }
         }
 
+        /// <summary>
+        /// Возвращает поток с содержимым файла
+        /// </summary>
+        /// <param name="bucketName">Имя бакета</param>
+        /// <param name="objectKey">Ключ объекта</param>
+        /// <returns>Поток с содержимым файла</returns>
         public async Task<Stream> GetFileStreamAsync(string bucketName, string objectKey)
         {
             try
@@ -171,6 +198,13 @@ namespace MyForum.Api.Infrastructure.Services
             }
         }
 
+        /// <summary>
+        /// Возвращает URL для доступа к файлу
+        /// </summary>
+        /// <param name="bucketName">Имя бакета</param>
+        /// <param name="objectKey">Ключ объекта</param>
+        /// <param name="expiresSeconds">Срок действия URL в секундах</param>
+        /// <returns>URL для доступа к файлу или null, если не удалось получить URL</returns>
         public async Task<string?> GetFileUrlAsync(string bucketName, string objectKey, int expiresSeconds = 3600)
         {
             var args = new PresignedGetObjectArgs()
@@ -183,6 +217,11 @@ namespace MyForum.Api.Infrastructure.Services
             return ReplaceHost(url, _configuration["MinIO:PublicEndpoint"] ?? "localhost");
         }
 
+        /// <summary>
+        /// Удаляет файл из MinIO
+        /// </summary>
+        /// <param name="postFile">Файл для удаления</param>
+        /// <returns>True, если файл успешно удален, иначе False</returns>
         public async Task<bool> DeleteFileAsync(PostFile postFile, CancellationToken cancellationToken = default)
         {
             try
@@ -214,6 +253,10 @@ namespace MyForum.Api.Infrastructure.Services
             }
         }
 
+        /// <summary>
+        /// Проверяет существование бакета и создает его при необходимости
+        /// </summary>
+        /// <param name="bucketName">Имя бакета</param>
         private async Task EnsureBucketExistsAsync(string bucketName, CancellationToken cancellationToken = default)
         {
             try
@@ -256,6 +299,12 @@ namespace MyForum.Api.Infrastructure.Services
         private bool IsImageFile(string extension) =>
             new[] { ".jpg", ".jpeg", ".png", ".gif", ".webp" }.Contains(extension.ToLowerInvariant());
 
+        /// <summary>
+        /// Заменяет хост в URL на указанный публичный endpoint
+        /// </summary>
+        /// <param name="originalUrl">Оригинальный URL</param>
+        /// <param name="publicEndpoint">Публичный endpoint</param>
+        /// <returns>URL с замененным хостом</returns>
         private string ReplaceHost(string originalUrl, string publicEndpoint)
         {
             var originalUri = new Uri(originalUrl);

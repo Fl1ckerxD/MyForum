@@ -6,6 +6,10 @@ namespace MyForum.Api.Infrastructure.Services
 {
     public class SHA256IPHasher : IIPHasher
     {
+        /// <summary>
+        /// Хеширует IP-адрес с помощью SHA256
+        /// </summary>
+        /// <returns>Строка, представляющая хеш IP-адреса</returns>
         public string HashIP(string ipAddress)
         {
             if (string.IsNullOrEmpty(ipAddress) || ipAddress == "unknown")

@@ -18,7 +18,7 @@ namespace MyForum.Api.Infrastructure.Repositories
                 .ToListAsync(cancellationToken);
         }
 
-        public async Task<Board?> GetBoardWithThreadsAndPostsAsync(string boardShortName, CancellationToken cancellationToken = default)
+        public async Task<Board?> GetBoardWithThreadsAndPostsAsync(string boardShortName, int threadLimit, CancellationToken cancellationToken = default)
         {
             var board = await _context.Boards
                 .AsNoTracking()
@@ -32,7 +32,7 @@ namespace MyForum.Api.Infrastructure.Repositories
                 .Where(t => t.BoardId == board.Id)
                 .OrderByDescending(t => t.IsPinned)
                 .ThenByDescending(t => t.LastBumpAt)
-                .Take(20)
+                .Take(threadLimit)
                 .ToListAsync(cancellationToken);
 
             var threadIds = threads.Select(t => t.Id).ToList();

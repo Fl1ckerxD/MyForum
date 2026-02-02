@@ -6,7 +6,6 @@ namespace MyForum.Api.Core.Interfaces.Services
     public interface IBoardService
     {
         Task<IReadOnlyCollection<BoardNamesDto>> GetAllBoardNamesAsync(CancellationToken cancellationToken = default);
-        Task<BoardDto?> GetBoardWithThreadsAndPostsAsync(string boardShortName, CancellationToken cancellationToken = default);
-        Task<BoardThreadsResponse> GetThreadsAsync(string boardShortName, DateTime? cursor, int limit = 20, CancellationToken cancellationToken = default);
+        Task<GetBoardResponse?> GetBoardWithThreadsAndPostsAsync(string boardShortName, int threadLimit = 20, CancellationToken cancellationToken = default);
     }
 }

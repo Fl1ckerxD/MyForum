@@ -47,7 +47,7 @@ namespace MyForum.Api.Infrastructure.Repositories
             return new PagedResult<Thread>(items, totalCount, pageNumber, pageSize);
         }
 
-        public async Task<List<Thread>> GetThreadsAsync(string boardShortName, DateTime? cursor, int limit, CancellationToken cancellationToken = default)
+        public async Task<List<Thread>> GetThreadsByCursorAsync(string boardShortName, DateTime? cursor, int limit, CancellationToken cancellationToken = default)
         {
             var threadsQuery = _context.Threads
                 .AsNoTracking()

@@ -10,12 +10,14 @@ namespace MyForum.Api.Controllers
     public class BoardsController : ControllerBase
     {
         private readonly IBoardService _boardService;
+        private readonly IThreadService _threadService;
         private readonly ILogger<BoardsController> _logger;
 
-        public BoardsController(ILogger<BoardsController> logger, IBoardService boardService)
+        public BoardsController(ILogger<BoardsController> logger, IBoardService boardService, IThreadService threadService)
         {
             _logger = logger;
             _boardService = boardService;
+            _threadService = threadService;
         }
 
 
@@ -36,19 +38,18 @@ namespace MyForum.Api.Controllers
         }
 
         [HttpGet("{boardShortName}")]
-        public async Task<ActionResult<BoardDto>> GetBoard(string boardShortName, CancellationToken cancellationToken)
+        public async Task<ActionResult<GetBoardResponse>> GetBoard(string boardShortName, CancellationToken cancellationToken, [FromQuery] int threadLimit = 20)
         {
             try
             {
-                var board = await _boardService.GetBoardWithThreadsAndPostsAsync(boardShortName, cancellationToken);
-
-                if (board == null)
+                var response = await _boardService.GetBoardWithThreadsAndPostsAsync(boardShortName, threadLimit, cancellationToken);
+                if (response == null)
                 {
                     _logger.LogWarning("Категория с именем '{BoardShortName}' не найдена.", boardShortName);
                     return NotFound();
                 }
                 _logger.LogInformation("Категория '{BoardShortName}' успешно получена.", boardShortName);
-                return Ok(board);
+                return Ok(response);
             }
             catch (Exception ex)
             {
@@ -58,15 +59,15 @@ namespace MyForum.Api.Controllers
         }
 
         [HttpGet("{boardShortName}/threads")]
-        public async Task<ActionResult<BoardThreadsResponse>> GetThreads(
+        public async Task<ActionResult<GetThreadsResponse>> GetThreads(
+            CancellationToken cancellationToken,
             string boardShortName,
             [FromQuery] DateTime? cursor,
-            [FromQuery] int limit = 20,
-            CancellationToken cancellationToken = default)
+            [FromQuery] int limit = 20)
         {
             try
             {
-                var response = await _boardService.GetThreadsAsync(boardShortName, cursor, limit, cancellationToken);
+                var response = await _threadService.GetThreadsByCursorAsync(boardShortName, cursor, limit, cancellationToken);
                 return Ok(response);
             }
             catch (Exception ex)
