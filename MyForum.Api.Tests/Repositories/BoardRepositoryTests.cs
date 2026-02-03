@@ -49,7 +49,7 @@ namespace MyForum.Api.Tests.Repositories
             await _context.SaveChangesAsync();
 
             // Act
-            var result = await _boardRepository.GetBoardWithThreadsAndPostsAsync("tech");
+            var result = await _boardRepository.GetBoardWithThreadsAndPostsAsync("tech", 2);
 
             // Assert
             Assert.NotNull(result);

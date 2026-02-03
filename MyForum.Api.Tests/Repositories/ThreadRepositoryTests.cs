@@ -31,7 +31,7 @@ namespace MyForum.Api.Tests.Repositories
             await _context.SaveChangesAsync();
 
             // Act
-            var result = await _threadRepository.GetThreadWithPostsByIdAsync("tech", thread.Id);
+            var result = await _threadRepository.GetThreadWithPostsByIdAsync("tech", thread.Id, 10);
 
             // Assert
             Assert.NotNull(result);

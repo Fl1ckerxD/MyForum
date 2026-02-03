@@ -20,6 +20,13 @@ namespace MyForum.Api.Infrastructure.Repositories
 
         public async Task<Board?> GetBoardWithThreadsAndPostsAsync(string boardShortName, int threadLimit, CancellationToken cancellationToken = default)
         {
+            if (threadLimit < 1)
+                threadLimit = 1;
+
+            const int maxThreadLimit = 200;
+            if (threadLimit > maxThreadLimit)
+                threadLimit = maxThreadLimit;
+
             var board = await _context.Boards
                 .AsNoTracking()
                 .FirstOrDefaultAsync(b => b.ShortName == boardShortName, cancellationToken);

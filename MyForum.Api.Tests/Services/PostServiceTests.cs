@@ -21,6 +21,7 @@ namespace MyForum.Api.Tests.Services
         private readonly Mock<IMapper> _mockMapper;
         private readonly Mock<IForumMetrics> _mockForumMetrics;
         private readonly Mock<ICreatePostResponseFactory> _mockCreatePostResponseFactory;
+        private readonly Mock<IPostDtoFactory> _mockPostDtoFactory;
         private readonly PostService _postService;
         public PostServiceTests()
         {
@@ -31,6 +32,7 @@ namespace MyForum.Api.Tests.Services
             _mockMapper = new Mock<IMapper>();
             _mockForumMetrics = new Mock<IForumMetrics>();
             _mockCreatePostResponseFactory = new Mock<ICreatePostResponseFactory>();
+            _mockPostDtoFactory = new Mock<IPostDtoFactory>();
 
             _mockIpHasher.Setup(hasher => hasher.HashIP(It.IsAny<string>())).Returns("hashed_ip");
 
@@ -41,7 +43,8 @@ namespace MyForum.Api.Tests.Services
                 _mockIpHasher.Object,
                 _mockMapper.Object,
                 _mockForumMetrics.Object,
-                _mockCreatePostResponseFactory.Object);
+                _mockCreatePostResponseFactory.Object,
+                _mockPostDtoFactory.Object);
 
         }
 
