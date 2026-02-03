@@ -23,7 +23,7 @@ export default function BoardPage() {
     loading,
     loaderRef,
   } = useInfiniteScroll<Thread>({
-    loadMore: cursor => getBoardThreads(boardShortName!, cursor),
+    loadMore: cursor => getBoardThreads(boardShortName!, cursor, 20),
   });
 
   useEffect(() => {

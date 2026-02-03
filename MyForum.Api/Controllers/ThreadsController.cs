@@ -14,29 +14,31 @@ namespace MyForum.Api.Controllers
     {
         private readonly ILogger<ThreadsController> _logger;
         private readonly IThreadService _threadService;
+        private readonly IPostService _postService;
         private readonly IValidator<CreateThreadRequest> _createThreadRequestValidator;
 
-        public ThreadsController(ILogger<ThreadsController> logger, IThreadService threadService, IValidator<CreateThreadRequest> createThreadRequestValidator)
+        public ThreadsController(ILogger<ThreadsController> logger, IThreadService threadService, IPostService postService, IValidator<CreateThreadRequest> createThreadRequestValidator)
         {
             _logger = logger;
+            _postService = postService;
             _threadService = threadService;
             _createThreadRequestValidator = createThreadRequestValidator;
         }
 
         [HttpGet("{boardShortName}/{threadId}")]
-        public async Task<ActionResult<ThreadDto>> GetThread(string boardShortName, int threadId, CancellationToken cancellationToken)
+        public async Task<ActionResult<GetThreadResponse>> GetThread(string boardShortName, int threadId, CancellationToken cancellationToken)
         {
             try
             {
-                var thread = await _threadService.GetThreadWithPostsById(boardShortName, threadId, cancellationToken);
+                var response = await _threadService.GetThreadWithPostsByIdAsync(boardShortName, threadId, cancellationToken);
 
-                if (thread == null)
+                if (response == null)
                 {
                     _logger.LogWarning("Тред с ID '{ThreadId}' не найден.", threadId);
                     return NotFound();
                 }
 
-                return Ok(thread);
+                return Ok(response);
             }
             catch (Exception ex)
             {
@@ -81,6 +83,25 @@ namespace MyForum.Api.Controllers
             {
                 _logger.LogError(ex, "Ошибка при создании треда.");
                 return StatusCode(StatusCodes.Status500InternalServerError, new ApiErrorResponse("Ошибка при создании треда."));
+            }
+        }
+
+        [HttpGet("{threadId}/posts")]
+        public async Task<ActionResult<GetPostsResponse>> GetPosts(
+            CancellationToken cancellationToken,
+            int threadId,
+            [FromQuery] int afterId,
+            [FromQuery] int limit = 20)
+        {
+            try
+            {
+                var response = await _postService.GetPostsAfterIdAsync(threadId, afterId, limit, cancellationToken);
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Ошибка при получении постов треда с ID '{ThreadId}'.", threadId);
+                return StatusCode(StatusCodes.Status500InternalServerError, new ApiErrorResponse("Произошла ошибка при обработке запроса."));
             }
         }
     }

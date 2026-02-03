@@ -4,10 +4,11 @@ import ButtonVisibility from "../components/ButtonVisibility";
 import { useEffect, useState } from "react";
 import type { Thread } from "../types/thread";
 import ThreadPreview from "../components/ThreadPreview";
-import { getThread } from "../api/threads.api";
+import { getThread, getThreadPosts } from "../api/threads.api";
 import PostList from "../components/PostList";
 import CreatePostForm from "../components/CreatePostForm";
 import type { Post } from "../types/post";
+import { useInfiniteScroll } from "../hooks/useInfiniteScroll";
 
 export default function ThreadPage() {
   const { boardShortName, threadId } = useParams<{
@@ -17,15 +18,27 @@ export default function ThreadPage() {
   const parsedThreadId = Number(threadId);
   const [thread, setThread] = useState<Thread | null>(null);
   const [createPostVisible, setCreatePostVisible] = useState(false);
-  const [posts, setPosts] = useState<Post[]>([]);
+
+  const {
+    items: posts,
+    setItems,
+    setCursor,
+    hasMore,
+    loading,
+    loaderRef,
+  } = useInfiniteScroll<Post>({
+    loadMore: cursor => getThreadPosts(parsedThreadId!, cursor, 20),
+  });
 
   useEffect(() => {
     if (!boardShortName || !threadId || Number.isNaN(parsedThreadId)) return;
 
     const loadThread = async () => {
-      const thread = await getThread(boardShortName, parsedThreadId);
-      setThread(thread);
-      setPosts(thread.posts);
+      const response = await getThread(boardShortName, parsedThreadId);
+
+      setThread(response.thread);
+      setItems(response.thread.posts);
+      setCursor(response.nextCursor?.toString() || null);
     };
 
     loadThread();
@@ -36,7 +49,7 @@ export default function ThreadPage() {
   }
 
   if (!thread) {
-    return <div>Loading...</div>;
+    return <div>Загрузка...</div>;
   }
 
   return (
@@ -57,7 +70,7 @@ export default function ThreadPage() {
               Закрыть форму постинга
             </ButtonVisibility>
             <CreatePostForm threadId={parsedThreadId} onCreated={post => {
-              setPosts(prev => [...prev, post]);
+              setItems(prev => [...prev, post]);
               setCreatePostVisible(false);
             }} />
           </>
@@ -70,8 +83,13 @@ export default function ThreadPage() {
           variant="page"
         />
         <PostList posts={posts} threadId={parsedThreadId} onReplyCreated={newPost => {
-          setPosts(prev => [...prev, newPost])
+          setItems(prev => [...prev, newPost])
         }} />
+        {hasMore && (
+          <div ref={loaderRef} style={{ height: 40 }} />
+        )}
+
+        {loading && <div>Загрузка...</div>}
       </section>
     </>
   );

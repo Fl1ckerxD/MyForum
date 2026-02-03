@@ -5,7 +5,8 @@ namespace MyForum.Api.Core.Interfaces.Repositories
 {
     public interface IThreadRepository : IRepository<Thread>
     {
-        Task<Thread?> GetThreadWithPostsByIdAsync(string boardShortName, int id, CancellationToken cancellationToken = default);
+        Task<Thread?> GetThreadWithOriginalPostAsync(string boardShortName, int threadId, CancellationToken ct = default);
+        Task<Thread?> GetThreadWithPostsByIdAsync(string boardShortName, int id, int postLimit, CancellationToken cancellationToken = default);
         Task<PagedResult<Thread>> GetPagedThreadsByBoardShortNameAsync(string boardShortName, int pageNumber, int pageSize, CancellationToken cancellationToken = default);
         Task<PagedResult<Thread>> GetPagedThreadsByBoardWithPostsAsync(int boardId, int pageNumber, int pageSize, CancellationToken cancellationToken = default);
         Task<List<Thread>> GetThreadsByCursorAsync(string boardShortName, DateTime? cursor, int limit, CancellationToken cancellationToken = default);

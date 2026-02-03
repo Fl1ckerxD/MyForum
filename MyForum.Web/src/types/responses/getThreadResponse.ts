@@ -1,6 +1,6 @@
 import type { Thread } from "../thread";
 
 export interface GetThreadResponse {
-  threads: Thread[];
-  nextCursor: string | null;
+  thread: Thread;
+  nextCursor: number | null;
 }

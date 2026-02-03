@@ -13,5 +13,6 @@ namespace MyForum.Api.Core.Interfaces.Services
         Task<int> CreateAsync(Thread thread, string content, string authorName, string ipAddress,
             string userAgent, List<IFormFile>? files = null, CancellationToken cancellationToken = default);
         Task<PagedResult<PostDto>> GetPagedPostsByThreadIdAsync(int threadId, int pageNumber, int pageSize, CancellationToken cancellationToken = default);
+        Task<GetPostsResponse> GetPostsAfterIdAsync(int threadId, int afterId, int limit = 20, CancellationToken cancellationToken = default);
     }
 }

@@ -29,5 +29,17 @@ namespace MyForum.Api.Infrastructure.Repositories
             
             return new PagedResult<Post>(items, totalItems, pageNumber, pageSize);
         }
+
+        public Task<List<Post>> GetPostsAfterIdAsync(int threadId, int afterId, int limit = 20, CancellationToken cancellationToken = default)
+        {
+            var query =  _context.Posts
+                .AsNoTracking()
+                .Where(p => p.ThreadId == threadId && p.Id > afterId)
+                .OrderBy(p => p.CreatedAt)
+                .Include(p => p.Files)
+                .Take(limit);
+            
+            return query.ToListAsync(cancellationToken);
+        }
     }
 }

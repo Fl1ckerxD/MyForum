@@ -34,15 +34,27 @@ namespace MyForum.Api.Infrastructure.Services
         /// <summary>
         /// Возвращает тред с постами по короткому имени доски и ID треда
         /// </summary>
-        public async Task<ThreadDto?> GetThreadWithPostsById(string boardShortName, int id, CancellationToken cancellationToken = default)
+        public async Task<GetThreadResponse?> GetThreadWithPostsByIdAsync(string boardShortName, int id, CancellationToken cancellationToken = default)
         {
             try
             {
-                var thread = await _uow.Threads.GetThreadWithPostsByIdAsync(boardShortName, id, cancellationToken);
+                int postLimit = 20;
+
+                var thread = await _uow.Threads.GetThreadWithPostsByIdAsync(boardShortName, id, postLimit, cancellationToken);
 
                 if (thread is null) return null;
 
-                return await _threadDtoFactory.CreateAsync(thread, cancellationToken);
+                var threadDto = await _threadDtoFactory.CreateAsync(thread, cancellationToken);
+
+                int? nextCursor = thread.Posts.Count == postLimit
+                    ? thread.Posts.Last().Id
+                    : null;
+
+                return new GetThreadResponse
+                {
+                    Thread = threadDto,
+                    NextCursor = nextCursor
+                };
             }
             catch (Exception ex)
             {

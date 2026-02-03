@@ -16,23 +16,25 @@ namespace MyForum.Api.Infrastructure.Services
     {
         private readonly ILogger<PostService> _logger;
         private readonly IUnitOfWork _uow;
-        private readonly IObjectStorageService _fileService;
+        private readonly IObjectStorageService _objectStorageService;
         private readonly IIPHasher _ipHasher;
         private readonly IMapper _mapper;
         private readonly IForumMetrics _forumMetrics;
         private readonly ICreatePostResponseFactory _createPostResponseFactory;
+        private readonly IPostDtoFactory _postDtoFactory;
 
         public PostService(ILogger<PostService> logger, IUnitOfWork uow,
-            IObjectStorageService fileService, IIPHasher ipHasher,
-            IMapper mapper, IForumMetrics forumMetrics, ICreatePostResponseFactory createPostResponseFactory)
+            IObjectStorageService objectStorageService, IIPHasher ipHasher,
+            IMapper mapper, IForumMetrics forumMetrics, ICreatePostResponseFactory createPostResponseFactory, IPostDtoFactory postDtoFactory)
         {
             _logger = logger;
             _uow = uow;
-            _fileService = fileService;
+            _objectStorageService = objectStorageService;
             _ipHasher = ipHasher;
             _mapper = mapper;
             _forumMetrics = forumMetrics;
             _createPostResponseFactory = createPostResponseFactory;
+            _postDtoFactory = postDtoFactory;
         }
 
         /// <summary>
@@ -41,11 +43,19 @@ namespace MyForum.Api.Infrastructure.Services
         public async Task<CreatePostResponse> CreateAsync(int threadId, string content, string authorName, string ipAddress,
             string userAgent, List<IFormFile>? files = null, int? replyToPostId = null, CancellationToken cancellationToken = default)
         {
-            if (replyToPostId.HasValue)
+            try
             {
-                var replyToPost = await _uow.Posts.GetByIdAsync(replyToPostId.Value, cancellationToken);
-                if(replyToPost == null || replyToPost.ThreadId != threadId)
-                    throw new InvalidOperationException("Пост, на который вы отвечаете, не найден в данном треде.");
+                if (replyToPostId.HasValue)
+                {
+                    var replyToPost = await _uow.Posts.GetByIdAsync(replyToPostId.Value, cancellationToken);
+                    if (replyToPost == null || replyToPost.ThreadId != threadId)
+                        throw new InvalidOperationException("Пост, на который вы отвечаете, не найден в данном треде.");
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Ошибка при проверке поста для ответа. ThreadId: {ThreadId}, ReplyToPostId: {ReplyToPostId}", threadId, replyToPostId);
+                throw;
             }
 
             var post = new Post
@@ -81,52 +91,101 @@ namespace MyForum.Api.Infrastructure.Services
             return await CreateAsync(post, ipAddress, files, cancellationToken);
         }
 
+        /// <summary>
+        /// Возвращает посты по ID треда с пагинацией
+        /// </summary>
         public async Task<PagedResult<PostDto>> GetPagedPostsByThreadIdAsync(int threadId, int pageNumber, int pageSize, CancellationToken cancellationToken = default)
         {
-            var thread = await _uow.Threads.GetByIdAsync(threadId, cancellationToken);
-            if (thread == null) throw new KeyNotFoundException($"Тред {threadId} не найден");
+            try
+            {
+                var thread = await _uow.Threads.GetByIdAsync(threadId, cancellationToken);
+                if (thread == null) throw new KeyNotFoundException($"Тред {threadId} не найден");
 
-            var pagedPosts = await _uow.Posts.GetPagedPostsByThreadIdAsync(
-                threadId, pageNumber, pageSize, cancellationToken);
+                var pagedPosts = await _uow.Posts.GetPagedPostsByThreadIdAsync(
+                    threadId, pageNumber, pageSize, cancellationToken);
 
-            var postDtos = _mapper.Map<List<PostDto>>(pagedPosts.Items);
+                var postDtos = _mapper.Map<List<PostDto>>(pagedPosts.Items);
 
-            return new PagedResult<PostDto>(
-                postDtos,
-                pagedPosts.TotalCount,
-                pagedPosts.PageNumber,
-                pagedPosts.PageSize);
+                return new PagedResult<PostDto>(
+                    postDtos,
+                    pagedPosts.TotalCount,
+                    pagedPosts.PageNumber,
+                    pagedPosts.PageSize);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Ошибка при получении постов для треда с Id {ThreadId}", threadId);
+                throw;
+            }
         }
 
+        /// <summary>
+        /// Возвращает посты в треде после указанного ID поста с курсорной пагинацией
+        /// </summary>
+        /// <param name="afterId">ID поста, после которого нужно получить посты</param>
+        public async Task<GetPostsResponse> GetPostsAfterIdAsync(int threadId, int afterId, int limit = 20, CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                var posts = await _uow.Posts.GetPostsAfterIdAsync(threadId, afterId, limit, cancellationToken);
+
+                var postDtos = await Task.WhenAll(posts.Select(p => _postDtoFactory.CreateAsync(p, cancellationToken)));
+
+                int? nextCursor = posts.Count == limit
+                    ? posts.Last().Id
+                    : null;
+
+                return new GetPostsResponse
+                {
+                    Posts = postDtos.ToList(),
+                    NextCursor = nextCursor
+                };
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Ошибка при получении постов после Id {AfterId} в треде с Id {ThreadId}", afterId, threadId);
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Сохраняет пост в БД вместе с файлами (если есть) и тредом (если это оригинальный пост)
+        /// </summary>
+        /// <returns>ID созданного поста</returns>
         private async Task<int> CreateAsync(Post post, string ipAddress, List<IFormFile>? files = null, CancellationToken cancellationToken = default)
         {
             post.IpAddressHash = _ipHasher.HashIP(ipAddress);
 
+            // Используем транзакцию для обеспечения целостности данных
             using var transactionScope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
 
             try
             {
+                // Сохраняем файлы в объектном хранилище
                 if (files != null && files.Any())
                     await ProcessPostFilesAsync(post, files, cancellationToken);
 
                 await _uow.Posts.AddAsync(post, cancellationToken);
                 await _uow.SaveAsync(cancellationToken);
 
-                transactionScope.Complete();
+                transactionScope.Complete(); // Завершаем транзакцию
 
-                _forumMetrics.AddPost();
+                _forumMetrics.AddPost(); // Увеличиваем счетчик постов в метриках
                 _logger.LogInformation("Создан новый пост с Id {PostId} в треде с Id {ThreadId}", post.Id, post.ThreadId);
 
                 return post.Id;
             }
             catch (Exception ex)
             {
-                await RollbackFileUploadAsync(post);
+                await RollbackFileUploadAsync(post); // Откатываем загрузку файлов в случае ошибки
                 _logger.LogError(ex, "Ошибка при создании поста. {@Post}", post);
                 throw;
             }
         }
 
+        /// <summary>
+        /// Сохраняет файлы поста в объектном хранилище
+        /// </summary>
         private async Task ProcessPostFilesAsync(Post post, List<IFormFile> files, CancellationToken cancellationToken)
         {
             var postFiles = new List<PostFile>();
@@ -135,14 +194,14 @@ namespace MyForum.Api.Infrastructure.Services
             {
                 try
                 {
-                    var postFile = await _fileService.SaveFileAsync(file, post, cancellationToken);
+                    var postFile = await _objectStorageService.SaveFileAsync(file, post, cancellationToken);
                     postFiles.Add(postFile);
                 }
                 catch (Exception ex)
                 {
                     // Откатываем уже сохраненные файлы
                     foreach (var savedFile in postFiles)
-                        await _fileService.DeleteFileAsync(savedFile);
+                        await _objectStorageService.DeleteFileAsync(savedFile);
 
                     _logger.LogError(ex, "Ошибка при обработке файла. Файл: {@File}", file.FileName);
                     throw;
@@ -152,15 +211,17 @@ namespace MyForum.Api.Infrastructure.Services
             post.Files = postFiles;
         }
 
+        /// <summary>
+        /// Удаляем файлы из MinIO если они были созданы
+        /// </summary>
         private async Task RollbackFileUploadAsync(Post post)
         {
             try
             {
-                // Удаляем файлы из MinIO если они были созданы
                 if (post.Files?.Any() == true)
                 {
                     foreach (var postFile in post.Files)
-                        await _fileService.DeleteFileAsync(postFile);
+                        await _objectStorageService.DeleteFileAsync(postFile);
                 }
             }
             catch (Exception ex)

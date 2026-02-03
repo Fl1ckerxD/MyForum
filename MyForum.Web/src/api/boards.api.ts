@@ -1,6 +1,6 @@
 import { api } from "./http";
 import type { BoardName } from "../types/boardName";
-import type { GetThreadResponse } from "../types/responses/getThreadResponse";
+import type { GetThreadsResponse } from "../types/responses/getThreadsResponse";
 import type { GetBoardResponse } from "../types/responses/getBoardResponse";
 import type { Thread } from "../types/thread";
 
@@ -12,6 +12,7 @@ export async function getBoard(
   boardShortName: string,
 ): Promise<GetBoardResponse> {
   const data = await api<GetBoardResponse>(`/boards/${boardShortName}`);
+
   return {
     board: {
       ...data.board,
@@ -29,6 +30,7 @@ export async function getBoard(
 export async function getBoardThreads(
   boardShortName: string,
   cursor: string | null,
+  limit: number,
 ): Promise<{ items: Thread[]; nextCursor: string | null }> {
   const params = new URLSearchParams();
 
@@ -36,7 +38,9 @@ export async function getBoardThreads(
     params.append("cursor", cursor);
   }
 
-  const data = await api<GetThreadResponse>(
+  params.append("limit", limit.toString());
+
+  const data = await api<GetThreadsResponse>(
     `/boards/${boardShortName}/threads?${params}`,
   );
 

@@ -89,13 +89,49 @@ namespace MyForum.Api.Infrastructure.Repositories
             return threads;
         }
 
-        public async Task<Thread?> GetThreadWithPostsByIdAsync(string boardShortName, int id, CancellationToken cancellationToken = default)
+        public async Task<Thread?> GetThreadWithOriginalPostAsync(string boardShortName, int threadId, CancellationToken cancellationToken = default)
         {
             return await _context.Threads
-                .Include(b => b.Board)
-                .Include(t => t.Posts)
+                .AsNoTracking()
+                .Include(t => t.Board)
+                .Where(t => t.Id == threadId && t.Board.ShortName == boardShortName)
+                .Include(t => t.Posts.Where(p => p.IsOriginal))
                     .ThenInclude(p => p.Files)
-                .FirstOrDefaultAsync(t => t.Board.ShortName == boardShortName && t.Id == id, cancellationToken);
+                .FirstOrDefaultAsync(cancellationToken);
+        }
+
+        public async Task<Thread?> GetThreadWithPostsByIdAsync(string boardShortName, int id, int postLimit, CancellationToken cancellationToken = default)
+        {
+            if (postLimit < 1)
+                postLimit = 1;
+
+            const int maxPostLimit = 200;
+            if (postLimit > maxPostLimit)
+                postLimit = maxPostLimit;
+
+            var thread = await _context.Threads
+                .AsNoTracking()
+                .Include(t => t.Board)
+                .FirstOrDefaultAsync(
+                    t => t.Board.ShortName == boardShortName && t.Id == id,
+                    cancellationToken
+                );
+
+            if (thread == null)
+                return null;
+
+            var posts = await _context.Posts
+                .AsNoTracking()
+                .Include(p => p.Files)
+                .Where(p => p.ThreadId == thread.Id)
+                .OrderByDescending(p => p.IsOriginal)
+                .ThenBy(p => p.CreatedAt)
+                .Take(postLimit)
+                .ToListAsync(cancellationToken);
+
+            thread.Posts = posts;
+
+            return thread;
         }
     }
 }

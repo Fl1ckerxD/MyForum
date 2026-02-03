@@ -1,13 +1,26 @@
+import type { Post } from "../types/post";
 import type { CreateThreadRequest } from "../types/requests/createThreadRequest";
-import type { Thread } from "../types/thread";
+import type { GetPostsResponse } from "../types/responses/getPostsResponse";
+import type { GetThreadResponse } from "../types/responses/getThreadResponse";
 import { api } from "./http";
 
-export async function getThread(boardShortName: string, threadId: number) {
-  const data = await api<Thread>(`/threads/${boardShortName}/${threadId}`)
+export async function getThread(
+  boardShortName: string,
+  threadId: number,
+): Promise<GetThreadResponse> {
+  const data = await api<GetThreadResponse>(
+    `/threads/${boardShortName}/${threadId}`,
+  );
+
   return {
-    ...data,
-    createdAt: new Date(data.createdAt),
-  }
+    thread: {
+      ...data.thread,
+      createdAt: new Date(data.thread.createdAt),
+      lastBumpAt: new Date(data.thread.lastBumpAt),
+    },
+
+    nextCursor: data.nextCursor,
+  };
 }
 
 export async function createThread(request: CreateThreadRequest) {
@@ -35,4 +48,27 @@ export async function createThread(request: CreateThreadRequest) {
   }
 
   return response.json();
+}
+
+export async function getThreadPosts(
+  threadId: number,
+  afterId: string | null,
+  limit: number,
+): Promise<{ items: Post[]; nextCursor: string | null }> {
+  const params = new URLSearchParams();
+
+  if (afterId) {
+    params.append("afterId", afterId.toString());
+  }
+
+  params.append("limit", limit.toString());
+
+  const data = await api<GetPostsResponse>(
+    `/threads/${threadId}/posts?${params}`,
+  );
+
+  return {
+    items: data.posts,
+    nextCursor: data.nextCursor?.toString() || null,
+  };
 }
