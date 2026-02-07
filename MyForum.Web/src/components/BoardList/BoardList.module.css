@@ -1,0 +1,34 @@
+.boardList {
+  max-height: 100vh;
+  overflow-y: auto;
+  padding-right: 6px;
+}
+
+.boardList::-webkit-scrollbar {
+  width: 6px;
+}
+
+.boardList::-webkit-scrollbar-thumb {
+  background: #555;
+  border-radius: 4px;
+}
+
+.boardList::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.boardTitle {
+  position: sticky;
+  top: 0;
+  background: var(--secondary);
+  padding: 3px 0;
+  font-weight: bold;
+  font-size: 1rem;
+  text-align: center;
+}
+
+.boardItems {
+  list-style: none;
+  padding: 0 10px;
+  margin: 0;
+}

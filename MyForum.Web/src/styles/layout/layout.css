@@ -1,0 +1,11 @@
+.layout {
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  min-height: 100vh;
+}
+
+.layout-sidebar {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+}
