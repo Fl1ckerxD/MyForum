@@ -243,7 +243,7 @@ namespace MyForum.Api.Infrastructure.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("StaffAccount");
+                    b.ToTable("StaffAccounts");
 
                     b.HasDiscriminator().HasValue("StaffAccount");
 
@@ -397,7 +397,7 @@ namespace MyForum.Api.Infrastructure.Data.Migrations
 
                             b1.HasKey("BoardModeratorId");
 
-                            b1.ToTable("StaffAccount");
+                            b1.ToTable("StaffAccounts");
 
                             b1.WithOwner()
                                 .HasForeignKey("BoardModeratorId");

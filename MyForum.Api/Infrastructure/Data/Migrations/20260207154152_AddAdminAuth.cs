@@ -36,11 +36,11 @@ namespace MyForum.Api.Infrastructure.Data.Migrations
 
             migrationBuilder.RenameTable(
                 name: "BoardModerators",
-                newName: "StaffAccount");
+                newName: "StaffAccounts");
 
             migrationBuilder.AlterColumn<int>(
                 name: "BoardId",
-                table: "StaffAccount",
+                table: "StaffAccounts",
                 type: "integer",
                 nullable: true,
                 oldClrType: typeof(int),
@@ -48,19 +48,19 @@ namespace MyForum.Api.Infrastructure.Data.Migrations
 
             migrationBuilder.AddColumn<bool>(
                 name: "CanManageBoards",
-                table: "StaffAccount",
+                table: "StaffAccounts",
                 type: "boolean",
                 nullable: true);
 
             migrationBuilder.AddColumn<bool>(
                 name: "CanManageModerators",
-                table: "StaffAccount",
+                table: "StaffAccounts",
                 type: "boolean",
                 nullable: true);
 
             migrationBuilder.AddColumn<string>(
                 name: "Discriminator",
-                table: "StaffAccount",
+                table: "StaffAccounts",
                 type: "character varying(21)",
                 maxLength: 21,
                 nullable: false,
@@ -68,35 +68,35 @@ namespace MyForum.Api.Infrastructure.Data.Migrations
 
             migrationBuilder.AddColumn<bool>(
                 name: "Permissions_BanUsers",
-                table: "StaffAccount",
+                table: "StaffAccounts",
                 type: "boolean",
                 nullable: true);
 
             migrationBuilder.AddColumn<bool>(
                 name: "Permissions_DeletePosts",
-                table: "StaffAccount",
+                table: "StaffAccounts",
                 type: "boolean",
                 nullable: true);
 
             migrationBuilder.AddColumn<bool>(
                 name: "Permissions_ManageThreads",
-                table: "StaffAccount",
+                table: "StaffAccounts",
                 type: "boolean",
                 nullable: true);
 
             migrationBuilder.AddPrimaryKey(
-                name: "PK_StaffAccount",
-                table: "StaffAccount",
+                name: "PK_StaffAccounts",
+                table: "StaffAccounts",
                 column: "Id");
 
             migrationBuilder.CreateIndex(
-                name: "IX_StaffAccount_BoardId",
-                table: "StaffAccount",
+                name: "IX_StaffAccounts_BoardId",
+                table: "StaffAccounts",
                 column: "BoardId");
 
             migrationBuilder.AddForeignKey(
-                name: "FK_StaffAccount_Boards_BoardId",
-                table: "StaffAccount",
+                name: "FK_StaffAccounts_Boards_BoardId",
+                table: "StaffAccounts",
                 column: "BoardId",
                 principalTable: "Boards",
                 principalColumn: "Id",
@@ -107,43 +107,43 @@ namespace MyForum.Api.Infrastructure.Data.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropForeignKey(
-                name: "FK_StaffAccount_Boards_BoardId",
-                table: "StaffAccount");
+                name: "FK_StaffAccounts_Boards_BoardId",
+                table: "StaffAccounts");
 
             migrationBuilder.DropPrimaryKey(
-                name: "PK_StaffAccount",
-                table: "StaffAccount");
+                name: "PK_StaffAccounts",
+                table: "StaffAccounts");
 
             migrationBuilder.DropIndex(
-                name: "IX_StaffAccount_BoardId",
-                table: "StaffAccount");
+                name: "IX_StaffAccounts_BoardId",
+                table: "StaffAccounts");
 
             migrationBuilder.DropColumn(
                 name: "CanManageBoards",
-                table: "StaffAccount");
+                table: "StaffAccounts");
 
             migrationBuilder.DropColumn(
                 name: "CanManageModerators",
-                table: "StaffAccount");
+                table: "StaffAccounts");
 
             migrationBuilder.DropColumn(
                 name: "Discriminator",
-                table: "StaffAccount");
+                table: "StaffAccounts");
 
             migrationBuilder.DropColumn(
                 name: "Permissions_BanUsers",
-                table: "StaffAccount");
+                table: "StaffAccounts");
 
             migrationBuilder.DropColumn(
                 name: "Permissions_DeletePosts",
-                table: "StaffAccount");
+                table: "StaffAccounts");
 
             migrationBuilder.DropColumn(
                 name: "Permissions_ManageThreads",
-                table: "StaffAccount");
+                table: "StaffAccounts");
 
             migrationBuilder.RenameTable(
-                name: "StaffAccount",
+                name: "StaffAccounts",
                 newName: "BoardModerators");
 
             migrationBuilder.AlterColumn<int>(

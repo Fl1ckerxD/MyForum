@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace MyForum.Api.Infrastructure.Data.Migrations
 {
     [DbContext(typeof(ForumDbContext))]
-    [Migration("20260207143118_AddAdminAuth")]
+    [Migration("20260207154152_AddAdminAuth")]
     partial class AddAdminAuth
     {
         /// <inheritdoc />
@@ -246,7 +246,7 @@ namespace MyForum.Api.Infrastructure.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("StaffAccount");
+                    b.ToTable("StaffAccounts");
 
                     b.HasDiscriminator().HasValue("StaffAccount");
 
@@ -400,7 +400,7 @@ namespace MyForum.Api.Infrastructure.Data.Migrations
 
                             b1.HasKey("BoardModeratorId");
 
-                            b1.ToTable("StaffAccount");
+                            b1.ToTable("StaffAccounts");
 
                             b1.WithOwner()
                                 .HasForeignKey("BoardModeratorId");

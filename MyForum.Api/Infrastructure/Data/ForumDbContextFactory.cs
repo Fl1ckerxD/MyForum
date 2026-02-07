@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
+using Npgsql;
 
 namespace MyForum.Api.Infrastructure.Data;
 
@@ -21,12 +22,20 @@ public class ForumDbContextFactory : IDesignTimeDbContextFactory<ForumDbContext>
         var connectionString =
             configuration.GetConnectionString("ForumDbContext");
 
-        if (string.IsNullOrWhiteSpace(connectionString))
+        var csb = new NpgsqlConnectionStringBuilder(connectionString)
+        {
+            Password = configuration["POSTGRES_PASSWORD"] ??
+                        throw new InvalidOperationException("POSTGRES_PASSWORD is not set"),
+            Username = configuration["POSTGRES_USER"] ??
+                        throw new InvalidOperationException("POSTGRES_USER is not set")
+        };
+
+        if (string.IsNullOrWhiteSpace(csb.ConnectionString))
             throw new InvalidOperationException(
                 "Connection string 'ForumDbContext' not found.");
 
         var optionsBuilder = new DbContextOptionsBuilder<ForumDbContext>();
-        optionsBuilder.UseNpgsql(connectionString);
+        optionsBuilder.UseNpgsql(csb.ConnectionString);
 
         return new ForumDbContext(optionsBuilder.Options);
     }
