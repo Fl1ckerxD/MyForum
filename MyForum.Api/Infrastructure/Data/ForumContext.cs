@@ -81,15 +81,12 @@ public partial class ForumDbContext : DbContext
                 .OnDelete(DeleteBehavior.Restrict);
         });
 
-        // BoardModerator
-        modelBuilder.Entity<BoardModerator>(entity =>
+        // StaffAccount
+        modelBuilder.Entity<StaffAccount>(entity =>
         {
-            entity.HasIndex(m => new { m.BoardId, m.Username }).IsUnique();
-
-            entity.HasOne(m => m.Board)
-                .WithMany(b => b.Moderators)
-                .HasForeignKey(m => m.BoardId)
-                .OnDelete(DeleteBehavior.Cascade);
+            entity.HasDiscriminator<string>("Discriminator")
+                .HasValue<Admin>("Admin")
+                .HasValue<BoardModerator>("BoardModerator");
         });
     }
 
