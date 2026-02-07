@@ -10,7 +10,7 @@ public partial class ForumDbContext : DbContext
     public DbSet<Post> Posts { get; set; }
     public DbSet<PostFile> PostFiles { get; set; }
     public DbSet<Ban> Bans { get; set; }
-    public DbSet<BoardModerator> BoardModerators { get; set; }
+    public DbSet<StaffAccount> StaffAccounts { get; set; }
 
     public ForumDbContext(DbContextOptions<ForumDbContext> options) : base(options)
     {

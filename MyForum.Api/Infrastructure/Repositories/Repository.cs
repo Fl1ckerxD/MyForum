@@ -20,7 +20,7 @@ namespace MyForum.Api.Infrastructure.Repositories
 
         public virtual async Task DeleteAsync(int id, CancellationToken cancellationToken = default)
         {
-            var enetity = await GetByIdAsync(id);
+            var enetity = await GetByIdAsync(id, cancellationToken);
             if (enetity != null) _dbSet.Remove(enetity);
             else throw new ArgumentException("Объект не найден.");
         }

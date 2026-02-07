@@ -1,10 +1,13 @@
 using FluentValidation;
 using HealthChecks.UI.Client;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
 using Minio;
 using MyForum.Api.Application.Factories;
+using MyForum.Api.Core.Entities;
 using MyForum.Api.Core.Interfaces.Factories;
 using MyForum.Api.Core.Interfaces.Metrics;
 using MyForum.Api.Core.Interfaces.Repositories;
@@ -116,12 +119,33 @@ namespace MyForum.Api
                 builder.Services.AddScoped<IPostDtoFactory, PostDtoFactory>();
                 builder.Services.AddScoped<IThreadDtoFactory, ThreadDtoFactory>();
                 builder.Services.AddScoped<ICreatePostResponseFactory, CreatePostResponseFactory>();
+                builder.Services.AddScoped<IPasswordHasher<StaffAccount>, PasswordHasher<StaffAccount>>();
+                builder.Services.AddScoped<IStaffAuthService, StaffAuthService>();
 
                 builder.Services.AddSingleton<IForumMetrics, ForumMetrics>();
                 builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
                     ConnectionMultiplexer.Connect(redisConnectionString));
 
                 builder.Services.AddMemoryCache();
+
+                // Admin authentication using cookies
+                builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+                    .AddCookie(options =>
+                    {
+                        options.Cookie.Name = "myforum_admin";
+                        options.Cookie.HttpOnly = true;
+                        options.Cookie.SameSite = SameSiteMode.Strict;
+                        options.ExpireTimeSpan = TimeSpan.FromHours(8);
+                    });
+
+                builder.Services.AddAuthorization(options =>
+                {
+                    options.AddPolicy("AdminOnly",
+                        p => p.RequireRole("Admin"));
+
+                    options.AddPolicy("Moderator",
+                        p => p.RequireRole("Admin", "Moderator"));
+                });
 
                 var app = builder.Build();
 

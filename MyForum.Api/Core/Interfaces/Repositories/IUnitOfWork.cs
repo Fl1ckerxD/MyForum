@@ -6,7 +6,7 @@ namespace MyForum.Api.Core.Interfaces.Repositories
     {
         IRepository<Ban> Bans { get; }
         IBoardRepository Boards { get; }
-        IRepository<BoardModerator> BoardModerators { get; }
+        IStaffAccountRepository StaffAccounts { get; }
         IPostRepository Posts { get; }
         IPostFileRepository PostFiles { get; }
         IThreadRepository Threads { get; }
