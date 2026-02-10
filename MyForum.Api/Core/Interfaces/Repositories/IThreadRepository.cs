@@ -1,4 +1,3 @@
-using MyForum.Api.Core.DTOs.Common;
 using Thread = MyForum.Api.Core.Entities.Thread;
 
 namespace MyForum.Api.Core.Interfaces.Repositories
@@ -7,8 +6,8 @@ namespace MyForum.Api.Core.Interfaces.Repositories
     {
         Task<Thread?> GetThreadWithOriginalPostAsync(string boardShortName, int threadId, CancellationToken ct = default);
         Task<Thread?> GetThreadWithPostsByIdAsync(string boardShortName, int id, int postLimit, CancellationToken cancellationToken = default);
-        Task<PagedResult<Thread>> GetPagedThreadsByBoardShortNameAsync(string boardShortName, int pageNumber, int pageSize, CancellationToken cancellationToken = default);
-        Task<PagedResult<Thread>> GetPagedThreadsByBoardWithPostsAsync(int boardId, int pageNumber, int pageSize, CancellationToken cancellationToken = default);
-        Task<List<Thread>> GetThreadsByCursorAsync(string boardShortName, DateTime? cursor, int limit, CancellationToken cancellationToken = default);
+        Task<IReadOnlyList<Thread>> GetThreadsByCursorWithPostsAsync(string boardShortName, DateTime? cursor, int limit, CancellationToken cancellationToken = default);
+        Task<IReadOnlyList<Thread>> GetThreadsAsync(int limit, DateTime? cursor, CancellationToken cancellationToken);
+        Task<Thread?> GetByIdIncludingDeletedAsync(int id, CancellationToken cancellationToken = default);
     }
 }

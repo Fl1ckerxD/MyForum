@@ -36,6 +36,8 @@ public partial class ForumDbContext : DbContext
                 .WithMany(b => b.Threads)
                 .HasForeignKey(t => t.BoardId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasQueryFilter(t => !t.IsDeleted);
         });
 
         // Post
@@ -88,6 +90,8 @@ public partial class ForumDbContext : DbContext
                 .HasValue<Admin>("Admin")
                 .HasValue<BoardModerator>("BoardModerator");
         });
+
+        base.OnModelCreating(modelBuilder);
     }
 
     partial void OnModelCreatingPartial(ModelBuilder modelBuilder);

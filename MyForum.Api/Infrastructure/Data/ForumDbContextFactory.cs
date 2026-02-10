@@ -24,10 +24,8 @@ public class ForumDbContextFactory : IDesignTimeDbContextFactory<ForumDbContext>
 
         var csb = new NpgsqlConnectionStringBuilder(connectionString)
         {
-            Password = configuration["POSTGRES_PASSWORD"] ??
-                        throw new InvalidOperationException("POSTGRES_PASSWORD is not set"),
-            Username = configuration["POSTGRES_USER"] ??
-                        throw new InvalidOperationException("POSTGRES_USER is not set")
+            Password = configuration["POSTGRES_PASSWORD"],
+            Username = configuration["POSTGRES_USER"]
         };
 
         if (string.IsNullOrWhiteSpace(csb.ConnectionString))

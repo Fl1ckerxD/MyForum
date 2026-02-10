@@ -93,37 +93,11 @@ namespace MyForum.Api.Infrastructure.Services
             }
         }
 
-        /// <summary>
-        /// Возвращает страницу тредов по короткому имени доски
-        /// </summary>
-        public async Task<PagedResult<ThreadDto>> GetThreadsPagedAsync(string boardShortName, int pageNumber, int pageSize, CancellationToken cancellationToken = default)
-        {
-            try
-            {
-                // Проверяем, что доска существует
-                var board = await _uow.Boards.GetByShortNameAsync(boardShortName, cancellationToken);
-                if (board == null) throw new KeyNotFoundException($"Доска '{boardShortName}' не найдена");
-
-                // Получаем страницу тредов с постами
-                var pagedThreads = await _uow.Threads.GetPagedThreadsByBoardWithPostsAsync(
-                board.Id, pageNumber, pageSize, cancellationToken);
-
-                // Маппим сущности в DTO
-                var threadDtos = _mapper.Map<List<ThreadDto>>(pagedThreads.Items);
-                return new PagedResult<ThreadDto>(threadDtos, pagedThreads.TotalCount, pageNumber, pageSize);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Ошибка при получении страницы тредов на доске {BoardShortName}", boardShortName);
-                throw;
-            }
-        }
-
         public async Task<GetThreadsResponse> GetThreadsByCursorAsync(string boardShortName, DateTime? cursor, int limit = 20, CancellationToken cancellationToken = default)
         {
             try
             {
-                var threads = await _uow.Threads.GetThreadsByCursorAsync(boardShortName, cursor, limit, cancellationToken);
+                var threads = await _uow.Threads.GetThreadsByCursorWithPostsAsync(boardShortName, cursor, limit, cancellationToken);
 
                 var threadDtos = await Task.WhenAll(threads.Select(t => _threadDtoFactory.CreateAsync(t, cancellationToken)));
 

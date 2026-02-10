@@ -48,19 +48,18 @@ namespace MyForum.Api.Infrastructure.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Ошибка при получении названий досок из кэша");
-                throw;
+                _logger.LogWarning(ex, "Ошибка при получении из кэша, будет использована база данных");
             }
 
+            // Если в кэше нет, получить из базы данных
+            var boards = await _unitOfWork.Boards.GetAllAsync(cancellationToken);
+            _logger.LogDebug("Названия досок получены из базы данных");
+
+            var boardNames = _mapper.Map<IReadOnlyCollection<BoardNamesDto>>(boards);
+
+            // Сохранить в кэш
             try
             {
-                // Если в кэше нет, получить из базы данных
-                var boards = await _unitOfWork.Boards.GetAllAsync(cancellationToken);
-                _logger.LogDebug("Названия досок получены из базы данных");
-
-                var boardNames = _mapper.Map<IReadOnlyCollection<BoardNamesDto>>(boards);
-
-                // Сохранить в кэш
                 var serializedBoardNames = JsonSerializer.Serialize(boardNames);
                 await _cache.SetStringAsync(cacheKey, serializedBoardNames, new DistributedCacheEntryOptions
                 {
@@ -70,13 +69,13 @@ namespace MyForum.Api.Infrastructure.Services
 
                 _logger.LogDebug("Названия досок сохранены в кэш");
 
-                return boardNames;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Ошибка при получении названий досок из базы данных");
-                throw;
+                _logger.LogWarning(ex, "Ошибка при сохранении в кэш");
             }
+
+            return boardNames;
         }
 
         /// <summary>
@@ -102,8 +101,8 @@ namespace MyForum.Api.Infrastructure.Services
                 );
 
                 DateTime? nextCursor = board.Threads.Count == threadLimit
-                                    ? board.Threads.Last().LastBumpAt
-                                    : null;
+                    ? board.Threads.Last().LastBumpAt
+                    : null;
 
                 return new GetBoardResponse
                 {
@@ -113,7 +112,7 @@ namespace MyForum.Api.Infrastructure.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Ошибка при получении доски с тредами и постами");
+                _logger.LogError(ex, "Ошибка при получении доски {ShortName} с лимитом {ThreadLimit}", boardShortName, threadLimit);
                 throw;
             }
         }

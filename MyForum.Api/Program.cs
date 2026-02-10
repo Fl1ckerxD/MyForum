@@ -122,6 +122,7 @@ namespace MyForum.Api
                 builder.Services.AddScoped<IPasswordHasher<StaffAccount>, PasswordHasher<StaffAccount>>();
                 builder.Services.AddScoped<IStaffAuthService, StaffAuthService>();
                 builder.Services.AddScoped<IAdminBoardService, AdminBoardService>();
+                builder.Services.AddScoped<IAdminThreadService, AdminThreadService>();
 
                 builder.Services.AddSingleton<IForumMetrics, ForumMetrics>();
                 builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>

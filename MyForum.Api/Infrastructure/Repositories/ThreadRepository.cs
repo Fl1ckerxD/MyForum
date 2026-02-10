@@ -12,42 +12,32 @@ namespace MyForum.Api.Infrastructure.Repositories
         {
         }
 
-        public async Task<PagedResult<Thread>> GetPagedThreadsByBoardShortNameAsync(string boardShortName, int pageNumber, int pageSize, CancellationToken cancellationToken = default)
+        public async Task<Thread?> GetByIdIncludingDeletedAsync(int id, CancellationToken cancellationToken = default)
         {
-            var query = _context.Threads
-                .Where(t => t.Board.ShortName == boardShortName)
-                .OrderByDescending(t => t.IsPinned)
-                .ThenByDescending(t => t.LastBumpAt);
-
-            var totalCount = await query.CountAsync(cancellationToken);
-
-            var items = await query
-                .Skip((pageNumber - 1) * pageSize)
-                .Take(pageSize)
-                .ToListAsync(cancellationToken);
-
-            return new PagedResult<Thread>(items, totalCount, pageNumber, pageSize);
+            return await _context.Threads
+                .IgnoreQueryFilters()
+                .FirstOrDefaultAsync(t => t.Id == id, cancellationToken);
         }
 
-        public async Task<PagedResult<Thread>> GetPagedThreadsByBoardWithPostsAsync(int boardId, int pageNumber, int pageSize, CancellationToken cancellationToken = default)
+        public async Task<IReadOnlyList<Thread>> GetThreadsAsync(int limit, DateTime? cursor, CancellationToken cancellationToken)
         {
             var query = _context.Threads
-            .Where(t => t.BoardId == boardId)
-            .Include(t => t.Posts.OrderBy(p => p.CreatedAt).Take(5))
-            .OrderByDescending(t => t.IsPinned)
-            .ThenByDescending(t => t.LastBumpAt);
+                .AsNoTracking()
+                .Include(t => t.Board)
+                .AsQueryable();
 
-            var totalCount = await query.CountAsync(cancellationToken);
+            if (cursor.HasValue)
+            {
+                query = query.Where(t => t.LastBumpAt < cursor.Value);
+            }
 
-            var items = await query
-                .Skip((pageNumber - 1) * pageSize)
-                .Take(pageSize)
+            return await query
+                .OrderByDescending(t => t.LastBumpAt)
+                .Take(limit)
                 .ToListAsync(cancellationToken);
-
-            return new PagedResult<Thread>(items, totalCount, pageNumber, pageSize);
         }
 
-        public async Task<List<Thread>> GetThreadsByCursorAsync(string boardShortName, DateTime? cursor, int limit, CancellationToken cancellationToken = default)
+        public async Task<IReadOnlyList<Thread>> GetThreadsByCursorWithPostsAsync(string boardShortName, DateTime? cursor, int limit, CancellationToken cancellationToken = default)
         {
             var threadsQuery = _context.Threads
                 .AsNoTracking()

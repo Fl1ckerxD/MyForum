@@ -10,6 +10,8 @@ namespace MyForum.Api.Core.Entities
         public string Subject { get; set; } = null!;
         public bool IsPinned { get; set; }
         public bool IsLocked { get; set; }
+        public bool IsDeleted { get; set; }
+        public DateTime? DeletedAt { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime LastBumpAt { get; set; } = DateTime.UtcNow;
         public int PostCount { get; set; }
