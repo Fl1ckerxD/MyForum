@@ -92,34 +92,6 @@ namespace MyForum.Api.Infrastructure.Services
         }
 
         /// <summary>
-        /// Возвращает посты по ID треда с пагинацией
-        /// </summary>
-        public async Task<PagedResult<PostDto>> GetPagedPostsByThreadIdAsync(int threadId, int pageNumber, int pageSize, CancellationToken cancellationToken = default)
-        {
-            try
-            {
-                var thread = await _uow.Threads.GetByIdAsync(threadId, cancellationToken);
-                if (thread == null) throw new KeyNotFoundException($"Тред {threadId} не найден");
-
-                var pagedPosts = await _uow.Posts.GetPagedPostsByThreadIdAsync(
-                    threadId, pageNumber, pageSize, cancellationToken);
-
-                var postDtos = _mapper.Map<List<PostDto>>(pagedPosts.Items);
-
-                return new PagedResult<PostDto>(
-                    postDtos,
-                    pagedPosts.TotalCount,
-                    pagedPosts.PageNumber,
-                    pagedPosts.PageSize);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Ошибка при получении постов для треда с Id {ThreadId}", threadId);
-                throw;
-            }
-        }
-
-        /// <summary>
         /// Возвращает посты в треде после указанного ID поста с курсорной пагинацией
         /// </summary>
         /// <param name="afterId">ID поста, после которого нужно получить посты</param>

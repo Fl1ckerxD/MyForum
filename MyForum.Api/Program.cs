@@ -123,6 +123,7 @@ namespace MyForum.Api
                 builder.Services.AddScoped<IStaffAuthService, StaffAuthService>();
                 builder.Services.AddScoped<IAdminBoardService, AdminBoardService>();
                 builder.Services.AddScoped<IAdminThreadService, AdminThreadService>();
+                builder.Services.AddScoped<IAdminPostService, AdminPostService>();
 
                 builder.Services.AddSingleton<IForumMetrics, ForumMetrics>();
                 builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>

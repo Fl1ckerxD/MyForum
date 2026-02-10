@@ -57,6 +57,8 @@ public partial class ForumDbContext : DbContext
                 .WithMany(p => p.Replies)
                 .HasForeignKey(p => p.ReplyToPostId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasQueryFilter(p => !p.IsDeleted);
         });
 
         // PostFile

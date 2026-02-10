@@ -21,6 +21,9 @@ namespace MyForum.Api.Core.Entities
         public string? UserAgent { get; set; }
         public bool IsOriginal { get; set; }
 
+        public bool IsDeleted { get; set; }
+        public DateTime? DeletedAt { get; set; }
+
         // Внешние ключи
         public int ThreadId { get; set; }
         public int? ReplyToPostId { get; set; }

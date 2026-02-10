@@ -12,33 +12,31 @@ namespace MyForum.Api.Infrastructure.Repositories
         {
         }
 
-        public async Task<PagedResult<Post>> GetPagedPostsByThreadIdAsync(int threadId, int pageNumber, int pageSize, CancellationToken cancellationToken = default)
+        public async Task<Post?> GetByIdIncludingDeletedAsync(int postId, CancellationToken cancellationToken)
         {
-            var query = _context.Posts
-                .Where(p => p.ThreadId == threadId)
-                .Include(p => p.Files)
-                .Include(p => p.Replies)
-                .OrderBy(p => p.CreatedAt);
-            
-            var totalItems = await query.CountAsync(cancellationToken);
+            return await _context.Posts
+                .IgnoreQueryFilters()
+                .FirstOrDefaultAsync(p => p.Id == postId, cancellationToken);
+        }
 
-            var items = await query
-                .Skip((pageNumber - 1) * pageSize)
-                .Take(pageSize)
+        public async Task<IReadOnlyList<Post>> GetByThreadIncludingDeletedAsync(int threadId, CancellationToken cancellationToken)
+        {
+            return await _context.Posts
+                .IgnoreQueryFilters()
+                .Where(p => p.ThreadId == threadId)
+                .OrderBy(p => p.CreatedAt)
                 .ToListAsync(cancellationToken);
-            
-            return new PagedResult<Post>(items, totalItems, pageNumber, pageSize);
         }
 
         public Task<List<Post>> GetPostsAfterIdAsync(int threadId, int afterId, int limit = 20, CancellationToken cancellationToken = default)
         {
-            var query =  _context.Posts
+            var query = _context.Posts
                 .AsNoTracking()
                 .Where(p => p.ThreadId == threadId && p.Id > afterId)
                 .OrderBy(p => p.CreatedAt)
                 .Include(p => p.Files)
                 .Take(limit);
-            
+
             return query.ToListAsync(cancellationToken);
         }
     }

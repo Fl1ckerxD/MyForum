@@ -41,7 +41,7 @@ namespace MyForum.Api.Controllers.Admin
             }
         }
 
-        [HttpDelete("{id:int}")]
+        [HttpDelete("{id:int}/delete")]
         public async Task<IActionResult> Delete(int id, CancellationToken cancellationToken)
         {
             try
@@ -61,7 +61,7 @@ namespace MyForum.Api.Controllers.Admin
             }
         }
 
-        [HttpDelete("{id}")]
+        [HttpDelete("{id:int}")]
         public async Task<IActionResult> SoftDelete(int id, CancellationToken cancellationToken)
         {
             try
