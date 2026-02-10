@@ -4,6 +4,7 @@ using MyForum.Api.Core.Interfaces.Services;
 using MyForum.Api.Core.DTOs.Requests;
 using FluentValidation;
 using MyForum.Api.Core.DTOs.Responses;
+using MyForum.Api.Core.Exceptions;
 
 namespace MyForum.Api.Controllers
 {
@@ -52,6 +53,15 @@ namespace MyForum.Api.Controllers
             {
                 _logger.LogWarning(ex, "Неверная операция при добавлении поста.");
                 return BadRequest(new ApiErrorResponse(ex.Message));
+            }
+            catch (ForbiddenException ex)
+            {
+                _logger.LogWarning(ex, "Попытка создания поста забаненным пользователем");
+                return StatusCode(StatusCodes.Status403Forbidden, new
+                {
+                    error = "forbidden",
+                    message = ex.Message
+                });
             }
             catch (Exception ex)
             {

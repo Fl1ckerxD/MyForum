@@ -5,6 +5,7 @@ using MyForum.Api.Core.DTOs.Requests;
 using FluentValidation;
 using MyForum.Api.Core.DTOs;
 using MyForum.Api.Core.DTOs.Responses;
+using MyForum.Api.Core.Exceptions;
 
 namespace MyForum.Api.Controllers
 {
@@ -78,6 +79,15 @@ namespace MyForum.Api.Controllers
                         BoardShortName = request.BoardShortName,
                         Message = "Тред создан"
                     });
+            }
+            catch (ForbiddenException ex)
+            {
+                _logger.LogWarning(ex, "Попытка создания треда забаненным пользователем");
+                return StatusCode(StatusCodes.Status403Forbidden, new
+                {
+                    error = "forbidden",
+                    message = ex.Message
+                });
             }
             catch (Exception ex)
             {

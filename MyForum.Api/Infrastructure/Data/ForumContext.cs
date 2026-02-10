@@ -75,9 +75,8 @@ public partial class ForumDbContext : DbContext
         // Ban
         modelBuilder.Entity<Ban>(entity =>
         {
-            entity.HasIndex(b => b.IpAddress);
-            entity.HasIndex(b => b.ExpiresAt);
-            entity.HasIndex(b => b.IsActive);
+            entity.HasIndex(x => new { x.IpAddressHash, x.BoardId })
+                .IsUnique();
 
             entity.HasOne(b => b.Board)
                 .WithMany()

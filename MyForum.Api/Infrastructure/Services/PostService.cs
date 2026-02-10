@@ -1,5 +1,6 @@
 using System.Transactions;
 using AutoMapper;
+using Minio.Exceptions;
 using MyForum.Api.Core.DTOs;
 using MyForum.Api.Core.DTOs.Common;
 using MyForum.Api.Core.DTOs.Responses;
@@ -22,10 +23,12 @@ namespace MyForum.Api.Infrastructure.Services
         private readonly IForumMetrics _forumMetrics;
         private readonly ICreatePostResponseFactory _createPostResponseFactory;
         private readonly IPostDtoFactory _postDtoFactory;
+        private readonly IBanService _banService;
 
         public PostService(ILogger<PostService> logger, IUnitOfWork uow,
             IObjectStorageService objectStorageService, IIPHasher ipHasher,
-            IMapper mapper, IForumMetrics forumMetrics, ICreatePostResponseFactory createPostResponseFactory, IPostDtoFactory postDtoFactory)
+            IMapper mapper, IForumMetrics forumMetrics, ICreatePostResponseFactory createPostResponseFactory,
+            IPostDtoFactory postDtoFactory, IBanService banService)
         {
             _logger = logger;
             _uow = uow;
@@ -35,6 +38,7 @@ namespace MyForum.Api.Infrastructure.Services
             _forumMetrics = forumMetrics;
             _createPostResponseFactory = createPostResponseFactory;
             _postDtoFactory = postDtoFactory;
+            _banService = banService;
         }
 
         /// <summary>
@@ -127,6 +131,9 @@ namespace MyForum.Api.Infrastructure.Services
         private async Task<int> CreateAsync(Post post, string ipAddress, List<IFormFile>? files = null, CancellationToken cancellationToken = default)
         {
             post.IpAddressHash = _ipHasher.HashIP(ipAddress);
+
+            if (await _banService.IsBannedAsync(post.IpAddressHash, post.Thread.BoardId, cancellationToken))
+                throw new ForbiddenException("Вы забанены и не можете создавать посты");
 
             // Используем транзакцию для обеспечения целостности данных
             using var transactionScope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);

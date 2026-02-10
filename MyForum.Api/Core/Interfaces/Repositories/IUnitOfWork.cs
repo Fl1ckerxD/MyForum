@@ -4,7 +4,7 @@ namespace MyForum.Api.Core.Interfaces.Repositories
 {
     public interface IUnitOfWork : IDisposable
     {
-        IRepository<Ban> Bans { get; }
+        IBanRepository Bans { get; }
         IBoardRepository Boards { get; }
         IStaffAccountRepository StaffAccounts { get; }
         IPostRepository Posts { get; }

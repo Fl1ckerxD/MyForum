@@ -1,5 +1,4 @@
-﻿using MyForum.Api.Core.Entities;
-using MyForum.Api.Core.Interfaces.Repositories;
+﻿using MyForum.Api.Core.Interfaces.Repositories;
 using MyForum.Api.Infrastructure.Data;
 
 namespace MyForum.Api.Infrastructure.Repositories
@@ -8,7 +7,7 @@ namespace MyForum.Api.Infrastructure.Repositories
     {
         private readonly ForumDbContext _context;
         private bool _disposed;
-        public IRepository<Ban> _bans;
+        public IBanRepository _bans;
         public IBoardRepository _boards;
         public IStaffAccountRepository _staffAccounts;
         public IPostRepository _posts;
@@ -20,7 +19,7 @@ namespace MyForum.Api.Infrastructure.Repositories
             _context = context;
         }
 
-        public IRepository<Ban> Bans => _bans ??= new Repository<Ban>(_context);
+        public IBanRepository Bans => _bans ??= new BanRepository(_context);
         public IBoardRepository Boards => _boards ??= new BoardRepository(_context);
         public IStaffAccountRepository StaffAccounts => _staffAccounts ??= new StaffAccountRepository(_context);
         public IPostRepository Posts => _posts ??= new PostRepository(_context);

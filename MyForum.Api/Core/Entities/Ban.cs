@@ -8,13 +8,13 @@ namespace MyForum.Api.Core.Entities
 
         [Required]
         [MaxLength(45)]
-        public string IpAddress { get; set; }
+        public string IpAddressHash { get; set; } = null!;
 
         [MaxLength(1000)]
-        public string Reason { get; set; }
+        public string Reason { get; set; } = null!;
 
         public DateTime BannedAt { get; set; } = DateTime.UtcNow;
-        public DateTime ExpiresAt { get; set; }
+        public DateTime? ExpiresAt { get; set; }
         public bool IsActive { get; set; } = true;
 
         // Внешние ключи
