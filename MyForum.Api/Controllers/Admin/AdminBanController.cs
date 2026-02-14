@@ -1,3 +1,4 @@
+using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MyForum.Api.Core.DTOs.Requests;
@@ -12,11 +13,13 @@ namespace MyForum.Api.Controllers.Admin
     {
         private readonly IBanService _banService;
         private readonly ILogger<AdminBanController> _logger;
+        private readonly IValidator<CreateBanRequest> _createBanRequestValidator;
 
-        public AdminBanController(IBanService banService, ILogger<AdminBanController> logger)
+        public AdminBanController(IBanService banService, ILogger<AdminBanController> logger, IValidator<CreateBanRequest> createBanRequestValidator)
         {
             _banService = banService;
             _logger = logger;
+            _createBanRequestValidator = createBanRequestValidator;
         }
 
         [HttpPost]
@@ -24,6 +27,12 @@ namespace MyForum.Api.Controllers.Admin
             [FromBody] CreateBanRequest request,
             CancellationToken cancellationToken)
         {
+            var validationResult = _createBanRequestValidator.Validate(request);
+            if (!validationResult.IsValid)
+            {
+                return BadRequest(validationResult.Errors);
+            }
+
             try
             {
                 await _banService.BanAsync(

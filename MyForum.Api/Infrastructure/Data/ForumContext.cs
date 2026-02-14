@@ -23,6 +23,8 @@ public partial class ForumDbContext : DbContext
         {
             entity.HasIndex(b => b.ShortName).IsUnique();
             entity.HasIndex(b => b.Position);
+
+            entity.HasQueryFilter(b => !b.IsHidden);
         });
 
         // Thread

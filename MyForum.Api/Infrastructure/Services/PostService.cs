@@ -132,6 +132,9 @@ namespace MyForum.Api.Infrastructure.Services
         {
             post.IpAddressHash = _ipHasher.HashIP(ipAddress);
 
+            if (post.Thread == null)
+                post.Thread = await _uow.Threads.GetByIdAsync(post.ThreadId, cancellationToken);
+
             if (await _banService.IsBannedAsync(post.IpAddressHash, post.Thread.BoardId, cancellationToken))
                 throw new ForbiddenException("Вы забанены и не можете создавать посты");
 

@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MyForum.Api.Core.DTOs;
 using MyForum.Api.Core.Interfaces.Services;
@@ -6,6 +7,7 @@ namespace MyForum.Api.Controllers.Admin
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize(Roles = "Admin")]
     public class AdminPostsController : ControllerBase
     {
         private readonly IAdminPostService _postService;

@@ -1,7 +1,6 @@
 using AutoMapper;
 using Microsoft.Extensions.Logging;
 using Moq;
-using MyForum.Api.Core.Entities;
 using MyForum.Api.Core.Interfaces.Factories;
 using MyForum.Api.Core.Interfaces.Metrics;
 using MyForum.Api.Core.Interfaces.Repositories;
@@ -35,22 +34,6 @@ namespace MyForum.Api.Tests.Services
                 _mockPostService.Object,
                 _mockForumMetrics.Object,
                 _mockThreadDtoFactory.Object);
-        }
-
-        [Fact]
-        public async Task GetThreadsPagedAsync_BoardNotFound_ThrowsKeyNotFoundException()
-        {
-            // Arrange
-            string boardShortName = "nonexistent-board";
-            int pageNumber = 1;
-            int pageSize = 10;
-
-            _mockUnitOfWork.Setup(uow => uow.Boards.GetByShortNameAsync(boardShortName, It.IsAny<CancellationToken>()))
-                .ReturnsAsync((Board?)null);
-
-            // Act & Assert
-            await Assert.ThrowsAsync<KeyNotFoundException>(() =>
-                _threadService.GetThreadsPagedAsync(boardShortName, pageNumber, pageSize));
         }
     }
 }

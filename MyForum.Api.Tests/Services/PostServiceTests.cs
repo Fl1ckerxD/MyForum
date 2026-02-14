@@ -16,35 +16,38 @@ namespace MyForum.Api.Tests.Services
     {
         private readonly Mock<IUnitOfWork> _mockUnitOfWork;
         private readonly Mock<ILogger<PostService>> _mockLogger;
-        private readonly Mock<IObjectStorageService> _mockFileService;
+        private readonly Mock<IObjectStorageService> _mockObjectStorageService;
         private readonly Mock<IIPHasher> _mockIpHasher;
         private readonly Mock<IMapper> _mockMapper;
         private readonly Mock<IForumMetrics> _mockForumMetrics;
         private readonly Mock<ICreatePostResponseFactory> _mockCreatePostResponseFactory;
         private readonly Mock<IPostDtoFactory> _mockPostDtoFactory;
+        private readonly Mock<IBanService> _mockBanService;
         private readonly PostService _postService;
         public PostServiceTests()
         {
             _mockUnitOfWork = new Mock<IUnitOfWork>();
             _mockLogger = new Mock<ILogger<PostService>>();
-            _mockFileService = new Mock<IObjectStorageService>();
+            _mockObjectStorageService = new Mock<IObjectStorageService>();
             _mockIpHasher = new Mock<IIPHasher>();
             _mockMapper = new Mock<IMapper>();
             _mockForumMetrics = new Mock<IForumMetrics>();
             _mockCreatePostResponseFactory = new Mock<ICreatePostResponseFactory>();
             _mockPostDtoFactory = new Mock<IPostDtoFactory>();
+            _mockBanService = new Mock<IBanService>();
 
             _mockIpHasher.Setup(hasher => hasher.HashIP(It.IsAny<string>())).Returns("hashed_ip");
 
             _postService = new PostService(
                 _mockLogger.Object,
                 _mockUnitOfWork.Object,
-                _mockFileService.Object,
+                _mockObjectStorageService.Object,
                 _mockIpHasher.Object,
                 _mockMapper.Object,
                 _mockForumMetrics.Object,
                 _mockCreatePostResponseFactory.Object,
-                _mockPostDtoFactory.Object);
+                _mockPostDtoFactory.Object,
+                _mockBanService.Object);
 
         }
 
@@ -62,6 +65,8 @@ namespace MyForum.Api.Tests.Services
 
             _mockUnitOfWork.Setup(uow => uow.Posts).Returns(mockPostRepo.Object);
             _mockUnitOfWork.Setup(uow => uow.SaveAsync(It.IsAny<CancellationToken>())).ReturnsAsync(1);
+            _mockUnitOfWork.Setup(uow => uow.Threads.GetByIdAsync(It.IsAny<int>(), It.IsAny<CancellationToken>())).ReturnsAsync(new Thread());
+            _mockBanService.Setup(b => b.IsBannedAsync(ipAddress, It.IsAny<int>(), It.IsAny<CancellationToken>())).ReturnsAsync(false);
 
             // Act
             await _postService.CreateAsync(threadId, content, authorName, ipAddress, userAgent, null);
@@ -100,9 +105,11 @@ namespace MyForum.Api.Tests.Services
 
             _mockUnitOfWork.Setup(uow => uow.Posts).Returns(mockPostRepo.Object);
             _mockUnitOfWork.Setup(uow => uow.SaveAsync(It.IsAny<CancellationToken>())).ReturnsAsync(1);
+            _mockUnitOfWork.Setup(uow => uow.Threads.GetByIdAsync(It.IsAny<int>(), It.IsAny<CancellationToken>())).ReturnsAsync(new Thread());
+            _mockBanService.Setup(b => b.IsBannedAsync(ipAddress, It.IsAny<int>(), It.IsAny<CancellationToken>())).ReturnsAsync(false);
 
             var postFile = new PostFile { Id = 1, FileName = "test.jpg" };
-            _mockFileService.Setup(fs => fs.SaveFileAsync(mockFile.Object, It.IsAny<Post>(), It.IsAny<CancellationToken>()))
+            _mockObjectStorageService.Setup(fs => fs.SaveFileAsync(mockFile.Object, It.IsAny<Post>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(postFile);
 
             // Act
@@ -117,7 +124,7 @@ namespace MyForum.Api.Tests.Services
                 p.UserAgent == userAgent
             ), It.IsAny<CancellationToken>()), Times.Once);
 
-            _mockFileService.Verify(fs => fs.SaveFileAsync(mockFile.Object, It.IsAny<Post>(), It.IsAny<CancellationToken>()), Times.Once);
+            _mockObjectStorageService.Verify(fs => fs.SaveFileAsync(mockFile.Object, It.IsAny<Post>(), It.IsAny<CancellationToken>()), Times.Once);
             _mockUnitOfWork.Verify(uow => uow.SaveAsync(It.IsAny<CancellationToken>()), Times.Once);
         }
 
