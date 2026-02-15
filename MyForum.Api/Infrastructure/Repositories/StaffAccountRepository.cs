@@ -14,6 +14,11 @@ namespace MyForum.Api.Infrastructure.Repositories
             _context = context;
         }
 
+        public async Task AddAsync(StaffAccount account, CancellationToken cancellationToken = default)
+        {
+            await _context.StaffAccounts.AddAsync(account);
+        }
+
         public async Task<StaffAccount?> GetByUsernameAsync(string username, CancellationToken cancellationToken = default)
         {
             return await _context.StaffAccounts.FirstOrDefaultAsync(x => x.Username == username, cancellationToken);

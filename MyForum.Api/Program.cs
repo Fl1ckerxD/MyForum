@@ -140,6 +140,20 @@ namespace MyForum.Api
                         options.Cookie.HttpOnly = true;
                         options.Cookie.SameSite = SameSiteMode.Strict;
                         options.ExpireTimeSpan = TimeSpan.FromHours(8);
+                        options.LoginPath = "/admin/auth/login";
+                        options.AccessDeniedPath = "/admin/auth/denied";
+
+                        options.Events.OnRedirectToLogin = context =>
+                        {
+                            context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                            return Task.CompletedTask;
+                        };
+
+                        options.Events.OnRedirectToAccessDenied = context =>
+                        {
+                            context.Response.StatusCode = StatusCodes.Status403Forbidden;
+                            return Task.CompletedTask;
+                        };
                     });
 
                 builder.Services.AddAuthorization(options =>
@@ -161,7 +175,8 @@ namespace MyForum.Api
                         var context = services.GetRequiredService<ForumDbContext>();
                         var logger = services.GetRequiredService<ILogger<SeedData>>();
                         var ipHasher = services.GetRequiredService<IIPHasher>();
-                        await SeedData.SeedAsync(context, logger, ipHasher);
+                        var staffAuthService = services.GetRequiredService<IStaffAuthService>();
+                        await SeedData.SeedAsync(context, logger, ipHasher, staffAuthService);
                     }
                     catch (Exception ex)
                     {

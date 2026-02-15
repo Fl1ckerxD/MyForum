@@ -25,6 +25,13 @@ namespace MyForum.Api.Infrastructure.Repositories
             else throw new ArgumentException("Объект не найден.");
         }
 
+        public async Task<bool> ExistsAsync(int id, CancellationToken cancellationToken = default)
+        {
+            return await _dbSet.AnyAsync(
+                e => EF.Property<int>(e, "Id") == id,
+                cancellationToken);
+        }
+
         public virtual async Task<IEnumerable<T>> GetAllAsync(CancellationToken cancellationToken = default)
         {
             return await _dbSet.ToListAsync(cancellationToken);

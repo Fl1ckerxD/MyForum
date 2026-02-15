@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using MyForum.Api.Core.Entities;
+using MyForum.Api.Core.Enums;
 using MyForum.Api.Core.Interfaces.Services;
 using MyForum.Api.Infrastructure.Services;
 using Thread = MyForum.Api.Core.Entities.Thread;
@@ -8,7 +9,7 @@ namespace MyForum.Api.Infrastructure.Data
 {
     public class SeedData
     {
-        public static async Task SeedAsync(ForumDbContext context, ILogger logger, IIPHasher ipHasher, int retry = 0)
+        public static async Task SeedAsync(ForumDbContext context, ILogger logger, IIPHasher ipHasher, IStaffAuthService staffAuthService, int retry = 0)
         {
             const int maxRetryCount = 5;
 
@@ -218,6 +219,23 @@ namespace MyForum.Api.Infrastructure.Data
                 else
                     logger.LogInformation("Posts already exist, skipping seeding");
                 #endregion
+
+                #region Seed StaffAccount
+                logger.LogInformation("Checking for existing staff accounts...");
+
+                if (!await context.StaffAccounts.AnyAsync())
+                {
+                    logger.LogInformation("Seeding initial staff accounts data...");
+
+                    await staffAuthService.CreateAdminAsync("admin", "admin");
+                    await staffAuthService.CreateModeratorAsync("mod", "mod", 1);
+                    await staffAuthService.CreateModeratorAsync("mod2", "mod", 2);
+
+                    logger.LogInformation("Successfully seeded 2 staff accounts");
+                }
+                else
+                    logger.LogInformation("Staff accounts already exist, skipping seeding");
+                #endregion
             }
             catch (Exception ex)
             {
@@ -232,7 +250,7 @@ namespace MyForum.Api.Infrastructure.Data
                 logger.LogInformation("Waiting {Delay} before retry...", delay);
                 await Task.Delay(delay);
 
-                await SeedAsync(context, logger, ipHasher, retry + 1);
+                await SeedAsync(context, logger, ipHasher, staffAuthService, retry + 1);
             }
         }
 
