@@ -1,17 +1,18 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { LoginPage } from "./features/auth/LoginPage";
-import { AdminLayout } from "./layouts/AdminLayout";
+import { BoardsPage } from "./features/boards/BoardsPage";
+import { ProtectedRoute } from "./features/auth/ProtectedRoute";
 import './App.css'
 
 function App() {
   return (
     <>
-      <BrowserRouter>
+      <BrowserRouter basename="/admin">
         <Routes>
-          <Route path="/login" element={<LoginPage />} />
+          <Route path="/login" element={<LoginPage />}></Route>
 
-          <Route path="/admin" element={<AdminLayout />}>
-            <Route path="/boards" element={<div>Boards page</div>} />
+          <Route element={<ProtectedRoute />}>
+            <Route path="/boards" element={<BoardsPage />} />
             <Route path="/threads" element={<div>Boards page</div>} />
             <Route path="/posts" element={<div>Boards page</div>} />
             <Route path="/bans" element={<div>Boards page</div>} />

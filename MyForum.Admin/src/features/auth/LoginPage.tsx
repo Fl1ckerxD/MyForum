@@ -9,27 +9,56 @@ export const LoginPage = () => {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
 
+    const [errors, setErrors] = useState<{
+        username?: string;
+        password?: string;
+        general?: string;
+    }>({});
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        await login(username, password);
-        navigate("/admin");
+
+        const result = await login(username, password);
+
+        if (!result) {
+            navigate("/boards");
+        } else {
+            setErrors(result);
+        }
     };
 
     return (
         <div style={{ maxWidth: 400, margin: "100px auto" }}>
             <h2>Admin Login</h2>
+
             <form onSubmit={handleSubmit}>
-                <input
-                    placeholder="Username"
-                    value={username}
-                    onChange={e => setUsername(e.target.value)}
-                />
-                <input
-                    type="password"
-                    placeholder="Password"
-                    value={password}
-                    onChange={e => setPassword(e.target.value)}
-                />
+                <div>
+                    <input
+                        placeholder="Username"
+                        value={username}
+                        onChange={e => setUsername(e.target.value)}
+                    />
+                    {errors.username && (
+                        <p style={{ color: "red" }}>{errors.username}</p>
+                    )}
+                </div>
+
+                <div>
+                    <input
+                        type="password"
+                        placeholder="Password"
+                        value={password}
+                        onChange={e => setPassword(e.target.value)}
+                    />
+                    {errors.password && (
+                        <p style={{ color: "red" }}>{errors.password}</p>
+                    )}
+                </div>
+
+                {errors.general && (
+                    <p style={{ color: "red" }}>{errors.general}</p>
+                )}
+
                 <button type="submit">Login</button>
             </form>
         </div>

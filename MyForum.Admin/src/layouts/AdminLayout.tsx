@@ -9,10 +9,10 @@ export const AdminLayout = () => {
             <aside style={{ width: 220, padding: 20, borderRight: "1px solid #ddd" }}>
                 <h3>Admin</h3>
                 <nav style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                    <Link to="/admin/boards">Boards</Link>
-                    <Link to="/admin/threads">Threads</Link>
-                    <Link to="/admin/posts">Posts</Link>
-                    <Link to="/admin/bans">Bans</Link>
+                    <Link to="/boards">Boards</Link>
+                    <Link to="/threads">Threads</Link>
+                    <Link to="/posts">Posts</Link>
+                    <Link to="/bans">Bans</Link>
                 </nav>
                 <button onClick={logout} style={{ marginTop: 20 }}>
                     Logout
