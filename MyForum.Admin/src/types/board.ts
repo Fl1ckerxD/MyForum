@@ -3,5 +3,6 @@ export interface Board {
   name: string;
   shortName: string;
   description: string;
+  isHidden: boolean;
   createdAt: string;
 }

@@ -12,7 +12,5 @@ namespace MyForum.Api.Core.DTOs.Requests
 
         [MaxLength(500)]
         public string? Description { get; set; }
-
-        public bool IsHidden { get; set; }
     }
 }

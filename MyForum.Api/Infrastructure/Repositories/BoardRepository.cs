@@ -18,6 +18,14 @@ namespace MyForum.Api.Infrastructure.Repositories
                 .ToListAsync(cancellationToken);
         }
 
+        public async Task<IEnumerable<Board>> GetAllIncludingHiddenAsync(CancellationToken cancellationToken = default)
+        {
+            return await _context.Boards
+                .IgnoreQueryFilters()
+                .OrderBy(b => b.Position)
+                .ToListAsync(cancellationToken);
+        }
+
         public async Task<Board?> GetBoardWithThreadsAndPostsAsync(string boardShortName, int threadLimit, CancellationToken cancellationToken = default)
         {
             if (threadLimit < 1)
@@ -63,6 +71,14 @@ namespace MyForum.Api.Infrastructure.Repositories
             board.Threads = threads;
             return board;
         }
+
+        public async Task<Board?> GetByIdIncludingHiddenAsync(int id, CancellationToken cancellationToken = default)
+        {
+            return await _context.Boards
+                .IgnoreQueryFilters()
+                .FirstOrDefaultAsync(b => b.Id == id);
+        }
+
         public Task<Board?> GetByShortNameAsync(string shortName, CancellationToken cancellationToken = default)
         {
             return _context.Boards

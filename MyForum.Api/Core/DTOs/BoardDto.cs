@@ -6,6 +6,7 @@ namespace MyForum.Api.Core.DTOs
         string Name,
         string ShortName,
         string Description,
+        bool IsHidden,
         DateTime CreatedAt,
         IEnumerable<ThreadDto> Threads
     );

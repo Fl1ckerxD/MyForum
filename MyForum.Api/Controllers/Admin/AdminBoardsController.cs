@@ -110,5 +110,38 @@ namespace MyForum.Api.Controllers.Admin
                 return StatusCode(StatusCodes.Status500InternalServerError, "Внутренняя ошибка сервера");
             }
         }
+
+        [HttpPatch("{id:int}/visibility")]
+        public async Task<IActionResult> PatchVisibility(
+            int id,
+            [FromBody] UpdateBoardVisibilityRequest request,
+            CancellationToken cancellationToken)
+        {
+            if (request is null)
+                return BadRequest();
+
+            try
+            {
+                var result = await _boardService.UpdateVisibilityAsync(
+                    id,
+                    request.IsHidden,
+                    cancellationToken);
+
+                if (!result)
+                    return NotFound(new { message = $"Доска с id {id} не найдена" });
+
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex,
+                    "Ошибка при изменении видимости доски с id {id}. IsHidden: {IsHidden}",
+                    id, request.IsHidden);
+
+                return StatusCode(
+                    StatusCodes.Status500InternalServerError,
+                    "Внутренняя ошибка сервера");
+            }
+        }
     }
 }

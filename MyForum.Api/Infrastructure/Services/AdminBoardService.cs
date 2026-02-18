@@ -25,7 +25,7 @@ namespace MyForum.Api.Infrastructure.Services
         /// </summary>
         /// <returns>Возвращает DTO новой доски</returns>
         /// <exception cref="InvalidOperationException">Если доска с таким коротким именем уже существует</exception>
-        public async Task<BoardDto> CreateAsync(CreateBoardRequest request, CancellationToken cancellationToken)
+        public async Task<BoardDto> CreateAsync(CreateBoardRequest request, CancellationToken cancellationToken = default)
         {
             var existingBoard = await _uow.Boards.GetByShortNameAsync(request.ShortName, cancellationToken);
             if (existingBoard != null)
@@ -59,11 +59,11 @@ namespace MyForum.Api.Infrastructure.Services
         /// Удаляет доску по id
         /// </summary>
         /// <returns>Возвращает true, если доска была удалена, иначе false</returns>
-        public async Task<bool> DeleteAsync(int id, CancellationToken cancellationToken)
+        public async Task<bool> DeleteAsync(int id, CancellationToken cancellationToken = default)
         {
             try
             {
-                await _uow.Boards.DeleteAsync(id, cancellationToken);
+                await _uow.Boards.DeleteIgnoringFiltersAsync(id, cancellationToken);
                 await _uow.SaveAsync(cancellationToken);
 
                 return true;
@@ -78,11 +78,11 @@ namespace MyForum.Api.Infrastructure.Services
         /// <summary>
         /// Получает список всех досок
         /// </summary>
-        public async Task<IReadOnlyList<BoardDto>> GetAllAsync(CancellationToken cancellationToken)
+        public async Task<IReadOnlyList<BoardDto>> GetAllAsync(CancellationToken cancellationToken = default)
         {
             try
             {
-                var boards = await _uow.Boards.GetAllAsync(cancellationToken);
+                var boards = await _uow.Boards.GetAllIncludingHiddenAsync(cancellationToken);
                 return _mapper.Map<IReadOnlyList<BoardDto>>(boards);
             }
             catch (Exception ex)
@@ -97,9 +97,9 @@ namespace MyForum.Api.Infrastructure.Services
         /// </summary>
         /// <returns>Возвращает true, если доска была обновлена</returns>
         /// <exception cref="InvalidOperationException">Если доска с таким коротким именем уже существует</exception>
-        public async Task<bool> UpdateAsync(int id, UpdateBoardRequest request, CancellationToken cancellationToken)
+        public async Task<bool> UpdateAsync(int id, UpdateBoardRequest request, CancellationToken cancellationToken = default)
         {
-            var board = await _uow.Boards.GetByIdAsync(id, cancellationToken);
+            var board = await _uow.Boards.GetByIdIncludingHiddenAsync(id, cancellationToken);
             if (board == null)
             {
                 _logger.LogWarning("Доска с id {id} не найдена", id);
@@ -123,8 +123,6 @@ namespace MyForum.Api.Infrastructure.Services
             if (!string.IsNullOrWhiteSpace(request.Description))
                 board.Description = request.Description;
 
-            board.IsHidden = request.IsHidden;
-
             try
             {
                 await _uow.SaveAsync(cancellationToken);
@@ -136,6 +134,22 @@ namespace MyForum.Api.Infrastructure.Services
                 _logger.LogError(ex, "Ошибка при обновлении доски с id {id}", id);
                 throw;
             }
+        }
+
+        public async Task<bool> UpdateVisibilityAsync(int id, bool isHidden, CancellationToken cancellationToken = default)
+        {
+            var board = await _uow.Boards.GetByIdIncludingHiddenAsync(id, cancellationToken);
+            if (board == null)
+            {
+                _logger.LogWarning("Доска с id {id} не найдена", id);
+                return false;
+            }
+
+            board.IsHidden = isHidden;
+
+            await _uow.SaveAsync(cancellationToken);
+
+            return true;
         }
     }
 }

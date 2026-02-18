@@ -22,8 +22,7 @@ export const boardsApi = {
       name: string;
       shortName: string;
       description: string;
-      isHidden: boolean;
-    },
+    }
   ): Promise<void> => {
     await api.put(`/admin/boards/${id}`, payload);
   },
@@ -31,4 +30,7 @@ export const boardsApi = {
   delete: async (id: number): Promise<void> => {
     await api.delete(`/admin/boards/${id}`);
   },
+
+  patchVisibility: (id: number, isHidden: boolean) =>
+    api.patch(`/admin/boards/${id}/visibility`, { isHidden: isHidden }),
 };

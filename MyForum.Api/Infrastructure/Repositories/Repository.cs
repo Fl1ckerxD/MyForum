@@ -25,6 +25,18 @@ namespace MyForum.Api.Infrastructure.Repositories
             else throw new ArgumentException("Объект не найден.");
         }
 
+        public async Task DeleteIgnoringFiltersAsync(int id, CancellationToken cancellationToken = default)
+        {
+            var entity = await _dbSet
+                .IgnoreQueryFilters()
+                .FirstOrDefaultAsync(e => EF.Property<int>(e, "Id") == id, cancellationToken);
+
+            if (entity == null)
+                throw new ArgumentException("Объект не найден.");
+
+            _dbSet.Remove(entity);
+        }
+
         public async Task<bool> ExistsAsync(int id, CancellationToken cancellationToken = default)
         {
             return await _dbSet.AnyAsync(

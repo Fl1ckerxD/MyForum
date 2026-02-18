@@ -5,9 +5,10 @@ namespace MyForum.Api.Core.Interfaces.Services
 {
     public interface IAdminBoardService
     {
-        Task<IReadOnlyList<BoardDto>> GetAllAsync(CancellationToken cancellationToken);
-        Task<BoardDto> CreateAsync(CreateBoardRequest request, CancellationToken cancellationToken);
-        Task<bool> UpdateAsync(int id, UpdateBoardRequest request, CancellationToken cancellationToken);
-        Task<bool> DeleteAsync(int id, CancellationToken cancellationToken);
+        Task<IReadOnlyList<BoardDto>> GetAllAsync(CancellationToken cancellationToken = default);
+        Task<BoardDto> CreateAsync(CreateBoardRequest request, CancellationToken cancellationToken = default);
+        Task<bool> UpdateAsync(int id, UpdateBoardRequest request, CancellationToken cancellationToken = default);
+        Task<bool> DeleteAsync(int id, CancellationToken cancellationToken = default);
+        Task<bool> UpdateVisibilityAsync(int id, bool isHidden, CancellationToken cancellationToken = default);
     }
 }
