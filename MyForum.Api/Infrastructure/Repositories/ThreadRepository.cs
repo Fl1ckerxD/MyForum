@@ -1,5 +1,4 @@
 using Microsoft.EntityFrameworkCore;
-using MyForum.Api.Core.DTOs.Common;
 using MyForum.Api.Core.Interfaces.Repositories;
 using MyForum.Api.Infrastructure.Data;
 using Thread = MyForum.Api.Core.Entities.Thread;
@@ -19,17 +18,42 @@ namespace MyForum.Api.Infrastructure.Repositories
                 .FirstOrDefaultAsync(t => t.Id == id, cancellationToken);
         }
 
-        public async Task<IReadOnlyList<Thread>> GetThreadsAsync(int limit, DateTime? cursor, CancellationToken cancellationToken)
+        public async Task<IReadOnlyList<Thread>> GetThreadsAsync(
+            int limit,
+            DateTime? cursor,
+            string? search = null,
+            string? board = null,
+            bool? isDeleted = null,
+            bool? isLocked = null,
+            CancellationToken cancellationToken = default)
         {
             var query = _context.Threads
                 .AsNoTracking()
+                .IgnoreQueryFilters()
                 .Include(t => t.Board)
                 .AsQueryable();
 
+            if (limit < 1)
+                limit = 1;
+
+            const int maxLimit = 200;
+            if (limit > maxLimit)
+                limit = maxLimit;
+
             if (cursor.HasValue)
-            {
                 query = query.Where(t => t.LastBumpAt < cursor.Value);
-            }
+
+            if (!string.IsNullOrEmpty(search))
+                query = query.Where(t => EF.Functions.ILike(t.Subject, $"%{search}%"));
+
+            if (!string.IsNullOrEmpty(board))
+                query = query.Where(t => EF.Functions.ILike(t.Board.ShortName, $"%{board}%"));
+
+            if (isDeleted.HasValue)
+                query = query.Where(t => t.IsDeleted == isDeleted.Value);
+
+            if (isLocked.HasValue)
+                query = query.Where(t => t.IsLocked == isLocked.Value);
 
             return await query
                 .OrderByDescending(t => t.LastBumpAt)

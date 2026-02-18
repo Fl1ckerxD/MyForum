@@ -7,7 +7,11 @@ namespace MyForum.Api.Core.Interfaces.Services
         Task<IReadOnlyList<AdminThreadDto>> GetThreadsAsync(
             int limit,
             DateTime? cursor,
-            CancellationToken cancellationToken);
+            string? search = null,
+            string? board = null,
+            bool? isDeleted = null,
+            bool? isLocked = null,
+            CancellationToken cancellationToken = default);
 
         Task DeleteAsync(int threadId, CancellationToken cancellationToken);
         Task SoftDeleteAsync(int threadId, CancellationToken cancellationToken);

@@ -31,9 +31,23 @@ namespace MyForum.Api.Infrastructure.Services
         /// <summary>
         /// Получение списка тредов для админки.
         /// </summary>
-        public async Task<IReadOnlyList<AdminThreadDto>> GetThreadsAsync(int limit, DateTime? cursor, CancellationToken cancellationToken)
+        public async Task<IReadOnlyList<AdminThreadDto>> GetThreadsAsync(
+            int limit,
+            DateTime? cursor,
+            string? search = null,
+            string? board = null,
+            bool? isDeleted = null,
+            bool? isLocked = null,
+            CancellationToken cancellationToken = default)
         {
-            var threads = await _uow.Threads.GetThreadsAsync(limit, cursor, cancellationToken);
+            var threads = await _uow.Threads.GetThreadsAsync(
+                limit,
+                cursor,
+                search,
+                board,
+                isDeleted,
+                isLocked,
+                cancellationToken);
 
             return threads.Select(MapToDto).ToList();
         }

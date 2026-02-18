@@ -1,6 +1,8 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { LoginPage } from "./features/auth/LoginPage";
 import { BoardsPage } from "./features/boards/BoardsPage";
+import { AdminLayout } from "./layouts/AdminLayout";
+import { ThreadsPage } from "./features/threads/ThreadPage";
 import { ProtectedRoute } from "./features/auth/ProtectedRoute";
 import './App.css'
 
@@ -12,10 +14,12 @@ function App() {
           <Route path="/login" element={<LoginPage />}></Route>
 
           <Route element={<ProtectedRoute />}>
-            <Route path="/boards" element={<BoardsPage />} />
-            <Route path="/threads" element={<div>Boards page</div>} />
-            <Route path="/posts" element={<div>Boards page</div>} />
-            <Route path="/bans" element={<div>Boards page</div>} />
+            <Route element={<AdminLayout />}>
+              <Route path="/boards" element={<BoardsPage />} />
+              <Route path="/threads" element={<ThreadsPage />} />
+              <Route path="/posts" element={<div>Boards page</div>} />
+              <Route path="/bans" element={<div>Boards page</div>} />
+            </Route>
           </Route>
         </Routes>
       </BrowserRouter>

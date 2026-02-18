@@ -23,6 +23,10 @@ namespace MyForum.Api.Controllers.Admin
         public async Task<ActionResult<IReadOnlyList<AdminThreadDto>>> GetThreads(
             [FromQuery] int limit = 50,
             [FromQuery] DateTime? cursor = null,
+            [FromQuery] string? search = null,
+            [FromQuery] string? board = null,
+            [FromQuery] bool? isDeleted = null,
+            [FromQuery] bool? isLocked = null,
             CancellationToken cancellationToken = default)
         {
             try
@@ -30,6 +34,10 @@ namespace MyForum.Api.Controllers.Admin
                 var threads = await _threadService.GetThreadsAsync(
                     limit,
                     cursor,
+                    search,
+                    board,
+                    isDeleted,
+                    isLocked,
                     cancellationToken);
 
                 return Ok(threads);

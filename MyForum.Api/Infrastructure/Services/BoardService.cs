@@ -97,6 +97,7 @@ namespace MyForum.Api.Infrastructure.Services
                     Name: board.Name,
                     ShortName: board.ShortName,
                     Description: board.Description,
+                    CreatedAt: board.CreatedAt,
                     Threads: await Task.WhenAll(board.Threads.Select(async t => await _threadDtoFactory.CreateAsync(t, cancellationToken)))
                 );
 
