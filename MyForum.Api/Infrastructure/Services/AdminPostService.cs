@@ -30,15 +30,28 @@ namespace MyForum.Api.Infrastructure.Services
         /// <summary>
         /// Получить все посты треда (включая удалённые)
         /// </summary>
-        public async Task<IReadOnlyList<AdminPostDto>> GetByThreadAsync(int threadId, CancellationToken cancellationToken)
+        public async Task<IReadOnlyList<AdminPostDto>> GetByThreadAsync(
+            int threadId,
+            int limit = 50,
+            int? afterId = null,
+            string? search = null,
+            bool? isDeleted = null,
+            CancellationToken cancellationToken = default)
         {
-            var posts = await _uow.Posts.GetByThreadIncludingDeletedAsync(threadId, cancellationToken);
+            var posts = await _uow.Posts.GetByThreadIncludingDeletedAsync(
+                    threadId,
+                    limit,
+                    afterId,
+                    search,
+                    isDeleted,
+                    cancellationToken);
 
             return posts.Select(p => new AdminPostDto
             {
                 Id = p.Id,
                 ThreadId = p.ThreadId,
                 IsOriginal = p.IsOriginal,
+                Author = p.AuthorName,
                 Content = p.Content,
                 IsDeleted = p.IsDeleted,
                 DeletedAt = p.DeletedAt,

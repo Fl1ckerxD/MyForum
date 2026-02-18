@@ -11,7 +11,6 @@ export const AdminLayout = () => {
                 <nav style={{ display: "flex", flexDirection: "column", gap: 10 }}>
                     <Link to="/boards">Boards</Link>
                     <Link to="/threads">Threads</Link>
-                    <Link to="/posts">Posts</Link>
                     <Link to="/bans">Bans</Link>
                 </nav>
                 <button onClick={logout} style={{ marginTop: 20 }}>

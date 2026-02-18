@@ -6,7 +6,7 @@ using MyForum.Api.Core.Interfaces.Services;
 namespace MyForum.Api.Controllers.Admin
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/admin/posts")]
     [Authorize(Roles = "Admin")]
     public class AdminPostsController : ControllerBase
     {
@@ -20,12 +20,23 @@ namespace MyForum.Api.Controllers.Admin
         }
 
         [HttpGet("thread/{threadId:int}")]
-        public async Task<ActionResult<IReadOnlyList<AdminPostDto>>> GetByThread(int threadId, CancellationToken cancellationToken)
+        public async Task<ActionResult<IReadOnlyList<AdminPostDto>>> GetByThread(
+            int threadId,
+            [FromQuery] int limit = 50,
+            [FromQuery] int? afterId = null,
+            [FromQuery] string? search = null,
+            [FromQuery] bool? isDeleted = null,
+            CancellationToken cancellationToken = default)
         {
             try
             {
-                var posts = await _postService
-                    .GetByThreadAsync(threadId, cancellationToken);
+                var posts = await _postService.GetByThreadAsync(
+                    threadId,
+                    limit,
+                    afterId,
+                    search,
+                    isDeleted,
+                    cancellationToken);
 
                 return Ok(posts);
             }

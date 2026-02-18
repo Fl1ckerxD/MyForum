@@ -7,6 +7,7 @@ import {
 } from "@tanstack/react-query";
 import { threadsApi } from "./threadsApi";
 import type { AdminThreadDto } from "../../types/thread";
+import { Link } from "react-router-dom";
 
 export const ThreadsPage = () => {
     const queryClient = useQueryClient();
@@ -77,6 +78,11 @@ export const ThreadsPage = () => {
     });
 
     const threads = data?.pages.flat() ?? [];
+
+    const handleHardDelete = async (id: number) => {
+        if (!confirm("Удалить этот тред?")) return;
+        await hardDeleteMutation.mutateAsync(id);
+    };
 
     return (
         <div style={{ padding: 20 }}>
@@ -174,7 +180,7 @@ export const ThreadsPage = () => {
 
                                 <button
                                     onClick={() =>
-                                        hardDeleteMutation.mutate(t.id)
+                                        handleHardDelete(t.id)
                                     }
                                 >
                                     Жесткое удаление
@@ -189,6 +195,10 @@ export const ThreadsPage = () => {
                                 >
                                     {t.isLocked ? "Разблокировать" : "Заблокировать"}
                                 </button>
+
+                                <Link to={`/threads/${t.id}/posts`}>
+                                    Просмотреть посты
+                                </Link>
                             </td>
                         </tr>
                     ))}

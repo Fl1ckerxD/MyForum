@@ -5,6 +5,7 @@ import { AdminLayout } from "./layouts/AdminLayout";
 import { ThreadsPage } from "./features/threads/ThreadPage";
 import { ProtectedRoute } from "./features/auth/ProtectedRoute";
 import './App.css'
+import { PostsPage } from "./features/posts/PostsPage";
 
 function App() {
   return (
@@ -17,7 +18,7 @@ function App() {
             <Route element={<AdminLayout />}>
               <Route path="/boards" element={<BoardsPage />} />
               <Route path="/threads" element={<ThreadsPage />} />
-              <Route path="/posts" element={<div>Boards page</div>} />
+              <Route path="/threads/:threadId/posts" element={<PostsPage />} />
               <Route path="/bans" element={<div>Boards page</div>} />
             </Route>
           </Route>
