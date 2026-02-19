@@ -1,0 +1,13 @@
+﻿.posts-page__table-card {
+  padding: 0.9rem;
+}
+
+.posts-page__content-cell {
+  max-width: 420px;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.posts-page__deleted {
+  opacity: 0.62;
+}

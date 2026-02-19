@@ -1,219 +1,187 @@
-import { useState } from "react";
+﻿import { useState } from "react";
 import {
-    type InfiniteData,
-    useInfiniteQuery,
-    useMutation,
-    useQueryClient,
+  type InfiniteData,
+  useInfiniteQuery,
+  useMutation,
+  useQueryClient,
 } from "@tanstack/react-query";
 import { threadsApi } from "./threadsApi";
 import type { AdminThreadDto } from "../../types/thread";
 import { Link } from "react-router-dom";
+import { Icon } from "../../components/ui/Icon";
+import { PageHeader } from "../../components/ui/PageHeader";
+import { ActionRow } from "../../components/ui/ActionRow";
+import { LoadMoreBar } from "../../components/ui/LoadMoreBar";
+import "./ThreadPage.css";
 
 export const ThreadsPage = () => {
-    const queryClient = useQueryClient();
+  const queryClient = useQueryClient();
 
-    const [search, setSearch] = useState("");
-    const [board, setBoard] = useState<string | undefined>();
-    const [isDeleted, setIsDeleted] = useState<boolean | undefined>();
-    const [isLocked, setIsLocked] = useState<boolean | undefined>();
+  const [search, setSearch] = useState("");
+  const [board, setBoard] = useState<string | undefined>();
+  const [isDeleted, setIsDeleted] = useState<boolean | undefined>();
+  const [isLocked, setIsLocked] = useState<boolean | undefined>();
 
-    const {
-        data,
-        fetchNextPage,
-        hasNextPage,
-        isFetching,
-    } = useInfiniteQuery<
-        AdminThreadDto[],
-        Error,
-        InfiniteData<AdminThreadDto[], string | undefined>,
-        (string | boolean | undefined)[],
-        string | undefined
-    >({
-        queryKey: ["threads", search, board, isDeleted, isLocked],
+  const { data, fetchNextPage, hasNextPage, isFetching } = useInfiniteQuery<
+    AdminThreadDto[],
+    Error,
+    InfiniteData<AdminThreadDto[], string | undefined>,
+    ["threads", string, string | undefined, boolean | undefined, boolean | undefined],
+    string | undefined
+  >({
+    queryKey: ["threads", search, board, isDeleted, isLocked],
+    queryFn: ({ pageParam }) =>
+      threadsApi.getAll({
+        limit: 50,
+        cursor: pageParam,
+        search: search || undefined,
+        board,
+        isDeleted,
+        isLocked,
+      }),
+    initialPageParam: undefined,
+    getNextPageParam: (lastPage) => {
+      if (lastPage.length === 0) return undefined;
+      return lastPage[lastPage.length - 1].lastBumpAt;
+    },
+  });
 
-        queryFn: ({ pageParam }) =>
-            threadsApi.getAll({
-                limit: 50,
-                cursor: pageParam,
-                search: search || undefined,
-                board,
-                isDeleted,
-                isLocked,
-            }),
+  const invalidate = () =>
+    queryClient.invalidateQueries({ queryKey: ["threads"] });
 
-        initialPageParam: undefined,
+  const softDeleteMutation = useMutation({ mutationFn: threadsApi.softDelete, onSuccess: invalidate });
+  const hardDeleteMutation = useMutation({ mutationFn: threadsApi.hardDelete, onSuccess: invalidate });
+  const restoreMutation = useMutation({ mutationFn: threadsApi.restore, onSuccess: invalidate });
+  const lockMutation = useMutation({ mutationFn: threadsApi.lock, onSuccess: invalidate });
+  const unlockMutation = useMutation({ mutationFn: threadsApi.unlock, onSuccess: invalidate });
 
-        getNextPageParam: (lastPage) => {
-            if (lastPage.length === 0) return undefined;
-            return lastPage[lastPage.length - 1].lastBumpAt;
-        },
-    });
+  const threads = data?.pages.flat() ?? [];
 
-    const invalidate = () =>
-        queryClient.invalidateQueries({ queryKey: ["threads"] });
+  const handleHardDelete = async (id: number) => {
+    if (!confirm("Удалить этот тред?")) return;
+    await hardDeleteMutation.mutateAsync(id);
+  };
 
-    const softDeleteMutation = useMutation({
-        mutationFn: threadsApi.softDelete,
-        onSuccess: invalidate,
-    });
+  return (
+    <section className="admin-page threads-page">
+      <PageHeader
+        icon="threads"
+        title="Треды"
+        subtitle="Модерация тредов, фильтрация и быстрые действия"
+      />
 
-    const hardDeleteMutation = useMutation({
-        mutationFn: threadsApi.hardDelete,
-        onSuccess: invalidate,
-    });
+      <div className="admin-card threads-page__table-card">
+        <div className="admin-toolbar">
+          <input
+            className="admin-field"
+            placeholder="Поиск по названию"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
 
-    const restoreMutation = useMutation({
-        mutationFn: threadsApi.restore,
-        onSuccess: invalidate,
-    });
+          <input
+            className="admin-field"
+            placeholder="Доска, например b"
+            value={board ?? ""}
+            onChange={(e) => setBoard(e.target.value || undefined)}
+          />
 
-    const lockMutation = useMutation({
-        mutationFn: threadsApi.lock,
-        onSuccess: invalidate,
-    });
+          <select
+            className="admin-select"
+            onChange={(e) => setIsDeleted(e.target.value === "" ? undefined : e.target.value === "true")}
+          >
+            <option value="">Удалено: все</option>
+            <option value="true">Только удаленные</option>
+            <option value="false">Только активные</option>
+          </select>
 
-    const unlockMutation = useMutation({
-        mutationFn: threadsApi.unlock,
-        onSuccess: invalidate,
-    });
-
-    const threads = data?.pages.flat() ?? [];
-
-    const handleHardDelete = async (id: number) => {
-        if (!confirm("Удалить этот тред?")) return;
-        await hardDeleteMutation.mutateAsync(id);
-    };
-
-    return (
-        <div style={{ padding: 20 }}>
-            <h2>Треды</h2>
-
-            <div style={{ marginBottom: 20 }}>
-                <input
-                    placeholder="Поиск по названию..."
-                    value={search}
-                    onChange={e => setSearch(e.target.value)}
-                />
-
-                <input
-                    placeholder="Доска (например, b)"
-                    value={board ?? ""}
-                    onChange={e =>
-                        setBoard(e.target.value || undefined)
-                    }
-                />
-
-                <select
-                    onChange={e =>
-                        setIsDeleted(
-                            e.target.value === ""
-                                ? undefined
-                                : e.target.value === "true"
-                        )
-                    }
-                >
-                    <option value="">Удалено: все</option>
-                    <option value="true">Только удаленные</option>
-                    <option value="false">Только активные</option>
-                </select>
-
-                <select
-                    onChange={e =>
-                        setIsLocked(
-                            e.target.value === ""
-                                ? undefined
-                                : e.target.value === "true"
-                        )
-                    }
-                >
-                    <option value="">Заблокировано: все</option>
-                    <option value="true">Только заблокированные</option>
-                    <option value="false">Только разблокированные</option>
-                </select>
-            </div>
-
-            <table width="100%" border={1} cellPadding={6}>
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Доска</th>
-                        <th>Название</th>
-                        <th>Посты</th>
-                        <th>Статус</th>
-                        <th>Действия</th>
-                    </tr>
-                </thead>
-
-                <tbody>
-                    {threads.map(t => (
-                        <tr key={t.id} style={{ opacity: t.isDeleted ? 0.5 : 1 }}>
-                            <td>{t.id}</td>
-                            <td>/{t.boardShortName}/</td>
-                            <td>{t.title}</td>
-                            <td>{t.postsCount}</td>
-
-                            <td>
-                                {t.isDeleted && "Удалено"}
-                                {t.isLocked && "Заблокировано"}
-                            </td>
-
-                            <td>
-                                {!t.isDeleted && (
-                                    <button
-                                        onClick={() =>
-                                            softDeleteMutation.mutate(t.id)
-                                        }
-                                    >
-                                        Мягкое удаление
-                                    </button>
-                                )}
-
-                                {t.isDeleted && (
-                                    <button
-                                        onClick={() =>
-                                            restoreMutation.mutate(t.id)
-                                        }
-                                    >
-                                        Восстановить
-                                    </button>
-                                )}
-
-                                <button
-                                    onClick={() =>
-                                        handleHardDelete(t.id)
-                                    }
-                                >
-                                    Жесткое удаление
-                                </button>
-
-                                <button
-                                    onClick={() =>
-                                        t.isLocked
-                                            ? unlockMutation.mutate(t.id)
-                                            : lockMutation.mutate(t.id)
-                                    }
-                                >
-                                    {t.isLocked ? "Разблокировать" : "Заблокировать"}
-                                </button>
-
-                                <Link to={`/threads/${t.id}/posts`}>
-                                    Просмотреть посты
-                                </Link>
-                            </td>
-                        </tr>
-                    ))}
-                </tbody>
-            </table>
-
-            <br />
-
-            {hasNextPage && (
-                <button onClick={() => fetchNextPage()}>
-                    Загрузить ещё
-                </button>
-            )}
-
-            {isFetching && <p>Loading...</p>}
+          <select
+            className="admin-select"
+            onChange={(e) => setIsLocked(e.target.value === "" ? undefined : e.target.value === "true")}
+          >
+            <option value="">Блокировка: все</option>
+            <option value="true">Только заблокированные</option>
+            <option value="false">Только разблокированные</option>
+          </select>
         </div>
-    );
+
+        {threads.length === 0 && !isFetching ? (
+          <div className="admin-empty">Треды не найдены</div>
+        ) : (
+          <div className="admin-table-wrap">
+            <table className="admin-table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Доска</th>
+                  <th>Название</th>
+                  <th>Постов</th>
+                  <th>Статус</th>
+                  <th>Действия</th>
+                </tr>
+              </thead>
+              <tbody>
+                {threads.map((thread) => (
+                  <tr key={thread.id} className={thread.isDeleted ? "threads-page__deleted" : undefined}>
+                    <td>{thread.id}</td>
+                    <td>/{thread.boardShortName}/</td>
+                    <td>{thread.title}</td>
+                    <td>{thread.postsCount}</td>
+
+                    <td>
+                      {thread.isDeleted ? (
+                        <span className="admin-pill admin-pill-danger">Удален</span>
+                      ) : thread.isLocked ? (
+                        <span className="admin-pill admin-pill-warning">Заблокирован</span>
+                      ) : (
+                        <span className="admin-pill admin-pill-success">Активен</span>
+                      )}
+                    </td>
+
+                    <td>
+                      <ActionRow>
+                        {!thread.isDeleted && (
+                          <button className="admin-btn admin-btn-warning" onClick={() => softDeleteMutation.mutate(thread.id)}>
+                            <Icon name="delete" size={14} />
+                            Мягко удалить
+                          </button>
+                        )}
+
+                        {thread.isDeleted && (
+                          <button className="admin-btn admin-btn-neutral" onClick={() => restoreMutation.mutate(thread.id)}>
+                            <Icon name="refresh" size={14} />
+                            Восстановить
+                          </button>
+                        )}
+
+                        <button className="admin-btn admin-btn-danger" onClick={() => handleHardDelete(thread.id)}>
+                          <Icon name="hammer" size={14} />
+                          Жестко удалить
+                        </button>
+
+                        <button
+                          className="admin-btn admin-btn-neutral"
+                          onClick={() => (thread.isLocked ? unlockMutation.mutate(thread.id) : lockMutation.mutate(thread.id))}
+                        >
+                          <Icon name={thread.isLocked ? "unlock" : "lock"} size={14} />
+                          {thread.isLocked ? "Разблокировать" : "Заблокировать"}
+                        </button>
+
+                        <Link className="threads-page__link-btn" to={`/threads/${thread.id}/posts`}>
+                          <Icon name="posts" size={14} />
+                          Посты
+                        </Link>
+                      </ActionRow>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+
+        <LoadMoreBar hasNextPage={hasNextPage} isFetching={isFetching} onLoadMore={() => fetchNextPage()} />
+      </div>
+    </section>
+  );
 };

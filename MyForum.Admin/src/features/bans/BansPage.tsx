@@ -1,238 +1,198 @@
-import {
-    useInfiniteQuery,
-    useMutation,
-    useQueryClient,
-    type InfiniteData,
+﻿import {
+  useInfiniteQuery,
+  useMutation,
+  useQueryClient,
+  type InfiniteData,
 } from "@tanstack/react-query";
 import { useState } from "react";
 import { bansApi } from "./bansApi";
 import type { Ban } from "../../types/ban";
+import { Icon } from "../../components/ui/Icon";
+import { PageHeader } from "../../components/ui/PageHeader";
+import { ActionRow } from "../../components/ui/ActionRow";
+import { LoadMoreBar } from "../../components/ui/LoadMoreBar";
+import "./BansPage.css";
 
 export const BansPage = () => {
-    const queryClient = useQueryClient();
+  const queryClient = useQueryClient();
 
-    const [statusFilter, setStatusFilter] = useState<"active" | "expired" | "revoked" | undefined>();
-    const [boardShortNameFilter, setBoardShortNameFilter] = useState<string | undefined>();
+  const [statusFilter, setStatusFilter] = useState<"active" | "expired" | "revoked" | undefined>();
+  const [boardShortNameFilter, setBoardShortNameFilter] = useState<string | undefined>();
 
-    const {
-        data,
-        fetchNextPage,
-        hasNextPage,
-        isFetching,
-    } = useInfiniteQuery<
-        Ban[],
-        Error,
-        InfiniteData<Ban[], number | undefined>,
-        ["bans", string | undefined, string | undefined],
-        number | undefined
-    >({
-        queryKey: ["bans", statusFilter, boardShortNameFilter],
+  const [ipHash, setIpHash] = useState("");
+  const [boardId, setBoardId] = useState<number | undefined>();
+  const [reason, setReason] = useState("");
+  const [expiresAt, setExpiresAt] = useState("");
 
-        queryFn: ({ pageParam }) =>
-            bansApi.getAll({
-                limit: 50,
-                beforeId: pageParam,
-                status: statusFilter,
-                boardShortName: boardShortNameFilter,
-            }),
+  const { data, fetchNextPage, hasNextPage, isFetching } = useInfiniteQuery<
+    Ban[],
+    Error,
+    InfiniteData<Ban[], number | undefined>,
+    ["bans", string | undefined, string | undefined],
+    number | undefined
+  >({
+    queryKey: ["bans", statusFilter, boardShortNameFilter],
+    queryFn: ({ pageParam }) =>
+      bansApi.getAll({
+        limit: 50,
+        beforeId: pageParam,
+        status: statusFilter,
+        boardShortName: boardShortNameFilter,
+      }),
+    initialPageParam: undefined,
+    getNextPageParam: (lastPage) => {
+      if (lastPage.length === 0) return undefined;
+      return lastPage[lastPage.length - 1].id;
+    },
+  });
 
-        initialPageParam: undefined,
+  const invalidate = () =>
+    queryClient.invalidateQueries({ queryKey: ["bans"] });
 
-        getNextPageParam: (lastPage) => {
-            if (lastPage.length === 0) return undefined;
-            return lastPage[lastPage.length - 1].id;
-        },
-    });
+  const createMutation = useMutation({ mutationFn: bansApi.create, onSuccess: invalidate });
+  const unbanMutation = useMutation({ mutationFn: bansApi.unban, onSuccess: invalidate });
 
-    const invalidate = () =>
-        queryClient.invalidateQueries({ queryKey: ["bans"] });
+  const bans = data?.pages.flat() ?? [];
 
-    const createMutation = useMutation({
-        mutationFn: bansApi.create,
-        onSuccess: invalidate,
-    });
+  const handleCreate = async () => {
+    if (!ipHash || !reason) {
+      alert("IP Hash и причина обязательны");
+      return;
+    }
 
-    const unbanMutation = useMutation({
-        mutationFn: bansApi.unban,
-        onSuccess: invalidate,
-    });
+    try {
+      await createMutation.mutateAsync({
+        ipHash,
+        boardId,
+        reason,
+        expiresAt: expiresAt || undefined,
+      });
 
-    const bans = data?.pages.flat() ?? [];
+      setIpHash("");
+      setBoardId(undefined);
+      setReason("");
+      setExpiresAt("");
+    } catch (err: any) {
+      alert(err?.response?.data?.message ?? "Не удалось создать бан");
+    }
+  };
 
-    const [ipHash, setIpHash] = useState("");
-    const [boardId, setBoardId] = useState<number | undefined>();
-    const [reason, setReason] = useState("");
-    const [expiresAt, setExpiresAt] = useState("");
+  return (
+    <section className="admin-page bans-page">
+      <PageHeader
+        icon="bans"
+        title="Баны"
+        subtitle="История банов, фильтрация по статусам и ручное создание"
+      />
 
-    const handleCreate = async () => {
-        if (!ipHash || !reason) {
-            alert("IP Hash и причина обязательны");
-            return;
-        }
+      <div className="bans-page__grid">
+        <div className="admin-card bans-page__create-card">
+          <h3 className="bans-page__create-title">
+            <Icon name="plus" size={16} />
+            Создать бан
+          </h3>
 
-        await createMutation.mutateAsync({
-            ipHash,
-            boardId,
-            reason,
-            expiresAt: expiresAt || undefined,
-        });
+          <input className="admin-field" placeholder="IP Hash" value={ipHash} onChange={(e) => setIpHash(e.target.value)} />
+          <input
+            className="admin-field"
+            placeholder="Board ID (опционально)"
+            type="number"
+            value={boardId ?? ""}
+            onChange={(e) => setBoardId(e.target.value ? Number(e.target.value) : undefined)}
+          />
+          <textarea className="admin-textarea" placeholder="Причина" value={reason} onChange={(e) => setReason(e.target.value)} rows={3} />
+          <input
+            className="admin-field"
+            type="datetime-local"
+            value={expiresAt ? new Date(expiresAt).toISOString().slice(0, 16) : ""}
+            onChange={(e) => setExpiresAt(e.target.value ? new Date(e.target.value).toISOString() : "")}
+          />
 
-        setIpHash("");
-        setBoardId(undefined);
-        setReason("");
-        setExpiresAt("");
-    };
+          <button className="admin-btn admin-btn-primary" onClick={handleCreate} disabled={createMutation.isPending}>
+            <Icon name="shield" size={15} />
+            {createMutation.isPending ? "Создание..." : "Забанить"}
+          </button>
+        </div>
 
-    return (
-        <div style={{ padding: 20 }}>
-            <h2>Баны</h2>
-
-            <div style={{ marginBottom: 20 }}>
-                <select
-                    onChange={(e) =>
-                        setStatusFilter(
-                            e.target.value === ""
-                                ? undefined
-                                : (e.target.value as any)
-                        )
-                    }
-                >
-                    <option value="">Все</option>
-                    <option value="active">Активные</option>
-                    <option value="expired">Истёкшие</option>
-                    <option value="revoked">Снятые</option>
-                </select>
-
-                <input
-                    placeholder="Короткое имя доски"
-                    onChange={(e) =>
-                        setBoardShortNameFilter(
-                            e.target.value
-                                ? e.target.value
-                                : undefined
-                        )
-                    }
-                />
-            </div>
-
-            <div
-                style={{
-                    border: "1px solid #ccc",
-                    padding: 10,
-                    marginBottom: 20,
-                }}
+        <div className="admin-card bans-page__table-card">
+          <div className="admin-toolbar">
+            <select
+              className="admin-select"
+              onChange={(e) => setStatusFilter(e.target.value === "" ? undefined : (e.target.value as "active" | "expired" | "revoked"))}
             >
-                <h4>Создать бан</h4>
+              <option value="">Статус: все</option>
+              <option value="active">Активные</option>
+              <option value="expired">Истекшие</option>
+              <option value="revoked">Снятые</option>
+            </select>
 
-                <input
-                    placeholder="IP Hash"
-                    value={ipHash}
-                    onChange={(e) => setIpHash(e.target.value)}
-                />
+            <input
+              className="admin-field"
+              placeholder="Фильтр по короткому имени доски"
+              onChange={(e) => setBoardShortNameFilter(e.target.value ? e.target.value : undefined)}
+            />
+          </div>
 
-                <input
-                    placeholder="BoardId (опционально)"
-                    type="number"
-                    onChange={(e) =>
-                        setBoardId(
-                            e.target.value
-                                ? Number(e.target.value)
-                                : undefined
-                        )
-                    }
-                />
-
-                <input
-                    placeholder="Причина"
-                    value={reason}
-                    onChange={(e) => setReason(e.target.value)}
-                />
-
-                <input
-                    type="datetime-local"
-                    onChange={(e) =>
-                        setExpiresAt(
-                            e.target.value
-                                ? new Date(e.target.value).toISOString()
-                                : ""
-                        )
-                    }
-                />
-
-                <button onClick={handleCreate}>
-                    Забанить
-                </button>
-            </div>
-
-            <table width="100%" border={1} cellPadding={6}>
+          {bans.length === 0 && !isFetching ? (
+            <div className="admin-empty">Баны не найдены</div>
+          ) : (
+            <div className="admin-table-wrap">
+              <table className="admin-table">
                 <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>IP Hash</th>
-                        <th>Доска</th>
-                        <th>Причина</th>
-                        <th>Статус</th>
-                        <th>Срок действия</th>
-                        <th>Забанен</th>
-                        <th>Действие</th>
-                    </tr>
+                  <tr>
+                    <th>ID</th>
+                    <th>IP Hash</th>
+                    <th>Доска</th>
+                    <th>Причина</th>
+                    <th>Статус</th>
+                    <th>Срок</th>
+                    <th>Забанен</th>
+                    <th>Действие</th>
+                  </tr>
                 </thead>
 
                 <tbody>
-                    {bans.map((b) => (
-                        <tr
-                            key={b.id}
-                            style={{
-                                opacity: b.isCurrentlyActive
-                                    ? 1
-                                    : 0.5,
-                                backgroundColor: b.isExpired
-                                    ? "#fff3cd"
-                                    : undefined,
-                            }}
-                        >
-                            <td>{b.id}</td>
-                            <td>{b.ipAddressHash}</td>
-                            <td>{b.boardShortName ?? "Глобальный"}</td>
-                            <td>{b.reason}</td>
-                            <td>
-                                {b.isCurrentlyActive && "Активен"}
-                                {b.isExpired && "Истекший"}
-                                {!b.isActive && "Отменено"}
-                            </td>
-                            <td>
-                                {b.expiresAt
-                                    ? new Date(b.expiresAt).toLocaleString()
-                                    : "Никогда"}
-                            </td>
-                            <td>
-                                {new Date(b.bannedAt).toLocaleString()}
-                            </td>
-                            <td>
-                                {b.isActive && (
-                                    <button
-                                        onClick={() =>
-                                            unbanMutation.mutate(b.id)
-                                        }
-                                    >
-                                        Разбанить
-                                    </button>
-                                )}
-                            </td>
-                        </tr>
-                    ))}
+                  {bans.map((ban) => {
+                    const rowClass = `${ban.isCurrentlyActive ? "" : "bans-page__row-muted"} ${ban.isExpired ? "bans-page__row-expired" : ""}`.trim();
+
+                    return (
+                      <tr key={ban.id} className={rowClass || undefined}>
+                        <td>{ban.id}</td>
+                        <td>{ban.ipAddressHash}</td>
+                        <td>{ban.boardShortName ?? "Глобальный"}</td>
+                        <td>{ban.reason}</td>
+                        <td>
+                          {ban.isCurrentlyActive ? (
+                            <span className="admin-pill admin-pill-success">Активен</span>
+                          ) : ban.isExpired ? (
+                            <span className="admin-pill admin-pill-warning">Истек</span>
+                          ) : (
+                            <span className="admin-pill admin-pill-danger">Снят</span>
+                          )}
+                        </td>
+                        <td>{ban.expiresAt ? new Date(ban.expiresAt).toLocaleString() : "Никогда"}</td>
+                        <td>{new Date(ban.bannedAt).toLocaleString()}</td>
+                        <td>
+                          {ban.isActive && (
+                            <ActionRow>
+                              <button className="admin-btn admin-btn-danger" onClick={() => unbanMutation.mutate(ban.id)}>
+                                <Icon name="unlock" size={14} />
+                                Разбанить
+                              </button>
+                            </ActionRow>
+                          )}
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
-            </table>
+              </table>
+            </div>
+          )}
 
-            <br />
-
-            {hasNextPage && (
-                <button onClick={() => fetchNextPage()}>
-                    Загрузить ещё
-                </button>
-            )}
-
-            {isFetching && <p>Loading...</p>}
+          <LoadMoreBar hasNextPage={hasNextPage} isFetching={isFetching} onLoadMore={() => fetchNextPage()} />
         </div>
-    );
+      </div>
+    </section>
+  );
 };

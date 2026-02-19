@@ -1,0 +1,45 @@
+﻿.boards-page__grid {
+  display: grid;
+  grid-template-columns: minmax(280px, 360px) 1fr;
+  gap: 1rem;
+}
+
+.boards-page__form {
+  padding: 1rem;
+  display: grid;
+  gap: 0.75rem;
+  align-content: start;
+}
+
+.boards-page__form-title {
+  display: inline-flex;
+  gap: 0.45rem;
+  align-items: center;
+  font-size: 1rem;
+}
+
+.boards-page__actions {
+  display: flex;
+  gap: 0.55rem;
+  flex-wrap: wrap;
+}
+
+.boards-page__table-card {
+  padding: 0.9rem;
+}
+
+.boards-page__row-actions {
+  display: flex;
+  gap: 0.45rem;
+  flex-wrap: wrap;
+}
+
+.boards-page__row-hidden {
+  opacity: 0.62;
+}
+
+@media (max-width: 1120px) {
+  .boards-page__grid {
+    grid-template-columns: 1fr;
+  }
+}

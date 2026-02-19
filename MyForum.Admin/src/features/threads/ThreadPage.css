@@ -1,0 +1,21 @@
+﻿.threads-page__table-card {
+  padding: 0.9rem;
+}
+
+.threads-page__deleted {
+  opacity: 0.6;
+}
+
+.threads-page__link-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  border-radius: var(--radius-md);
+  padding: 0.62rem 0.82rem;
+  color: #fff;
+  background: linear-gradient(135deg, #365f8d, #27486b);
+}
+
+.threads-page__link-btn:hover {
+  opacity: 0.93;
+}

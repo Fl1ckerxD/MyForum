@@ -1,0 +1,26 @@
+.ban-post-modal__body {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.ban-post-modal__field {
+  display: grid;
+  gap: 0.3rem;
+}
+
+.ban-post-modal__label {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.ban-post-modal__checkbox-label {
+  display: inline-flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.ban-post-modal__actions {
+  margin-top: 0.85rem;
+  display: flex;
+  gap: 0.5rem;
+}
