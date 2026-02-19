@@ -21,4 +21,13 @@ export const postsApi = {
   restore: (id: number) => api.post(`/admin/posts/${id}/restore`),
 
   hardDelete: (id: number) => api.delete(`/admin/posts/${id}/delete`),
+
+  ban: (
+    id: number,
+    data: {
+      boardId?: number;
+      reason: string;
+      expiresAt?: string;
+    },
+  ) => api.post(`/admin/posts/${id}/ban`, data),
 };

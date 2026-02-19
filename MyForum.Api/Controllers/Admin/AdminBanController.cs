@@ -1,7 +1,9 @@
 using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using MyForum.Api.Core.DTOs;
 using MyForum.Api.Core.DTOs.Requests;
+using MyForum.Api.Core.Exceptions;
 using MyForum.Api.Core.Interfaces.Services;
 
 namespace MyForum.Api.Controllers.Admin
@@ -20,6 +22,31 @@ namespace MyForum.Api.Controllers.Admin
             _banService = banService;
             _logger = logger;
             _createBanRequestValidator = createBanRequestValidator;
+        }
+
+        [HttpGet]
+        public async Task<ActionResult<IReadOnlyList<BanDto>>> Get(
+            [FromQuery] int limit = 50,
+            [FromQuery] int? beforeId = null,
+            [FromQuery] string? status = null,
+            [FromQuery] string? boardShortName = null,
+            CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                var bans = await _banService.GetBansAsync(limit, beforeId, status, boardShortName, cancellationToken);
+                return Ok(bans);
+            }
+            catch (ArgumentException ex)
+            {
+                _logger.LogWarning(ex, "Неверные параметры фильтра блокировки: {Status}, {BoardShortName}", status, boardShortName);
+                return BadRequest(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Ошибка при получении списка банов");
+                return StatusCode(StatusCodes.Status500InternalServerError, "Внутренняя ошибка сервера");
+            }
         }
 
         [HttpPost]
@@ -46,9 +73,18 @@ namespace MyForum.Api.Controllers.Admin
             }
             catch (ArgumentNullException ex)
             {
-                _logger.LogWarning(ex, "Неверные параметры запроса при создании бана: {IpHash}, {BoardId}",
-                                request.IpHash, request.BoardId);
+                _logger.LogWarning(ex, "Неверные параметры запроса при создании бана: {IpHash}, {BoardId}", request.IpHash, request.BoardId);
                 return BadRequest(new { error = "invalid_request", message = ex.Message });
+            }
+            catch (ArgumentException ex)
+            {
+                _logger.LogWarning(ex, "Неверные параметры запроса при создании бана: {IpHash}, {BoardId}", request.IpHash, request.BoardId);
+                return BadRequest(new { error = "invalid_request", message = ex.Message });
+            }
+            catch (UserAlreadyBannedException ex)
+            {
+                _logger.LogWarning(ex, "Повторная попытка блокировки: {IpHash}, {BoardId}", request.IpHash, request.BoardId);
+                return Conflict(new { error = "already_banned", message = ex.Message });
             }
             catch (Exception ex)
             {

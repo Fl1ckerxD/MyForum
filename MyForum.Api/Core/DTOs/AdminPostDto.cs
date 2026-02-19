@@ -4,6 +4,7 @@ namespace MyForum.Api.Core.DTOs
     {
         public int Id { get; set; }
         public int ThreadId { get; set; }
+        public int BoardId { get; set; }
         public bool IsOriginal { get; set; }
 
         public string Author { get; set; } = null!;

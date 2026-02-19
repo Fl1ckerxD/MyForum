@@ -50,6 +50,7 @@ namespace MyForum.Api.Infrastructure.Services
             {
                 Id = p.Id,
                 ThreadId = p.ThreadId,
+                BoardId = p.Thread.BoardId,
                 IsOriginal = p.IsOriginal,
                 Author = p.AuthorName,
                 Content = p.Content,

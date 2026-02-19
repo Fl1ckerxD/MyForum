@@ -6,6 +6,7 @@ import { ThreadsPage } from "./features/threads/ThreadPage";
 import { ProtectedRoute } from "./features/auth/ProtectedRoute";
 import './App.css'
 import { PostsPage } from "./features/posts/PostsPage";
+import { BansPage } from "./features/bans/BansPage";
 
 function App() {
   return (
@@ -19,7 +20,7 @@ function App() {
               <Route path="/boards" element={<BoardsPage />} />
               <Route path="/threads" element={<ThreadsPage />} />
               <Route path="/threads/:threadId/posts" element={<PostsPage />} />
-              <Route path="/bans" element={<div>Boards page</div>} />
+              <Route path="/bans" element={<BansPage />} />
             </Route>
           </Route>
         </Routes>

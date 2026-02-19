@@ -35,6 +35,7 @@ namespace MyForum.Api.Infrastructure.Repositories
 
             var query = _context.Posts
                 .IgnoreQueryFilters()
+                .Include(p => p.Thread)
                 .Where(p => p.ThreadId == threadId);
 
             if (afterId.HasValue)
@@ -47,7 +48,7 @@ namespace MyForum.Api.Infrastructure.Repositories
                 query = query.Where(p => p.IsDeleted == isDeleted.Value);
 
             return await query
-                .OrderBy(p => p.CreatedAt)
+                .OrderBy(p => p.Id)
                 .Take(limit)
                 .ToListAsync(cancellationToken);
         }

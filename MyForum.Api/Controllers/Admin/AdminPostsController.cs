@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MyForum.Api.Core.DTOs;
+using MyForum.Api.Core.DTOs.Requests;
+using MyForum.Api.Core.Exceptions;
 using MyForum.Api.Core.Interfaces.Services;
 
 namespace MyForum.Api.Controllers.Admin
@@ -11,12 +13,14 @@ namespace MyForum.Api.Controllers.Admin
     public class AdminPostsController : ControllerBase
     {
         private readonly IAdminPostService _postService;
+        private readonly IBanService _banService;
         private readonly ILogger<AdminPostsController> _logger;
 
-        public AdminPostsController(IAdminPostService postService, ILogger<AdminPostsController> logger)
+        public AdminPostsController(IAdminPostService postService, ILogger<AdminPostsController> logger, IBanService banService)
         {
             _postService = postService;
             _logger = logger;
+            _banService = banService;
         }
 
         [HttpGet("thread/{threadId:int}")]
@@ -103,6 +107,46 @@ namespace MyForum.Api.Controllers.Admin
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Ошибка при удалении поста с ID: {PostId}", id);
+                return StatusCode(StatusCodes.Status500InternalServerError, "Внутренняя ошибка сервера");
+            }
+        }
+
+        [HttpPost("{id:int}/ban")]
+        public async Task<IActionResult> BanPost(
+            int id,
+            [FromBody] CreatePostBanRequest request,
+            CancellationToken cancellationToken)
+        {
+            try
+            {
+                await _banService.BanAsync(
+                    id,
+                    request.BoardId,
+                    request.Reason,
+                    request.ExpiresAt,
+                    cancellationToken);
+
+                return Ok();
+            }
+            catch (ArgumentNullException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+            catch (UserAlreadyBannedException ex)
+            {
+                return Conflict(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Ошибка при бане автора поста {PostId}", id);
                 return StatusCode(StatusCodes.Status500InternalServerError, "Внутренняя ошибка сервера");
             }
         }

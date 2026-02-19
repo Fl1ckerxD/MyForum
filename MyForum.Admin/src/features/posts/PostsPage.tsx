@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom";
 import { postsApi } from "./postsApi";
 import type { AdminPostDto } from "../../types/post";
 import { useEffect, useState } from "react";
+import ReactDOM from "react-dom";
 
 export const PostsPage = () => {
     const { threadId } = useParams();
@@ -14,6 +15,31 @@ export const PostsPage = () => {
     const [searchInput, setSearchInput] = useState("");
     const [search, setSearch] = useState("");
     const [deletedFilter, setDeletedFilter] = useState<boolean | undefined>();
+
+    const [banPostId, setBanPostId] = useState<number | null>(null);
+    const [banBoardId, setBanBoardId] = useState<number | undefined>();
+    const [banReason, setBanReason] = useState("");
+    const [banExpiresAt, setBanExpiresAt] = useState("");
+    const [banBoardOnly, setBanBoardOnly] = useState(true);
+
+    const modalOverlayStyle: React.CSSProperties = {
+        position: "fixed",
+        top: 0,
+        left: 0,
+        width: "100vw",
+        height: "100vh",
+        background: "rgba(0,0,0,0.5)",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        zIndex: 1000,
+    };
+
+    const modalStyle: React.CSSProperties = {
+        background: "#242424",
+        padding: 20,
+        width: 400,
+    };
 
     useEffect(() => {
         const timeout = setTimeout(() => {
@@ -70,6 +96,55 @@ export const PostsPage = () => {
         mutationFn: postsApi.hardDelete,
         onSuccess: invalidate,
     });
+
+    const banMutation = useMutation({
+        mutationFn: ({
+            id,
+            data,
+        }: {
+            id: number;
+            data: {
+                boardId?: number;
+                reason: string;
+                expiresAt?: string;
+            };
+        }) => postsApi.ban(id, data),
+
+        onSuccess: () => {
+            setBanPostId(null);
+            setBanReason("");
+            setBanExpiresAt("");
+            setBanBoardOnly(true);
+        },
+    });
+
+    const openBanModal = (post: AdminPostDto) => {
+        setBanPostId(post.id);
+        setBanBoardId(post.boardId);
+        setBanBoardOnly(true);
+    };
+
+    const handleBanSubmit = async () => {
+        if (!banPostId) return;
+
+        if (!banReason.trim()) {
+            alert("Причина обязательна");
+            return;
+        }
+
+        try {
+            await banMutation.mutateAsync({
+                id: banPostId,
+                data: {
+                    boardId: banBoardOnly ? banBoardId : undefined,
+                    reason: banReason,
+                    expiresAt: banExpiresAt || undefined,
+                },
+            });
+        } catch (err: any) {
+            alert(err?.response?.data?.message ?? "Ошибка бана");
+        }
+    };
 
     if (!isValidThreadId) {
         return (
@@ -152,6 +227,10 @@ export const PostsPage = () => {
                                 <button onClick={() => handleHardDelete(p.id)}>
                                     Жесткое удаление
                                 </button>
+
+                                <button onClick={() => openBanModal(p)}>
+                                    Бан
+                                </button>
                             </td>
                         </tr>
                     ))}
@@ -167,6 +246,62 @@ export const PostsPage = () => {
             )}
 
             {isFetching && <p>Loading...</p>}
+
+            {banPostId &&
+                ReactDOM.createPortal(
+                    <div style={modalOverlayStyle}>
+                        <div style={modalStyle}>
+                            <h3>Бан пользователя (Post #{banPostId})</h3>
+
+                            <div>
+                                <label>Причина *</label>
+                                <textarea
+                                    value={banReason}
+                                    onChange={(e) => setBanReason(e.target.value)}
+                                    rows={3}
+                                />
+                            </div>
+
+                            <div>
+                                <label>Срок (необязательно)</label>
+                                <input
+                                    type="datetime-local"
+                                    onChange={(e) =>
+                                        setBanExpiresAt(
+                                            e.target.value
+                                                ? new Date(e.target.value).toISOString()
+                                                : ""
+                                        )
+                                    }
+                                />
+                            </div>
+
+                            <div>
+                                <label>
+                                    <input
+                                        type="checkbox"
+                                        checked={banBoardOnly}
+                                        onChange={(e) =>
+                                            setBanBoardOnly(e.target.checked)
+                                        }
+                                    />
+                                    Только для этой доски
+                                </label>
+                            </div>
+
+                            <br />
+
+                            <button onClick={handleBanSubmit}>
+                                Подтвердить бан
+                            </button>
+
+                            <button onClick={() => setBanPostId(null)}>
+                                Отмена
+                            </button>
+                        </div>
+                    </div>,
+                    document.body
+                )}
         </div>
     );
 };
