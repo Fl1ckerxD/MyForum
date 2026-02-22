@@ -1,4 +1,4 @@
-﻿import { useState } from "react";
+﻿import { useEffect, useState } from "react";
 import {
   type InfiniteData,
   useInfiniteQuery,
@@ -7,7 +7,7 @@ import {
 } from "@tanstack/react-query";
 import { threadsApi } from "./threadsApi";
 import type { AdminThreadDto } from "../../types/thread";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { Icon } from "../../components/Icon";
 import { PageHeader } from "../../components/PageHeader";
 import { ActionRow } from "../../components/ActionRow";
@@ -17,11 +17,15 @@ import "./ThreadPage.css";
 
 export const ThreadsPage = () => {
   const queryClient = useQueryClient();
+  const [searchParams] = useSearchParams();
 
   const [search, setSearch] = useState("");
-  const [board, setBoard] = useState<string | undefined>();
+  const [board, setBoard] = useState<string | undefined>(
+    searchParams.get("board") ?? undefined
+  );
   const [isDeleted, setIsDeleted] = useState<boolean | undefined>();
   const [isLocked, setIsLocked] = useState<boolean | undefined>();
+
 
   const { data, fetchNextPage, hasNextPage, isFetching } = useInfiniteQuery<
     AdminThreadDto[],
@@ -64,6 +68,10 @@ export const ThreadsPage = () => {
     if (!confirm("Удалить этот тред?")) return;
     await hardDeleteMutation.mutateAsync(id);
   };
+
+  useEffect(() => {
+    setBoard(searchParams.get("board") ?? undefined);
+  }, [searchParams]);
 
   return (
     <section className="admin-page threads-page">

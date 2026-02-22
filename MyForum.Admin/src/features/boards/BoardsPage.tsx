@@ -6,6 +6,7 @@ import { Icon } from "../../components/Icon";
 import { PageHeader } from "../../components/PageHeader";
 import { ActionRow } from "../../components/ActionRow";
 import "./BoardsPage.css";
+import { Link } from "react-router-dom";
 
 type HiddenFilter = "" | "true" | "false";
 
@@ -179,6 +180,10 @@ export const BoardsPage = () => {
                       <td>{new Date(board.createdAt).toLocaleString()}</td>
                       <td>
                         <ActionRow className="boards-page__row-actions">
+                          <Link className="admin-btn admin-btn-nav" to={`/threads?board=${board.shortName}`}>
+                            <Icon name="threads" size={14} />
+                            Треды
+                          </Link>
                           <button className="admin-btn admin-btn-neutral" onClick={() => handleEdit(board)}>
                             <Icon name="edit" size={14} />
                             Редактировать
