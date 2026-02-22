@@ -2,9 +2,9 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { Board } from "../../types/board";
 import { boardsApi } from "./boardsApi";
-import { Icon } from "../../components/ui/Icon";
-import { PageHeader } from "../../components/ui/PageHeader";
-import { ActionRow } from "../../components/ui/ActionRow";
+import { Icon } from "../../components/Icon";
+import { PageHeader } from "../../components/PageHeader";
+import { ActionRow } from "../../components/ActionRow";
 import "./BoardsPage.css";
 
 type HiddenFilter = "" | "true" | "false";

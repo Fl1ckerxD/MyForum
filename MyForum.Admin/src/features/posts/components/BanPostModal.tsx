@@ -1,5 +1,5 @@
-import { Modal } from "../../../components/ui/Modal";
-import { Icon } from "../../../components/ui/Icon";
+import { Modal } from "../../../components/Modal";
+import { Icon } from "../../../components/Icon";
 import "./BanPostModal.css";
 
 type BanPostModalProps = {

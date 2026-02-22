@@ -30,6 +30,10 @@
   --warning: #ffcc7a;
   --warning-bg: #4a3d2a;
   --warning-bg-hover: #857255;
+  --navigate-bg: #3b83f6;
+  --navigate-bg-hover: #6ca3fb;
+  --pin-bg: #f59f0b;
+  --pin-bg-hover: #fab847;
   --shadow: none;
   --radius-xl: 20px;
   --radius-lg: 14px;
@@ -203,6 +207,33 @@ textarea {
 
 .admin-btn-warning:hover {
   background: var(--warning-bg-hover);
+}
+
+.admin-btn-success {
+  background: var(--success-bg);
+  color: var(--success);
+}
+
+.admin-btn-success:hover {
+  background: #355c4d;
+}
+
+.admin-btn-nav {
+  background: var(--navigate-bg);
+  color: var(--text-main);
+}
+
+.admin-btn-nav:hover {
+  background: var(--navigate-bg-hover);
+}
+
+.admin-btn-pin {
+  background: var(--pin-bg);
+  color: var(--text-main);
+}
+
+.admin-btn-pin:hover {
+  background: var(--pin-bg-hover);
 }
 
 .admin-table-wrap {

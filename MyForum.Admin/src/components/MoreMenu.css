@@ -1,0 +1,38 @@
+.more-menu {
+  position: relative;
+}
+
+.more-menu__trigger {
+  list-style: none;
+}
+
+.more-menu__trigger::-webkit-details-marker {
+  display: none;
+}
+
+.more-menu__panel {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 0.35rem);
+  z-index: 10;
+  display: grid;
+  gap: 0.35rem;
+  min-width: 11.5rem;
+  padding: 0.45rem;
+  border: 1px solid var(--muted);
+  border-radius: var(--radius-md);
+  background: var(--bg-surface-soft);
+  box-shadow: var(--shadow);
+}
+
+.more-menu__panel > * {
+  width: 100%;
+  justify-content: flex-start;
+}
+
+@media (max-width: 900px) {
+  .more-menu__panel {
+    left: 0;
+    right: auto;
+  }
+}

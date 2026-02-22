@@ -118,6 +118,42 @@ namespace MyForum.Api.Infrastructure.Services
             await _uow.SaveAsync(cancellationToken);
         }
 
+        /// <summary>
+        /// Закрепление темы. Закрепленные темы будут отображаться вверху списка.
+        /// </summary>
+        public async Task PinAsync(int threadId, CancellationToken cancellationToken)
+        {
+            var thread = await _uow.Threads.GetByIdAsync(threadId, cancellationToken);
+
+            if (thread == null)
+                throw new KeyNotFoundException("Тред не найден");
+
+            if (thread.IsPinned)
+                return;
+
+            thread.IsPinned = true;
+
+            await _uow.SaveAsync(cancellationToken);
+        }
+
+        /// <summary>
+        /// Открепление темы.
+        /// </summary>
+        public async Task UnpinAsync(int threadId, CancellationToken cancellationToken)
+        {
+            var thread = await _uow.Threads.GetByIdAsync(threadId, cancellationToken);
+
+            if (thread == null)
+                throw new KeyNotFoundException("Тред не найден");
+
+            if (!thread.IsPinned)
+                return;
+
+            thread.IsPinned = false;
+
+            await _uow.SaveAsync(cancellationToken);
+        }
+
         private static AdminThreadDto MapToDto(Thread thread)
         {
             return new AdminThreadDto
@@ -127,6 +163,7 @@ namespace MyForum.Api.Infrastructure.Services
                 Title = thread.Subject,
                 PostsCount = thread.PostCount,
                 IsLocked = thread.IsLocked,
+                IsPinned = thread.IsPinned,
                 IsDeleted = thread.IsDeleted,
                 CreatedAt = thread.CreatedAt,
                 LastBumpAt = thread.LastBumpAt

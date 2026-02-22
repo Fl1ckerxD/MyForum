@@ -8,8 +8,9 @@ namespace MyForum.Api.Core.DTOs
         public int PostsCount { get; init; }
 
         public bool IsLocked { get; init; }
+        public bool IsPinned { get; init; }
         public bool IsDeleted { get; init; }
-        public DateTime? DeletedAt { get; set; }
+        public DateTime? DeletedAt { get; init; }
 
         public DateTime CreatedAt { get; init; }
         public DateTime LastBumpAt { get; init; }

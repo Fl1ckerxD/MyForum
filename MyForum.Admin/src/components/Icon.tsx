@@ -20,6 +20,8 @@ import {
   Search,
   Shield,
   Trash2,
+  Pin,
+  PinOff
 } from "lucide-react";
 
 export type IconName =
@@ -42,7 +44,9 @@ export type IconName =
   | "calendar"
   | "warning"
   | "hammer"
-  | "shield";
+  | "shield"
+  | "pin"
+  | "unpin";
 
 interface IconProps extends LucideProps {
   name: IconName;
@@ -70,6 +74,8 @@ const iconMap: Record<IconName, LucideIcon> = {
   warning: AlertTriangle,
   hammer: Hammer,
   shield: Shield,
+  pin: Pin,
+  unpin: PinOff
 };
 
 export const Icon = ({ name, size = 18, ...props }: IconProps) => {

@@ -8,10 +8,11 @@ import {
 import { threadsApi } from "./threadsApi";
 import type { AdminThreadDto } from "../../types/thread";
 import { Link } from "react-router-dom";
-import { Icon } from "../../components/ui/Icon";
-import { PageHeader } from "../../components/ui/PageHeader";
-import { ActionRow } from "../../components/ui/ActionRow";
-import { LoadMoreBar } from "../../components/ui/LoadMoreBar";
+import { Icon } from "../../components/Icon";
+import { PageHeader } from "../../components/PageHeader";
+import { ActionRow } from "../../components/ActionRow";
+import { MoreMenu } from "../../components/MoreMenu";
+import { LoadMoreBar } from "../../components/LoadMoreBar";
 import "./ThreadPage.css";
 
 export const ThreadsPage = () => {
@@ -54,6 +55,8 @@ export const ThreadsPage = () => {
   const restoreMutation = useMutation({ mutationFn: threadsApi.restore, onSuccess: invalidate });
   const lockMutation = useMutation({ mutationFn: threadsApi.lock, onSuccess: invalidate });
   const unlockMutation = useMutation({ mutationFn: threadsApi.unlock, onSuccess: invalidate });
+  const pinMutation = useMutation({ mutationFn: threadsApi.pin, onSuccess: invalidate });
+  const unpinMutation = useMutation({ mutationFn: threadsApi.unpin, onSuccess: invalidate });
 
   const threads = data?.pages.flat() ?? [];
 
@@ -140,37 +143,45 @@ export const ThreadsPage = () => {
 
                     <td>
                       <ActionRow>
-                        {!thread.isDeleted && (
-                          <button className="admin-btn admin-btn-warning" onClick={() => softDeleteMutation.mutate(thread.id)}>
-                            <Icon name="delete" size={14} />
-                            Мягко удалить
-                          </button>
-                        )}
+                        <Link className="admin-btn admin-btn-nav" to={`/threads/${thread.id}/posts`}>
+                          <Icon name="posts" size={14} />
+                          Посты
+                        </Link>
 
-                        {thread.isDeleted && (
-                          <button className="admin-btn admin-btn-neutral" onClick={() => restoreMutation.mutate(thread.id)}>
-                            <Icon name="refresh" size={14} />
-                            Восстановить
-                          </button>
-                        )}
-
-                        <button className="admin-btn admin-btn-danger" onClick={() => handleHardDelete(thread.id)}>
-                          <Icon name="hammer" size={14} />
-                          Жестко удалить
+                        <button
+                          className={`admin-btn ${thread.isPinned ? "admin-btn-pin" : "admin-btn-warning"}`}
+                          onClick={() => (thread.isPinned ? unpinMutation.mutate(thread.id) : pinMutation.mutate(thread.id))}
+                        >
+                          <Icon
+                            name="pin"
+                            size={14}
+                            fill={thread.isPinned ? "currentColor" : "none"}
+                          />
+                          {thread.isPinned ? "Открепить" : "Закрепить"}
                         </button>
 
                         <button
-                          className="admin-btn admin-btn-neutral"
+                          className={`admin-btn ${thread.isLocked ? "admin-btn-success" : "admin-btn-warning"}`}
                           onClick={() => (thread.isLocked ? unlockMutation.mutate(thread.id) : lockMutation.mutate(thread.id))}
                         >
                           <Icon name={thread.isLocked ? "unlock" : "lock"} size={14} />
                           {thread.isLocked ? "Разблокировать" : "Заблокировать"}
                         </button>
 
-                        <Link className="threads-page__link-btn" to={`/threads/${thread.id}/posts`}>
-                          <Icon name="posts" size={14} />
-                          Посты
-                        </Link>
+                        <MoreMenu>
+                          <button
+                            className={`admin-btn ${thread.isDeleted ? "admin-btn-success" : "admin-btn-warning"}`}
+                            onClick={() => (thread.isDeleted ? restoreMutation.mutate(thread.id) : softDeleteMutation.mutate(thread.id))}
+                          >
+                            <Icon name={thread.isDeleted ? "refresh" : "delete"} size={14} />
+                            {thread.isDeleted ? "Восстановить" : "Мягко удалить"}
+                          </button>
+
+                          <button className="admin-btn admin-btn-danger" onClick={() => handleHardDelete(thread.id)}>
+                            <Icon name="hammer" size={14} />
+                            Жестко удалить
+                          </button>
+                        </MoreMenu>
                       </ActionRow>
                     </td>
                   </tr>

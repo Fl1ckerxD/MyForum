@@ -27,4 +27,8 @@ export const threadsApi = {
   lock: (id: number) => api.post(`/admin/threads/${id}/lock`),
 
   unlock: (id: number) => api.post(`/admin/threads/${id}/unlock`),
+
+  pin: (id: number) => api.post(`/admin/threads/${id}/pin`),
+
+  unpin: (id: number) => api.post(`/admin/threads/${id}/unpin`),
 };

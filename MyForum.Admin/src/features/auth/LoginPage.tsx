@@ -1,7 +1,7 @@
 ﻿import { useState } from "react";
 import { useAuth } from "./AuthContext";
 import { useNavigate } from "react-router-dom";
-import { Icon } from "../../components/ui/Icon";
+import { Icon } from "../../components/Icon";
 import "./LoginPage.css";
 
 export const LoginPage = () => {

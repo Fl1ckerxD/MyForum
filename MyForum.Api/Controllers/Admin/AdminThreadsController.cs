@@ -153,5 +153,45 @@ namespace MyForum.Api.Controllers.Admin
                 return StatusCode(StatusCodes.Status500InternalServerError, "Внутренняя ошибка сервера");
             }
         }
+
+        [HttpPost("{id:int}/pin")]
+        public async Task<IActionResult> Pin(int id, CancellationToken cancellationToken)
+        {
+            try
+            {
+                await _threadService.PinAsync(id, cancellationToken);
+                return NoContent();
+            }
+            catch (KeyNotFoundException ex)
+            {
+                _logger.LogWarning(ex, "Попытка закрепить несуществующую тему с ID: {ThreadId}", id);
+                return NotFound(new { message = "Тема не найдена" });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Ошибка при закреплении темы с ID: {ThreadId}", id);
+                return StatusCode(StatusCodes.Status500InternalServerError, "Внутренняя ошибка сервера");
+            }
+        }
+
+        [HttpPost("{id:int}/unpin")]
+        public async Task<IActionResult> Unpin(int id, CancellationToken cancellationToken)
+        {
+            try
+            {
+                await _threadService.UnpinAsync(id, cancellationToken);
+                return NoContent();
+            }
+            catch (KeyNotFoundException ex)
+            {
+                _logger.LogWarning(ex, "Попытка открепить несуществующую тему с ID: {ThreadId}", id);
+                return NotFound(new { message = "Тема не найдена" });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Ошибка при откреплении темы с ID: {ThreadId}", id);
+                return StatusCode(StatusCodes.Status500InternalServerError, "Внутренняя ошибка сервера");
+            }
+        }
     }
 }

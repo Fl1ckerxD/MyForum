@@ -18,5 +18,7 @@ namespace MyForum.Api.Core.Interfaces.Services
         Task RestoreAsync(int threadId, CancellationToken cancellationToken);
         Task LockAsync(int threadId, CancellationToken cancellationToken);
         Task UnlockAsync(int threadId, CancellationToken cancellationToken);
+        Task PinAsync(int threadId, CancellationToken cancellationToken);
+        Task UnpinAsync(int threadId, CancellationToken cancellationToken);
     }
 }

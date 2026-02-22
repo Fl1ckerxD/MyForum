@@ -5,6 +5,7 @@ export interface AdminThreadDto {
   postsCount: number;
 
   isLocked: boolean;
+  isPinned: boolean;
   isDeleted: boolean;
   deletedAt?: string;
 

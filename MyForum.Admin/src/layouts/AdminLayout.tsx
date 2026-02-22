@@ -1,6 +1,6 @@
 ﻿import { NavLink, Outlet } from "react-router-dom";
 import { useAuth } from "../features/auth/AuthContext";
-import { Icon } from "../components/ui/Icon";
+import { Icon } from "../components/Icon";
 import "./AdminLayout.css";
 
 const navItems = [

@@ -8,10 +8,10 @@ import { useParams } from "react-router-dom";
 import { postsApi } from "./postsApi";
 import type { AdminPostDto } from "../../types/post";
 import { useEffect, useState } from "react";
-import { Icon } from "../../components/ui/Icon";
-import { PageHeader } from "../../components/ui/PageHeader";
-import { ActionRow } from "../../components/ui/ActionRow";
-import { LoadMoreBar } from "../../components/ui/LoadMoreBar";
+import { Icon } from "../../components/Icon";
+import { PageHeader } from "../../components/PageHeader";
+import { ActionRow } from "../../components/ActionRow";
+import { LoadMoreBar } from "../../components/LoadMoreBar";
 import { BanPostModal } from "./components/BanPostModal";
 import "./PostsPage.css";
 
