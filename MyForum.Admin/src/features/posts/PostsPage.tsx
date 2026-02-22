@@ -124,6 +124,8 @@ export const PostsPage = () => {
           expiresAt: banExpiresAt ? new Date(banExpiresAt).toISOString() : undefined,
         },
       });
+
+      softDeleteMutation.mutate(banPostId);
     } catch (err: any) {
       alert(err?.response?.data?.message ?? "Ошибка бана");
     }
