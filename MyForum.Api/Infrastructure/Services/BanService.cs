@@ -63,6 +63,20 @@ namespace MyForum.Api.Infrastructure.Services
             await _uow.SaveAsync(cancellationToken);
         }
 
+        public async Task BanAsync(string ipHash, string? boardShortName, string reason, DateTime? expiresAt, CancellationToken cancellationToken)
+        {
+            if (string.IsNullOrEmpty(boardShortName))
+                await BanAsync(ipHash, boardId: null, reason, expiresAt, cancellationToken);
+            else
+            {
+                var board = await _uow.Boards.GetByShortNameAsync(boardShortName, cancellationToken);
+                if (board == null)
+                    throw new BoardNotFoundException($"Доска с именем {boardShortName} не найдена");
+
+                await BanAsync(ipHash, board.Id, reason, expiresAt, cancellationToken);
+            }
+        }
+
         /// <summary>
         /// Создаёт новый бан для автора указанного поста.
         /// </summary>

@@ -3,7 +3,7 @@ import type { Ban } from "../../types/ban";
 
 export interface CreateBanRequest {
   ipHash: string;
-  boardId?: number;
+  boardShortName?: string;
   reason: string;
   expiresAt?: string;
 }

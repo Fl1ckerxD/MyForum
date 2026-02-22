@@ -27,7 +27,7 @@
 }
 
 .bans-page__row-expired {
-  background: #fff9ef;
+  opacity: 0.6;
 }
 
 @media (max-width: 1120px) {

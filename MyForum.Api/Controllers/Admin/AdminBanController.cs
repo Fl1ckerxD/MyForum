@@ -57,14 +57,18 @@ namespace MyForum.Api.Controllers.Admin
             var validationResult = _createBanRequestValidator.Validate(request);
             if (!validationResult.IsValid)
             {
-                return BadRequest(validationResult.Errors);
+                return BadRequest(new
+                {
+                    message = "Ошибка валидации",
+                    errors = validationResult.Errors.Select(e => e.ErrorMessage)
+                });
             }
 
             try
             {
                 await _banService.BanAsync(
                     request.IpHash,
-                    request.BoardId,
+                    request.BoardShortName,
                     request.Reason,
                     request.ExpiresAt,
                     cancellationToken);
@@ -73,22 +77,27 @@ namespace MyForum.Api.Controllers.Admin
             }
             catch (ArgumentNullException ex)
             {
-                _logger.LogWarning(ex, "Неверные параметры запроса при создании бана: {IpHash}, {BoardId}", request.IpHash, request.BoardId);
+                _logger.LogWarning(ex, "Неверные параметры запроса при создании бана: {IpHash}, {BoardId}", request.IpHash, request.BoardShortName);
                 return BadRequest(new { error = "invalid_request", message = ex.Message });
             }
             catch (ArgumentException ex)
             {
-                _logger.LogWarning(ex, "Неверные параметры запроса при создании бана: {IpHash}, {BoardId}", request.IpHash, request.BoardId);
+                _logger.LogWarning(ex, "Неверные параметры запроса при создании бана: {IpHash}, {BoardId}", request.IpHash, request.BoardShortName);
                 return BadRequest(new { error = "invalid_request", message = ex.Message });
             }
             catch (UserAlreadyBannedException ex)
             {
-                _logger.LogWarning(ex, "Повторная попытка блокировки: {IpHash}, {BoardId}", request.IpHash, request.BoardId);
+                _logger.LogWarning(ex, "Повторная попытка блокировки: {IpHash}, {BoardId}", request.IpHash, request.BoardShortName);
                 return Conflict(new { error = "already_banned", message = ex.Message });
+            }
+            catch (BoardNotFoundException ex)
+            {
+                _logger.LogWarning(ex, "Неверное имя доски: {boardShortName}", request.BoardShortName);
+                return BadRequest(new { error = "invalid_request", message = ex.Message });
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Ошибка при создании бана: {IpHash}, {BoardId}", request.IpHash, request.BoardId);
+                _logger.LogError(ex, "Ошибка при создании бана: {IpHash}, {BoardId}", request.IpHash, request.BoardShortName);
                 return StatusCode(StatusCodes.Status500InternalServerError, "Внутренняя ошибка сервера");
             }
         }

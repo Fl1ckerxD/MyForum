@@ -127,7 +127,12 @@ export const PostsPage = () => {
 
       softDeleteMutation.mutate(banPostId);
     } catch (err: any) {
-      alert(err?.response?.data?.message ?? "Ошибка бана");
+      const data = err?.response?.data;
+      if (Array.isArray(data) && data.length > 0) {
+        alert(data.map((e: any) => e.errorMessage ?? e.ErrorMessage).join("\n"));
+      } else {
+        alert(data?.message ?? "Не удалось создать бан");
+      }
     }
   };
 

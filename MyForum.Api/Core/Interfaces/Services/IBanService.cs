@@ -12,6 +12,7 @@ namespace MyForum.Api.Core.Interfaces.Services
             CancellationToken cancellationToken = default);
         Task<bool> IsBannedAsync(string ipHash, int? boardId, CancellationToken cancellationToken);
         Task BanAsync(string ipHash, int? boardId, string reason, DateTime? expiresAt, CancellationToken cancellationToken);
+        Task BanAsync(string ipHash, string? boardShortName, string reason, DateTime? expiresAt, CancellationToken cancellationToken);
         Task BanAsync(int postId, int? boardId, string reason, DateTime? expiresAt, CancellationToken cancellationToken);
         Task UnbanAsync(int banId, CancellationToken cancellationToken);
     }

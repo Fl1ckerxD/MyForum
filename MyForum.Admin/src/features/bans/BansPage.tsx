@@ -20,7 +20,7 @@ export const BansPage = () => {
   const [boardShortNameFilter, setBoardShortNameFilter] = useState<string | undefined>();
 
   const [ipHash, setIpHash] = useState("");
-  const [boardId, setBoardId] = useState<number | undefined>();
+  const [boardShortName, setBoardShortName] = useState<string | undefined>();
   const [reason, setReason] = useState("");
   const [expiresAt, setExpiresAt] = useState("");
 
@@ -63,17 +63,22 @@ export const BansPage = () => {
     try {
       await createMutation.mutateAsync({
         ipHash,
-        boardId,
+        boardShortName: boardShortName,
         reason,
         expiresAt: expiresAt || undefined,
       });
 
       setIpHash("");
-      setBoardId(undefined);
+      setBoardShortName("");
       setReason("");
       setExpiresAt("");
     } catch (err: any) {
-      alert(err?.response?.data?.message ?? "Не удалось создать бан");
+      const data = err?.response?.data;
+      if (Array.isArray(data) && data.length > 0) {
+        alert(data.map((e: any) => e.errorMessage ?? e.ErrorMessage).join("\n"));
+      } else {
+        alert(data?.message ?? "Не удалось создать бан");
+      }
     }
   };
 
@@ -95,10 +100,9 @@ export const BansPage = () => {
           <input className="admin-field" placeholder="IP Hash" value={ipHash} onChange={(e) => setIpHash(e.target.value)} />
           <input
             className="admin-field"
-            placeholder="Board ID (опционально)"
-            type="number"
-            value={boardId ?? ""}
-            onChange={(e) => setBoardId(e.target.value ? Number(e.target.value) : undefined)}
+            placeholder="Короткое имя доски (опционально)"
+            value={boardShortName}
+            onChange={(e) => setBoardShortName(e.target.value)}
           />
           <textarea className="admin-textarea" placeholder="Причина" value={reason} onChange={(e) => setReason(e.target.value)} rows={3} />
           <input
