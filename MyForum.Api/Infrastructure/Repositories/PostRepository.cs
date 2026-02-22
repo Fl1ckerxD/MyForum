@@ -34,8 +34,10 @@ namespace MyForum.Api.Infrastructure.Repositories
                 limit = maxLimit;
 
             var query = _context.Posts
+                .AsNoTracking()
                 .IgnoreQueryFilters()
                 .Include(p => p.Thread)
+                .Include(p => p.Files)
                 .Where(p => p.ThreadId == threadId);
 
             if (afterId.HasValue)

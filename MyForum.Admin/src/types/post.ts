@@ -1,3 +1,5 @@
+import type { File } from "./file";
+
 export interface AdminPostDto {
   id: number;
   threadId: number;
@@ -5,6 +7,7 @@ export interface AdminPostDto {
   isOriginal: boolean;
   author: string;
   content: string;
+  files: File[];
   isDeleted: boolean;
   deletedAt?: string;
   createdAt: string;

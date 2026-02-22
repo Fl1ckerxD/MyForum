@@ -1,4 +1,5 @@
 using MyForum.Api.Core.DTOs;
+using MyForum.Api.Core.Interfaces.Factories;
 using MyForum.Api.Core.Interfaces.Repositories;
 using MyForum.Api.Core.Interfaces.Services;
 
@@ -7,10 +8,12 @@ namespace MyForum.Api.Infrastructure.Services
     public class AdminPostService : IAdminPostService
     {
         private readonly IUnitOfWork _uow;
+        private readonly IFileDtoFactory _fileDtoFactory;
 
-        public AdminPostService(IUnitOfWork uow)
+        public AdminPostService(IUnitOfWork uow, IFileDtoFactory fileDtoFactory)
         {
             _uow = uow;
+            _fileDtoFactory = fileDtoFactory;
         }
 
         /// <summary>
@@ -46,7 +49,7 @@ namespace MyForum.Api.Infrastructure.Services
                     isDeleted,
                     cancellationToken);
 
-            return posts.Select(p => new AdminPostDto
+            var postTasks = posts.Select(async p => new AdminPostDto
             {
                 Id = p.Id,
                 ThreadId = p.ThreadId,
@@ -54,10 +57,14 @@ namespace MyForum.Api.Infrastructure.Services
                 IsOriginal = p.IsOriginal,
                 Author = p.AuthorName,
                 Content = p.Content,
+                Files = await Task.WhenAll(p.Files.Select(f => _fileDtoFactory.CreateAsync(f, cancellationToken))),
                 IsDeleted = p.IsDeleted,
                 DeletedAt = p.DeletedAt,
                 CreatedAt = p.CreatedAt
-            }).ToList();
+            });
+
+            var result = await Task.WhenAll(postTasks);
+            return result;
         }
 
         /// <summary>

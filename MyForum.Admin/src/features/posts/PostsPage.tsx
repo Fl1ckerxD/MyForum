@@ -14,6 +14,7 @@ import { ActionRow } from "../../components/ActionRow";
 import { LoadMoreBar } from "../../components/LoadMoreBar";
 import { BanPostModal } from "./components/BanPostModal";
 import "./PostsPage.css";
+import PostFilesPreview from "../../components/PostFilesPreview";
 
 export const PostsPage = () => {
   const { threadId } = useParams();
@@ -199,7 +200,12 @@ export const PostsPage = () => {
                     <td>{post.id}</td>
                     <td>{post.isOriginal ? "ОП" : "Ответ"}</td>
                     <td>{post.author}</td>
-                    <td className="posts-page__content-cell">{post.content}</td>
+                    <td className="posts-page__content-cell">
+                      {<div>
+                        {post.content}
+                        <PostFilesPreview files={post.files} />
+                      </div>}
+                    </td>
                     <td>
                       {post.isDeleted ? (
                         <span className="admin-pill admin-pill-danger">Удален</span>
