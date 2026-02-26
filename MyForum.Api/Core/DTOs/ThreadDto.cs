@@ -4,6 +4,7 @@ namespace MyForum.Api.Core.DTOs
     (
         int Id,
         string Subject,
+        bool IsPinned,
         DateTime CreatedAt,
         DateTime LastBumpAt,
         PostDto OriginalPost,

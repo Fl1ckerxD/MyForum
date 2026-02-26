@@ -7,7 +7,7 @@ import "../styles/ui/span.css";
 interface Props {
   posts: Post[];
   threadId: number;
-  onReplyCreated: (newPost: Post) => void;
+  onReplyCreated?: (newPost: Post) => void;
 }
 
 const PostList = ({ posts, threadId, onReplyCreated }: Props) => {

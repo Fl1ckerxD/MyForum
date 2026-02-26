@@ -4,6 +4,7 @@ import type { Post } from "./post";
 export interface Thread {
   id: number;
   subject: string;
+  isPinned: boolean;
   createdAt: Date;
   lastBumpAt: Date;
   originalPost: Post;
