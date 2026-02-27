@@ -1,3 +1,4 @@
+using MyForum.Api.Core.DTOs;
 using Thread = MyForum.Api.Core.Entities.Thread;
 
 namespace MyForum.Api.Core.Interfaces.Repositories
@@ -16,5 +17,6 @@ namespace MyForum.Api.Core.Interfaces.Repositories
             bool? isLocked = null,
             CancellationToken cancellationToken = default);
         Task<Thread?> GetByIdIncludingDeletedAsync(int id, CancellationToken cancellationToken = default);
+        Task<ThreadStats> RecountThreadStatsAsync(int id, CancellationToken cancellationToken = default);
     }
 }

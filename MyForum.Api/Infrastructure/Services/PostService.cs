@@ -160,6 +160,14 @@ namespace MyForum.Api.Infrastructure.Services
                 await _uow.Posts.AddAsync(post, cancellationToken);
                 await _uow.SaveAsync(cancellationToken);
 
+                // Пересчитываем статистику треда (кол-во постов, файлов и т.д.)
+                var threadStats = await _uow.Threads.RecountThreadStatsAsync(post.ThreadId, cancellationToken);
+                post.Thread.PostCount = threadStats.PostCount;
+                post.Thread.FileCount = threadStats.FileCount;
+                post.Thread.ReplyCount = threadStats.ReplyCount;
+
+                await _uow.SaveAsync(cancellationToken);
+
                 transactionScope.Complete(); // Завершаем транзакцию
 
                 _forumMetrics.AddPost(); // Увеличиваем счетчик постов в метриках

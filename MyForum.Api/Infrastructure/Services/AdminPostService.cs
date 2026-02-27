@@ -1,3 +1,4 @@
+using System.Transactions;
 using MyForum.Api.Core.DTOs;
 using MyForum.Api.Core.Interfaces.Factories;
 using MyForum.Api.Core.Interfaces.Repositories;
@@ -26,8 +27,15 @@ namespace MyForum.Api.Infrastructure.Services
             if (post == null)
                 throw new KeyNotFoundException("Пост не найден");
 
+            using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
+
             await _uow.Posts.DeleteAsync(post.Id, cancellationToken);
             await _uow.SaveAsync(cancellationToken);
+
+            await RecountThreadStatsAsync(post.ThreadId, cancellationToken);
+            await _uow.SaveAsync(cancellationToken);
+
+            scope.Complete();
         }
 
         /// <summary>
@@ -83,7 +91,13 @@ namespace MyForum.Api.Infrastructure.Services
             post.IsDeleted = false;
             post.DeletedAt = null;
 
+            using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
+
             await _uow.SaveAsync(cancellationToken);
+            await RecountThreadStatsAsync(post.ThreadId, cancellationToken);
+            await _uow.SaveAsync(cancellationToken);
+
+            scope.Complete();
         }
 
         /// <summary>
@@ -102,7 +116,25 @@ namespace MyForum.Api.Infrastructure.Services
             post.IsDeleted = true;
             post.DeletedAt = DateTime.UtcNow;
 
+            using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
+
             await _uow.SaveAsync(cancellationToken);
+            await RecountThreadStatsAsync(post.ThreadId, cancellationToken);
+            await _uow.SaveAsync(cancellationToken);
+
+            scope.Complete();
+        }
+
+        private async Task RecountThreadStatsAsync(int threadId, CancellationToken cancellationToken)
+        {
+            var thread = await _uow.Threads.GetByIdIncludingDeletedAsync(threadId, cancellationToken);
+            if (thread != null)
+            {
+                var threadStats = await _uow.Threads.RecountThreadStatsAsync(threadId, cancellationToken);
+                thread.PostCount = threadStats.PostCount;
+                thread.FileCount = threadStats.FileCount;
+                thread.ReplyCount = threadStats.ReplyCount;
+            }
         }
     }
 }

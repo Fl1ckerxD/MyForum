@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using MyForum.Api.Core.DTOs;
 using MyForum.Api.Core.Interfaces.Repositories;
 using MyForum.Api.Infrastructure.Data;
 using Thread = MyForum.Api.Core.Entities.Thread;
@@ -141,6 +142,24 @@ namespace MyForum.Api.Infrastructure.Repositories
             thread.Posts = posts;
 
             return thread;
+        }
+
+        public async Task<ThreadStats> RecountThreadStatsAsync(int id, CancellationToken cancellationToken = default)
+        {
+            var postCount = await _context.Posts
+                .Where(p => p.ThreadId == id)
+                .CountAsync(cancellationToken);
+
+            var fileCount = await _context.Posts
+                .Where(p => p.ThreadId == id)
+                .SelectMany(p => p.Files)
+                .CountAsync(cancellationToken);
+
+            var replyCount = await _context.Posts
+                .Where(p => p.ThreadId == id && !p.IsOriginal)
+                .CountAsync(cancellationToken);
+
+            return new ThreadStats(postCount, fileCount, replyCount);
         }
     }
 }
