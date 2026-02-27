@@ -1,8 +1,5 @@
 import type { Post } from "../types/post";
 import PostCard from "./PostCard";
-import "../styles/layout/section.css";
-import "../styles/ui/link.css";
-import "../styles/ui/span.css";
 
 interface Props {
   posts: Post[];
@@ -12,10 +9,10 @@ interface Props {
 
 const PostList = ({ posts, threadId, onReplyCreated }: Props) => {
   return (
-    <section className="thread-section fade-in-up delay-200ms">
-      <ul className="navbar-nav flex-grow-1">
+    <section className="thread-section">
+      <ul className="stack-list post-list">
         {posts.map((post) => (
-          <li id={`post-${post.id}`} className="section-bordered pt-3" key={post.id}>
+          <li id={`post-${post.id}`} className="section-bordered post-item" key={post.id}>
             <PostCard post={post} threadId={threadId} onReplyCreated={onReplyCreated} />
           </li>
         ))}

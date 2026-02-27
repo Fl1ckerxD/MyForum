@@ -1,0 +1,36 @@
+.post-list {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--background-card);
+}
+
+.post-item {
+  padding: 0.9rem 0.95rem;
+}
+.post-item:last-child {
+  border-bottom: 0;
+}
+
+.post-card {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.post-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.post-id {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.post-content {
+  margin: 0.25rem 0 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+}

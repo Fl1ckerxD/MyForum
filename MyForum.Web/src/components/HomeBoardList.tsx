@@ -1,6 +1,6 @@
+import { LayoutGrid } from "lucide-react";
 import { Link } from "react-router-dom";
 import type { BoardName } from "../types/boardName";
-import "../styles/ui/link.css";
 
 interface BoardListProps {
   boards: BoardName[];
@@ -8,14 +8,17 @@ interface BoardListProps {
 
 const MainBoardList = ({ boards }: BoardListProps) => {
   return (
-    <section className="fade-in-up delay-500ms">
-      <div className="container mb-5">
-        <h3 className="board-title">Доски</h3>
-        <ul className="navbar-nav flex-grow-1">
+    <section className="page-container page-container-medium fade-in-up delay-500ms">
+      <div className="section-panel">
+        <h3 className="board-title">
+          <LayoutGrid size={16} />
+          Доски
+        </h3>
+        <ul className="stack-list">
           {boards.map((board) => (
             <li key={board.shortName}>
-              <Link to={`/${board.shortName}`} className="link">
-                {board.name}
+              <Link to={`/${board.shortName}`} className="link link-board">
+                /{board.shortName}/ - {board.name}
               </Link>
             </li>
           ))}

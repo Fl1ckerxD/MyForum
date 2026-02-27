@@ -1,14 +1,14 @@
+import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+import { getThread, getThreadPosts } from "../api/threads.api";
 import BoardDescription from "../components/BoardDescription";
 import ButtonVisibility from "../components/ButtonVisibility";
-import { useEffect, useState } from "react";
-import type { Thread } from "../types/thread";
-import ThreadPreview from "../components/ThreadPreview";
-import { getThread, getThreadPosts } from "../api/threads.api";
-import PostList from "../components/PostList";
 import CreatePostForm from "../components/CreatePostForm";
-import type { Post } from "../types/post";
+import PostList from "../components/PostList";
+import ThreadPreview from "../components/ThreadPreview";
 import { useInfiniteScroll } from "../hooks/useInfiniteScroll";
+import type { Post } from "../types/post";
+import type { Thread } from "../types/thread";
 
 export default function ThreadPage() {
   const { boardShortName, threadId } = useParams<{
@@ -27,7 +27,7 @@ export default function ThreadPage() {
     loading,
     loaderRef,
   } = useInfiniteScroll<Post>({
-    loadMore: cursor => getThreadPosts(parsedThreadId!, cursor, 20),
+    loadMore: (cursor) => getThreadPosts(parsedThreadId!, cursor, 20),
   });
 
   useEffect(() => {
@@ -45,52 +45,60 @@ export default function ThreadPage() {
   }, [boardShortName, parsedThreadId]);
 
   if (!boardShortName || !threadId || Number.isNaN(parsedThreadId)) {
-    return <div>Invalid URL</div>;
+    return <div className="page-container loading">Invalid URL</div>;
   }
 
   if (!thread) {
-    return <div>Загрузка...</div>;
+    return <div className="page-container loading">Загрузка...</div>;
   }
 
   return (
-    <>
+    <main className="page-stack">
       <BoardDescription
         name={thread.board.name}
         description={thread.board.description}
       />
-      <section className="fade-in-up delay-200ms d-flex align-items-center flex-column">
+
+      <section className="page-container action-block fade-in-up delay-200ms">
         {!createPostVisible && (
           <ButtonVisibility onClick={() => setCreatePostVisible(true)}>
             Ответить в тред
           </ButtonVisibility>
         )}
+
         {createPostVisible && (
           <>
             <ButtonVisibility onClick={() => setCreatePostVisible(false)}>
               Закрыть форму постинга
             </ButtonVisibility>
-            <CreatePostForm threadId={parsedThreadId} onCreated={post => {
-              setItems(prev => [...prev, post]);
-              setCreatePostVisible(false);
-            }} />
+            <CreatePostForm
+              threadId={parsedThreadId}
+              onCreated={(post) => {
+                setItems((prev) => [...prev, post]);
+                setCreatePostVisible(false);
+              }}
+            />
           </>
         )}
       </section>
-      <section className="thread-section fade-in-up delay-200ms">
+
+      <section className="page-container thread-section fade-in-up delay-200ms">
         <ThreadPreview
           thread={thread}
           boardShortName={boardShortName}
           variant="page"
         />
-        <PostList posts={posts} threadId={parsedThreadId} onReplyCreated={newPost => {
-          setItems(prev => [...prev, newPost])
-        }} />
-        {hasMore && (
-          <div ref={loaderRef} style={{ height: 40 }} />
-        )}
-
-        {loading && <div>Загрузка...</div>}
+        <PostList
+          posts={posts}
+          threadId={parsedThreadId}
+          onReplyCreated={(newPost) => {
+            setItems((prev) => [...prev, newPost]);
+          }}
+        />
       </section>
-    </>
+
+      {hasMore && <div ref={loaderRef} className="scroll-loader" />}
+      {loading && <div className="page-container loading">Загрузка...</div>}
+    </main>
   );
 }

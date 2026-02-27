@@ -1,11 +1,19 @@
 .file-list {
-  margin-top: 8px;
+  margin: 0.5rem 0 0;
   list-style: none;
-  padding: 0;
+  padding: 0.25rem 0.6rem 0.5rem;
+  display: grid;
+  gap: 0.3rem;
 }
 
 .file-item {
   display: flex;
   justify-content: space-between;
-  padding: 4px;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.35rem 0.45rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--background);
+  font-size: 0.85rem;
 }

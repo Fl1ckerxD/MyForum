@@ -1,22 +1,57 @@
 :root {
-    --background: #1c2231;
-    --foreground: #ecf0f8;
-    --primary: #ff9500;
-    --primary-hover: #A66100;
-    --secondary: #2a303d;
-    --secondary-hover: #353d4f; 
-    --muted: #485267;
-    --muted-foreground: #a1adcf;
-    --border: #2a303d;
+  --background: #1c2231;
+  --background-card: #00000033;
+  --foreground: #ecf0f8;
+  --primary: #ff9500;
+  --primary-hover: #a66100;
+  --secondary: #2a303d;
+  --secondary-hover: #353d4f;
+  --muted: #485267;
+  --muted-foreground: #a1adcf;
+  --border: #2a303d;
+
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --content-width: 980px;
+  --page-gap: 1.2rem;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
 }
 
 body {
-    background-color: var(--background);
-    color: var(--foreground);
-    font-family: 'Inter', sans-serif;
-    line-height: 1.6;
-    font-synthesis: none;
-    text-rendering: optimizeLegibility;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
+  margin: 0;
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family:
+    "Inter",
+    system-ui,
+    -apple-system,
+    "Segoe UI",
+    sans-serif;
+  line-height: 1.55;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button,
+input,
+textarea {
+  font: inherit;
 }

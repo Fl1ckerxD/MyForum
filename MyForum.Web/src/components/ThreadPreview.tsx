@@ -1,7 +1,6 @@
+import type { Thread } from "../types/thread";
 import PostFilesPreview from "./PostFilesPreview";
 import ThreadCard from "./ThreadCard";
-import type { Thread } from "../types/thread";
-import PostList from "./PostList";
 
 interface Props {
   thread: Thread;
@@ -11,9 +10,7 @@ interface Props {
 
 const ThreadPreview = ({ thread, boardShortName, variant = "list" }: Props) => {
   return (
-    <div id={`post-${thread.originalPost.id}`}>
-      {thread.isPinned && (<p>Закрепленно</p>)}
-
+    <article id={`post-${thread.originalPost.id}`} className="thread-preview">
       <ThreadCard
         id={thread.id}
         boardShortName={boardShortName}
@@ -23,15 +20,15 @@ const ThreadPreview = ({ thread, boardShortName, variant = "list" }: Props) => {
         createdAt={thread.createdAt}
         postCount={thread.postCount}
         fileCount={thread.fileCount}
+        isPinned={thread.isPinned}
+        isLocked={thread.isLocked}
         variant={variant}
       />
 
       <PostFilesPreview files={thread.originalPost.files} variant={variant} />
 
-      <p>{thread.originalPost.content}</p>
-
-      <PostList posts={thread.posts} threadId={thread.id} />
-    </div>
+      <p className="thread-content">{thread.originalPost.content}</p>
+    </article>
   );
 };
 

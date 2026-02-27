@@ -1,6 +1,4 @@
 import type { File } from "../types/file";
-import "../styles/ui/image.css";
-import "../styles/layout/section.css";
 
 interface Props {
   files: File[];
@@ -14,12 +12,12 @@ export default function PostFilesPreview({ files, variant = "list" }: Props) {
         <div
           key={file.id}
           className={
-            variant === "list" ? "post-file" : "post-file post-file-middle"
+            variant === "list" ? "post-file-container" : "post-file-container post-file-middle"
           }
         >
           {file.thumbnailUrl ? (
             <a href={file.fileUrl} target="_blank" rel="noreferrer">
-              <img src={file.thumbnailUrl} alt={file.fileName} loading="lazy" />
+              <img className="post-file" src={file.thumbnailUrl} alt={file.fileName} loading="lazy" />
             </a>
           ) : (
             <a

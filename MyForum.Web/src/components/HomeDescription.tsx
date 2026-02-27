@@ -1,9 +1,6 @@
-import "../styles/ui/span.css";
-import "../styles/ui/card.css";
-
 const MainDescription = () => {
   return (
-    <section className="fade-in-up delay-200ms">
+    <section className="page-container fade-in-up delay-200ms">
       <div className="glassCard glassCard-compact">
         <p>
           <span className="highlight">MyForum</span> - это система форумов, где

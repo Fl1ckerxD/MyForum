@@ -5,6 +5,7 @@ export interface Thread {
   id: number;
   subject: string;
   isPinned: boolean;
+  isLocked: boolean;
   createdAt: Date;
   lastBumpAt: Date;
   originalPost: Post;

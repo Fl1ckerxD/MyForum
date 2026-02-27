@@ -1,8 +1,6 @@
 import type { Thread } from "../types/thread";
-import "../styles/layout/section.css";
-import "../styles/ui/link.css";
-import "../styles/ui/span.css";
 import ThreadPreview from "./ThreadPreview";
+import PostList from "./PostList";
 
 interface ThreadListProps {
   boardShortName: string;
@@ -11,11 +9,12 @@ interface ThreadListProps {
 
 const ThreadList = ({ boardShortName, threads }: ThreadListProps) => {
   return (
-    <section className="thread-section fade-in-up delay-200ms">
-      <ul className="navbar-nav flex-grow-1">
+    <section className="page-container thread-section fade-in-up delay-200ms">
+      <ul className="stack-list thread-list">
         {threads.map((thread) => (
-          <li className="section-bordered pt-3" key={thread.id}>
+          <li className="section-bordered thread-item" key={thread.id}>
             <ThreadPreview thread={thread} boardShortName={boardShortName} />
+            {thread.posts.length > 0 && (<PostList posts={thread.posts} threadId={thread.id} />)}
           </li>
         ))}
       </ul>

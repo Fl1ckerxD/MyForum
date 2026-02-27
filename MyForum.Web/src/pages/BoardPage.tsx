@@ -1,13 +1,13 @@
-import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import type { Board } from "../types/board";
+import { useNavigate, useParams } from "react-router-dom";
 import { getBoard, getBoardThreads } from "../api/boards.api";
 import BoardDescription from "../components/BoardDescription";
-import ThreadList from "../components/ThreadList";
-import CreateThreadForm from "../components/CreateThreadForm";
 import ButtonVisibility from "../components/ButtonVisibility";
-import type { Thread } from "../types/thread";
+import CreateThreadForm from "../components/CreateThreadForm";
+import ThreadList from "../components/ThreadList";
 import { useInfiniteScroll } from "../hooks/useInfiniteScroll";
+import type { Board } from "../types/board";
+import type { Thread } from "../types/thread";
 
 export default function BoardPage() {
   const { boardShortName } = useParams<{ boardShortName: string }>();
@@ -23,7 +23,7 @@ export default function BoardPage() {
     loading,
     loaderRef,
   } = useInfiniteScroll<Thread>({
-    loadMore: cursor => getBoardThreads(boardShortName!, cursor, 20),
+    loadMore: (cursor) => getBoardThreads(boardShortName!, cursor, 20),
   });
 
   useEffect(() => {
@@ -39,18 +39,20 @@ export default function BoardPage() {
   }, [boardShortName]);
 
   if (!board) {
-    return <div>Загрузка...</div>;
+    return <div className="page-container loading">Загрузка...</div>;
   }
 
   return (
-    <>
+    <main className="page-stack">
       <BoardDescription name={board.name} description={board.description} />
-      <section className="fade-in-up delay-200ms d-flex align-items-center flex-column">
+
+      <section className="page-container action-block fade-in-up delay-200ms">
         {!createThreadVisible && (
           <ButtonVisibility onClick={() => setCreateThreadVisible(true)}>
             Создать тред
           </ButtonVisibility>
         )}
+
         {createThreadVisible && (
           <>
             <ButtonVisibility onClick={() => setCreateThreadVisible(false)}>
@@ -66,12 +68,11 @@ export default function BoardPage() {
           </>
         )}
       </section>
-      <ThreadList boardShortName={boardShortName!} threads={threads} />
-      {hasMore && (
-        <div ref={loaderRef} style={{ height: 40 }} />
-      )}
 
-      {loading && <div>Загрузка...</div>}
-    </>
+      <ThreadList boardShortName={boardShortName!} threads={threads} />
+
+      {hasMore && <div ref={loaderRef} className="scroll-loader" />}
+      {loading && <div className="page-container loading">Загрузка...</div>}
+    </main>
   );
 }

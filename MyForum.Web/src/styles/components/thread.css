@@ -1,0 +1,56 @@
+.thread-section {
+  margin-top: 0.8rem;
+}
+
+.thread-preview {
+  display: grid;
+  gap: 0.6rem;
+}
+
+.thread-card-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.thread-list {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--background-card);
+}
+
+.thread-item {
+  padding: 0.9rem 0.95rem;
+}
+
+.thread-item:last-child {
+  border-bottom: 0;
+}
+
+.thread-meta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.thread-pin-icon {
+  color: var(--primary);
+  flex-shrink: 0;
+}
+
+.thread-link {
+  font-weight: 600;
+}
+
+.thread-content {
+  margin: 0.25rem 0 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+@media (max-width: 900px) {
+  .thread-card-head {
+    gap: 0.4rem 0.55rem;
+  }
+}

@@ -18,10 +18,10 @@ export default function HomePage() {
   }, []);
 
   return (
-    <>
+    <main className="page-stack">
       <MainHeader />
       <MainDescription />
       <MainBoardList boards={boards} />
-    </>
+    </main>
   );
 }

@@ -31,6 +31,7 @@ namespace MyForum.Api.Application.Factories
                 Subject: thread.Subject,
                 CreatedAt: thread.CreatedAt,
                 IsPinned: thread.IsPinned,
+                IsLocked: thread.IsLocked,
                 LastBumpAt: thread.LastBumpAt,
                 OriginalPost: await _postDtoFactory.CreateAsync(thread.Posts.First(p => p.IsOriginal), cancellationToken),
                 PostCount: thread.PostCount,

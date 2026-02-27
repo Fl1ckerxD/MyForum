@@ -1,39 +1,29 @@
-:root {
-  --button-bg: #2a303d;
-  --button-text: #ecf0f8;
-  --button-hover: #353d4f;
-  --button-delete: #b82a2a;
-  --button-info: #27c29d;
-}
-
-/* Base button */
 .mf-btn {
-  padding: 5px 12px;
-  background-color: var(--button-bg);
-  color: var(--button-text);
+  padding: 0.5rem 0.8rem;
+  border-radius: 8px;
   border: 1px solid var(--border);
+  background-color: var(--secondary);
+  color: var(--foreground);
   cursor: pointer;
-  font-size: 16px;
-  transition: background-color 0.2s ease;
+  font-size: 0.95rem;
+  transition: background-color 0.15s ease;
 }
 
-/* Hover */
 .mf-btn:hover {
-  background-color: var(--button-hover);
+  background-color: var(--secondary-hover);
 }
 
-/* Sizes */
 .mf-btn-sm {
-  padding: 4px 8px;
-  font-size: 12px;
+  padding: 0.3rem 0.5rem;
+  font-size: 0.8rem;
 }
 
 .mf-btn-reg {
-  font-size: 15px;
+  font-size: 0.92rem;
 }
 
 .mf-btn-lg {
-  padding: 0.75rem 1.5rem;
+  padding: 0.75rem 1.2rem;
   font-size: 1rem;
 }
 
@@ -41,14 +31,17 @@
   width: 100%;
 }
 
-/* Link-style button */
 .mf-btn-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
   background: none;
   border: none;
   text-decoration: none;
   color: var(--primary);
-  padding: 0;
-  font-weight: bold;
+  padding: 0.2rem 0;
+  font-weight: 600;
+  cursor: pointer;
 }
 
 .mf-btn-link:hover {

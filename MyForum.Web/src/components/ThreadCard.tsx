@@ -1,5 +1,5 @@
+import { CalendarDays, Hash, MessageSquare, Paperclip, Pin, Lock } from "lucide-react";
 import { Link } from "react-router-dom";
-import "../styles/ui/text.css";
 
 interface ThreadCardProps {
   id: number;
@@ -10,6 +10,8 @@ interface ThreadCardProps {
   createdAt: Date;
   postCount: number;
   fileCount: number;
+  isPinned?: boolean;
+  isLocked?: boolean;
   variant?: "list" | "page";
 }
 
@@ -22,10 +24,27 @@ const ThreadCard = ({
   createdAt,
   postCount,
   fileCount,
+  isPinned = false,
+  isLocked = false,
   variant = "list",
 }: ThreadCardProps) => {
   return (
-    <div className="d-flex align-items-center gap-2">
+    <div className="thread-card-head">
+      {isPinned && (
+        <Pin
+          size={14}
+          className="thread-pin-icon"
+          aria-label="Закреплено"
+        />
+      )}
+
+      {isLocked && (
+        <Lock
+          size={14}
+          aria-label="Закрыто"
+        />
+      )}
+
       {variant === "page" ? (
         <>
           <span className="title">{subject}</span>
@@ -33,19 +52,28 @@ const ThreadCard = ({
         </>
       ) : (
         <>
-          <Link className="link" to={`/${boardShortName}/${id}`}>
+          <Link className="link thread-link" to={`/${boardShortName}/${id}`}>
             {subject}
           </Link>
           <strong>{author}</strong>
         </>
       )}
 
-      <span className="muted">{createdAt.toLocaleDateString()}</span>
+      <span className="muted thread-meta">
+        <CalendarDays size={14} />
+        {createdAt.toLocaleDateString()}
+      </span>
 
-      <span className="muted">№{postId}</span>
+      <span className="muted thread-meta">
+        <Hash size={14} />
+        {postId}
+      </span>
 
-      <span className="muted">
-        {postCount} постов / {fileCount} файлов
+      <span className="muted thread-meta">
+        <MessageSquare size={14} />
+        {postCount}
+        <Paperclip size={14} />
+        {fileCount}
       </span>
     </div>
   );
