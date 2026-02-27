@@ -1,8 +1,6 @@
 using System.Transactions;
 using AutoMapper;
 using Minio.Exceptions;
-using MyForum.Api.Core.DTOs;
-using MyForum.Api.Core.DTOs.Common;
 using MyForum.Api.Core.DTOs.Responses;
 using MyForum.Api.Core.Entities;
 using MyForum.Api.Core.Interfaces.Factories;
@@ -146,6 +144,8 @@ namespace MyForum.Api.Infrastructure.Services
                 // Сохраняем файлы в объектном хранилище
                 if (files != null && files.Any())
                     await ProcessPostFilesAsync(post, files, cancellationToken);
+
+                post.Thread.LastBumpAt = DateTime.UtcNow; // Обновляем время последнего ответа в треде
 
                 await _uow.Posts.AddAsync(post, cancellationToken);
                 await _uow.SaveAsync(cancellationToken);

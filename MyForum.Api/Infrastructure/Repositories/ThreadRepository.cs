@@ -63,24 +63,19 @@ namespace MyForum.Api.Infrastructure.Repositories
 
         public async Task<IReadOnlyList<Thread>> GetThreadsByCursorWithPostsAsync(string boardShortName, DateTime? cursor, int limit, CancellationToken cancellationToken = default)
         {
-            var threadsQuery = _context.Threads
+            var query = _context.Threads
                 .AsNoTracking()
-                .Where(t => t.Board.ShortName == boardShortName);
+                .Include(t => t.Board)
+                .Where(t => t.Board.ShortName == boardShortName && !t.IsPinned);
 
             if (cursor.HasValue)
-            {
-                threadsQuery = threadsQuery
-                    .Where(t => t.LastBumpAt < cursor.Value);
-            }
+                query = query.Where(t => t.LastBumpAt < cursor.Value);
 
-            threadsQuery = threadsQuery
-                .OrderByDescending(t => t.IsPinned)
-                .ThenByDescending(t => t.LastBumpAt)
+            query = query
+                .OrderByDescending(t => t.LastBumpAt)
                 .Take(limit);
 
-            var threads = await threadsQuery
-                .Include(t => t.Board)
-                .ToListAsync(cancellationToken);
+            var threads = await query.ToListAsync(cancellationToken);
 
             var threadIds = threads.Select(t => t.Id).ToList();
 

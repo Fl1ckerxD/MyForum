@@ -60,12 +60,19 @@ namespace MyForum.Api.Infrastructure.Repositories
 
             foreach (var thread in threads)
             {
-                thread.Posts = posts
-                    .Where(p => p.ThreadId == thread.Id)
-                    .OrderByDescending(p => p.IsOriginal)
-                    .ThenByDescending(p => p.CreatedAt)
-                    .Take(4)
+                var originalPost = posts
+                    .FirstOrDefault(p => p.ThreadId == thread.Id && p.IsOriginal);
+
+                var lastThreePosts = posts
+                    .Where(p => p.ThreadId == thread.Id && !p.IsOriginal)
+                    .OrderByDescending(p => p.CreatedAt)
+                    .Take(3)
+                    .OrderBy(p => p.CreatedAt)
                     .ToList();
+
+                thread.Posts = originalPost != null
+                    ? new[] { originalPost }.Concat(lastThreePosts).ToList()
+                    : lastThreePosts;
             }
 
             board.Threads = threads;
