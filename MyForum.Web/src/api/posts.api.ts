@@ -1,4 +1,4 @@
-import { api } from "./http";
+import { api, extractErrorMessage } from "./http";
 import type { Post } from "../types/post";
 import type { CreatePostRequest } from "../types/requests/createPostRequest";
 
@@ -24,9 +24,10 @@ export async function createPost(request: CreatePostRequest) {
   });
 
   if (!response.ok) {
-    const error = await response.text();
+    const error = await extractErrorMessage(response);
     throw new Error(error);
   }
 
   return response.json();
 }
+

@@ -21,6 +21,8 @@ export default function CreatePostForm({
   const [files, setFiles] = useState<File[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const maxFiles = 5;
+  const maxFileSizeBytes = 10 * 1024 * 1024;
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleDrop = (event: React.DragEvent<HTMLDivElement>) => {
@@ -53,12 +55,35 @@ export default function CreatePostForm({
   };
 
   const addFiles = (newFiles: File[]) => {
-    setFiles((prev) => [
-      ...prev,
-      ...newFiles.filter(
-        (file) => !prev.some((prevFile) => prevFile.name === file.name && prevFile.size === file.size),
-      ),
-    ]);
+    setFiles((prev) => {
+      const uniqueFiles = newFiles.filter(
+        (file) =>
+          !prev.some(
+            (prevFile) => prevFile.name === file.name && prevFile.size === file.size,
+          ),
+      );
+
+      const oversizedFiles = uniqueFiles.filter(
+        (file) => file.size > maxFileSizeBytes,
+      );
+
+      const validFiles = uniqueFiles.filter(
+        (file) => file.size <= maxFileSizeBytes,
+      );
+
+      const availableSlots = Math.max(maxFiles - prev.length, 0);
+      const filesToAdd = validFiles.slice(0, availableSlots);
+
+      if (oversizedFiles.length > 0) {
+        setError("Размер каждого файла не может превышать 10 МБ.");
+      } else if (validFiles.length > availableSlots) {
+        setError("Нельзя прикреплять больше 5 файлов к одному посту.");
+      } else {
+        setError(null);
+      }
+
+      return [...prev, ...filesToAdd];
+    });
   };
 
   return (

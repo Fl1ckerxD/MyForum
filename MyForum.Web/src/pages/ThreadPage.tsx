@@ -59,28 +59,30 @@ export default function ThreadPage() {
         description={thread.board.description}
       />
 
-      <section className="page-container action-block fade-in-up delay-200ms">
-        {!createPostVisible && (
-          <ButtonVisibility onClick={() => setCreatePostVisible(true)}>
-            Ответить в тред
-          </ButtonVisibility>
-        )}
-
-        {createPostVisible && (
-          <>
-            <ButtonVisibility onClick={() => setCreatePostVisible(false)}>
-              Закрыть форму постинга
+      {!thread.isLocked && (
+        <section className="page-container action-block fade-in-up delay-200ms">
+          {!createPostVisible && (
+            <ButtonVisibility onClick={() => setCreatePostVisible(true)}>
+              Ответить в тред
             </ButtonVisibility>
-            <CreatePostForm
-              threadId={parsedThreadId}
-              onCreated={(post) => {
-                setItems((prev) => [...prev, post]);
-                setCreatePostVisible(false);
-              }}
-            />
-          </>
-        )}
-      </section>
+          )}
+
+          {createPostVisible && (
+            <>
+              <ButtonVisibility onClick={() => setCreatePostVisible(false)}>
+                Закрыть форму постинга
+              </ButtonVisibility>
+              <CreatePostForm
+                threadId={parsedThreadId}
+                onCreated={(post) => {
+                  setItems((prev) => [...prev, post]);
+                  setCreatePostVisible(false);
+                }}
+              />
+            </>
+          )}
+        </section>
+      )}
 
       <section className="page-container thread-section fade-in-up delay-200ms">
         <ThreadPreview

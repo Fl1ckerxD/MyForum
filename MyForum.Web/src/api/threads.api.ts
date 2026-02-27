@@ -2,7 +2,7 @@ import type { Post } from "../types/post";
 import type { CreateThreadRequest } from "../types/requests/createThreadRequest";
 import type { GetPostsResponse } from "../types/responses/getPostsResponse";
 import type { GetThreadResponse } from "../types/responses/getThreadResponse";
-import { api } from "./http";
+import { api, extractErrorMessage } from "./http";
 
 export async function getThread(
   boardShortName: string,
@@ -43,7 +43,7 @@ export async function createThread(request: CreateThreadRequest) {
   });
 
   if (!response.ok) {
-    const error = await response.text();
+    const error = await extractErrorMessage(response);
     throw new Error(error);
   }
 
@@ -72,3 +72,4 @@ export async function getThreadPosts(
     nextCursor: data.nextCursor?.toString() || null,
   };
 }
+

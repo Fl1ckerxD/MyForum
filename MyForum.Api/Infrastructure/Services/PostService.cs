@@ -131,10 +131,20 @@ namespace MyForum.Api.Infrastructure.Services
             post.IpAddressHash = _ipHasher.HashIP(ipAddress);
 
             if (post.Thread == null)
-                post.Thread = await _uow.Threads.GetByIdAsync(post.ThreadId, cancellationToken);
+                post.Thread = await _uow.Threads.GetByIdAsync(post.ThreadId, cancellationToken)
+                    ?? throw new InvalidOperationException("Тред не найден.");
 
             if (await _banService.IsBannedAsync(post.IpAddressHash, post.Thread.BoardId, cancellationToken))
                 throw new ForbiddenException("Вы забанены и не можете создавать посты");
+
+            if (files != null && files.Count > 5)
+                throw new InvalidOperationException("Нельзя прикреплять больше 5 файлов к одному посту.");
+
+            if (files != null && files.Any(f => f.Length > 10 * 1024 * 1024))
+                throw new InvalidOperationException("Размер каждого файла не может превышать 10 МБ.");
+
+            if (post.Thread.IsLocked)
+                throw new InvalidOperationException("Невозможно добавить пост в закрытый тред.");
 
             // Используем транзакцию для обеспечения целостности данных
             using var transactionScope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
