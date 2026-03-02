@@ -11,7 +11,7 @@ namespace MyForum.Api.Tests.Repositories
 
         public PostRepositoryTests()
         {
-            var options = DbContext.GetOptions(nameof(ThreadRepositoryTests));
+            var options = DbContext.GetOptions(nameof(PostRepositoryTests));
             _context = new ForumDbContext(options);
             _postRepository = new PostRepository(_context);
         }
