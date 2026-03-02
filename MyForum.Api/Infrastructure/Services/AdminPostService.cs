@@ -8,6 +8,12 @@ namespace MyForum.Api.Infrastructure.Services
 {
     public class AdminPostService : IAdminPostService
     {
+        private static readonly TransactionOptions TransactionOptions = new()
+        {
+            IsolationLevel = IsolationLevel.ReadCommitted,
+            Timeout = TransactionManager.DefaultTimeout
+        };
+
         private readonly IUnitOfWork _uow;
         private readonly IFileDtoFactory _fileDtoFactory;
 
@@ -27,7 +33,10 @@ namespace MyForum.Api.Infrastructure.Services
             if (post == null)
                 throw new KeyNotFoundException("Пост не найден");
 
-            using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
+            using var scope = new TransactionScope(
+                TransactionScopeOption.Required,
+                TransactionOptions,
+                TransactionScopeAsyncFlowOption.Enabled);
 
             await _uow.Posts.DeleteAsync(post.Id, cancellationToken);
             await _uow.SaveAsync(cancellationToken);
@@ -91,7 +100,10 @@ namespace MyForum.Api.Infrastructure.Services
             post.IsDeleted = false;
             post.DeletedAt = null;
 
-            using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
+            using var scope = new TransactionScope(
+                TransactionScopeOption.Required,
+                TransactionOptions,
+                TransactionScopeAsyncFlowOption.Enabled);
 
             await _uow.SaveAsync(cancellationToken);
             await RecountThreadStatsAsync(post.ThreadId, cancellationToken);
@@ -116,7 +128,10 @@ namespace MyForum.Api.Infrastructure.Services
             post.IsDeleted = true;
             post.DeletedAt = DateTime.UtcNow;
 
-            using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
+            using var scope = new TransactionScope(
+                TransactionScopeOption.Required,
+                TransactionOptions,
+                TransactionScopeAsyncFlowOption.Enabled);
 
             await _uow.SaveAsync(cancellationToken);
             await RecountThreadStatsAsync(post.ThreadId, cancellationToken);

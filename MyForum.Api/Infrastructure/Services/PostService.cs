@@ -13,6 +13,12 @@ namespace MyForum.Api.Infrastructure.Services
 {
     public class PostService : IPostService
     {
+        private static readonly TransactionOptions TransactionOptions = new()
+        {
+            IsolationLevel = IsolationLevel.ReadCommitted,
+            Timeout = TransactionManager.DefaultTimeout
+        };
+
         private readonly ILogger<PostService> _logger;
         private readonly IUnitOfWork _uow;
         private readonly IObjectStorageService _objectStorageService;
@@ -147,7 +153,10 @@ namespace MyForum.Api.Infrastructure.Services
                 throw new InvalidOperationException("Невозможно добавить пост в закрытый тред.");
 
             // Используем транзакцию для обеспечения целостности данных
-            using var transactionScope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
+            using var transactionScope = new TransactionScope(
+                TransactionScopeOption.Required,
+                TransactionOptions,
+                TransactionScopeAsyncFlowOption.Enabled);
 
             try
             {
