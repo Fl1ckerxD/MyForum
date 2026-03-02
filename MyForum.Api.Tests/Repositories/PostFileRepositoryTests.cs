@@ -4,7 +4,7 @@ using MyForum.Api.Infrastructure.Repositories;
 
 namespace MyForum.Api.Tests.Repositories
 {
-    public class PostFileRepositoryTests
+    public class PostFileRepositoryTests : IDisposable
     {
         private readonly PostFileRepository _postFileRepository;
         private readonly ForumDbContext _context;
@@ -36,6 +36,11 @@ namespace MyForum.Api.Tests.Repositories
             Assert.Equal(2, postFilesList.Count);
             Assert.Contains(postFilesList, pf => pf.FileName == "file1.png");
             Assert.Contains(postFilesList, pf => pf.FileName == "file2.png");
+        }
+
+        public void Dispose()
+        {
+            DbContext.Dispose(_context);
         }
     }
 }

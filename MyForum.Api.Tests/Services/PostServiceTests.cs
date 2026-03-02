@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Moq;
+using MyForum.Api.Core.DTOs;
 using MyForum.Api.Core.Entities;
 using MyForum.Api.Core.Interfaces.Factories;
 using MyForum.Api.Core.Interfaces.Metrics;
@@ -61,11 +62,14 @@ namespace MyForum.Api.Tests.Services
             var ipAddress = "192.168.1.1";
             var userAgent = "UnitTestAgent";
 
+            var threadStats = new ThreadStats(1, 2, 3);
+
             var mockPostRepo = new Mock<IPostRepository>();
 
             _mockUnitOfWork.Setup(uow => uow.Posts).Returns(mockPostRepo.Object);
             _mockUnitOfWork.Setup(uow => uow.SaveAsync(It.IsAny<CancellationToken>())).ReturnsAsync(1);
             _mockUnitOfWork.Setup(uow => uow.Threads.GetByIdAsync(It.IsAny<int>(), It.IsAny<CancellationToken>())).ReturnsAsync(new Thread());
+            _mockUnitOfWork.Setup(uow => uow.Threads.RecountThreadStatsAsync(It.IsAny<int>(), It.IsAny<CancellationToken>())).ReturnsAsync(threadStats);
             _mockBanService.Setup(b => b.IsBannedAsync(ipAddress, It.IsAny<int>(), It.IsAny<CancellationToken>())).ReturnsAsync(false);
 
             // Act
@@ -80,7 +84,7 @@ namespace MyForum.Api.Tests.Services
                 p.UserAgent == userAgent
             ), It.IsAny<CancellationToken>()), Times.Once);
 
-            _mockUnitOfWork.Verify(uow => uow.SaveAsync(It.IsAny<CancellationToken>()), Times.Once);
+            _mockUnitOfWork.Verify(uow => uow.SaveAsync(It.IsAny<CancellationToken>()), Times.Exactly(2));
         }
 
         [Fact]
@@ -92,6 +96,8 @@ namespace MyForum.Api.Tests.Services
             var authorName = "Test Author";
             var ipAddress = "192.168.1.1";
             var userAgent = "UnitTestAgent";
+
+            var threadStats = new ThreadStats(1, 2, 3);
 
             var mockFile = new Mock<IFormFile>();
             mockFile.Setup(f => f.FileName).Returns("test.jpg");
@@ -106,6 +112,7 @@ namespace MyForum.Api.Tests.Services
             _mockUnitOfWork.Setup(uow => uow.Posts).Returns(mockPostRepo.Object);
             _mockUnitOfWork.Setup(uow => uow.SaveAsync(It.IsAny<CancellationToken>())).ReturnsAsync(1);
             _mockUnitOfWork.Setup(uow => uow.Threads.GetByIdAsync(It.IsAny<int>(), It.IsAny<CancellationToken>())).ReturnsAsync(new Thread());
+            _mockUnitOfWork.Setup(uow => uow.Threads.RecountThreadStatsAsync(It.IsAny<int>(), It.IsAny<CancellationToken>())).ReturnsAsync(threadStats);
             _mockBanService.Setup(b => b.IsBannedAsync(ipAddress, It.IsAny<int>(), It.IsAny<CancellationToken>())).ReturnsAsync(false);
 
             var postFile = new PostFile { Id = 1, FileName = "test.jpg" };
@@ -125,7 +132,7 @@ namespace MyForum.Api.Tests.Services
             ), It.IsAny<CancellationToken>()), Times.Once);
 
             _mockObjectStorageService.Verify(fs => fs.SaveFileAsync(mockFile.Object, It.IsAny<Post>(), It.IsAny<CancellationToken>()), Times.Once);
-            _mockUnitOfWork.Verify(uow => uow.SaveAsync(It.IsAny<CancellationToken>()), Times.Once);
+            _mockUnitOfWork.Verify(uow => uow.SaveAsync(It.IsAny<CancellationToken>()), Times.Exactly(2));
         }
 
         [Fact]
@@ -144,10 +151,13 @@ namespace MyForum.Api.Tests.Services
             var ipAddress = "192.168.1.1";
             var userAgent = "UnitTestAgent";
 
+            var threadStats = new ThreadStats(1, 0, 0);
+
             var mockPostRepo = new Mock<IPostRepository>();
 
             _mockUnitOfWork.Setup(uow => uow.Posts).Returns(mockPostRepo.Object);
             _mockUnitOfWork.Setup(uow => uow.SaveAsync(It.IsAny<CancellationToken>())).ReturnsAsync(1);
+            _mockUnitOfWork.Setup(uow => uow.Threads.RecountThreadStatsAsync(It.IsAny<int>(), It.IsAny<CancellationToken>())).ReturnsAsync(threadStats);
 
             mockPostRepo.Setup(repo => repo.AddAsync(It.IsAny<Post>(), It.IsAny<CancellationToken>()))
                 .Callback<Post, CancellationToken>((post, ct) => post.Id = postId);
@@ -164,7 +174,7 @@ namespace MyForum.Api.Tests.Services
                 p.UserAgent == userAgent
             ), It.IsAny<CancellationToken>()), Times.Once);
 
-            _mockUnitOfWork.Verify(uow => uow.SaveAsync(It.IsAny<CancellationToken>()), Times.Once);
+            _mockUnitOfWork.Verify(uow => uow.SaveAsync(It.IsAny<CancellationToken>()), Times.Exactly(2));
         }
     }
 }

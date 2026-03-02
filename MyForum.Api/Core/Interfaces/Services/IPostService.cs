@@ -1,6 +1,4 @@
-﻿using MyForum.Api.Core.DTOs;
-using MyForum.Api.Core.DTOs.Common;
-using MyForum.Api.Core.DTOs.Responses;
+﻿using MyForum.Api.Core.DTOs.Responses;
 using Thread = MyForum.Api.Core.Entities.Thread;
 
 namespace MyForum.Api.Core.Interfaces.Services

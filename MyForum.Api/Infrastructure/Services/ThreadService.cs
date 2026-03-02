@@ -1,6 +1,4 @@
 using AutoMapper;
-using MyForum.Api.Core.DTOs;
-using MyForum.Api.Core.DTOs.Common;
 using MyForum.Api.Core.DTOs.Responses;
 using MyForum.Api.Core.Interfaces.Factories;
 using MyForum.Api.Core.Interfaces.Metrics;
