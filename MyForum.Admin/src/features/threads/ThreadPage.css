@@ -1,0 +1,11 @@
+﻿.threads-page__table-card {
+  padding: 0.9rem;
+}
+
+.threads-page__deleted {
+  opacity: 1;
+}
+
+.threads-page__deleted td:not(:last-child) {
+  opacity: 0.6;
+}

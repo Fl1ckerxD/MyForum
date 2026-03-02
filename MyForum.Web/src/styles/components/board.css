@@ -1,0 +1,14 @@
+.board-title {
+  margin: 0 0 0.75rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 1rem;
+}
+
+.board-header {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  max-height: 3.5rem;
+}

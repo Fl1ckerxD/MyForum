@@ -1,0 +1,32 @@
+.headerInner {
+  display: grid;
+  justify-items: center;
+  gap: 0.45rem;
+  margin: 1.2rem 0 1rem;
+}
+
+.logoIcon {
+  width: 38px;
+  height: 38px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--primary);
+  background: var(--secondary);
+}
+
+.logoText {
+  margin: 0;
+  color: var(--primary);
+  font-size: clamp(2.9rem, 3vw, 2.4rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.welcomeText {
+  margin: 0;
+  color: var(--muted-foreground);
+  font-size: 1rem;
+}

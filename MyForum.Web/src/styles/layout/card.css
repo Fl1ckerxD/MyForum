@@ -1,0 +1,11 @@
+.glassCard {
+  background-color: var(--background-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 1.2rem;
+}
+
+.glassCard-compact {
+  max-width: 800px;
+  margin: 0 auto 1.5rem;
+}

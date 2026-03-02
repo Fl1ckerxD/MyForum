@@ -1,0 +1,41 @@
+.input {
+  width: 100%;
+  padding: 0.55rem 0.7rem;
+  background-color: var(--background);
+  border: 1px solid var(--border);
+  color: var(--foreground);
+  font-size: 0.9rem;
+  outline: none;
+}
+
+.input:focus {
+  border-color: var(--primary);
+}
+
+.textarea {
+  width: 100%;
+  min-height: 180px;
+  padding: 0.7rem;
+  background-color: var(--background);
+  border: 1px solid var(--border);
+  color: var(--foreground);
+  font-size: 0.9rem;
+  resize: vertical;
+  outline: none;
+}
+
+.textarea.reply {
+  min-height: 68px;
+}
+
+.textarea:focus {
+  border-color: var(--primary);
+}
+
+.input-file {
+  position: absolute;
+  width: 0;
+  height: 0;
+  opacity: 0;
+  pointer-events: none;
+}

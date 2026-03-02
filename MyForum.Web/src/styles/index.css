@@ -1,0 +1,20 @@
+@import "../../node_modules/bootstrap/dist/css/bootstrap.css";
+@import "./global.css";
+@import "./animations.css";
+
+@import "./components/board.css";
+@import "./components/post-files.css";
+@import "./components/post.css";
+@import "./components/thread.css";
+
+@import "./layout/card.css";
+@import "./layout/form.css";
+@import "./layout/page.css";
+@import "./layout/section.css";
+
+@import "./ui/button.css";
+@import "./ui/file.css";
+@import "./ui/input.css";
+@import "./ui/link.css";
+@import "./ui/span.css";
+@import "./ui/text.css";

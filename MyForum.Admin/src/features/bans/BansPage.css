@@ -1,0 +1,37 @@
+﻿.bans-page__grid {
+  display: grid;
+  grid-template-columns: minmax(280px, 360px) 1fr;
+  gap: 1rem;
+}
+
+.bans-page__create-card {
+  padding: 1rem;
+  display: grid;
+  gap: 0.75rem;
+  align-content: start;
+}
+
+.bans-page__create-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 1rem;
+}
+
+.bans-page__table-card {
+  padding: 0.9rem;
+}
+
+.bans-page__row-muted {
+  opacity: 0.6;
+}
+
+.bans-page__row-expired {
+  opacity: 0.6;
+}
+
+@media (max-width: 1120px) {
+  .bans-page__grid {
+    grid-template-columns: 1fr;
+  }
+}

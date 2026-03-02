@@ -1,0 +1,49 @@
+.layout {
+  display: grid;
+  grid-template-columns: 250px 1fr;
+  min-height: 100vh;
+}
+
+.layout-sidebar {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow: hidden;
+  border-right: 1px solid var(--border);
+  background: var(--background-card);
+  padding: 1rem 0.8rem;
+}
+
+.layout-home-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin-bottom: 0.8rem;
+  padding: 0.5rem 0.6rem;
+  border-radius: 8px;
+}
+
+.layout-home-link:hover {
+  background: var(--secondary-hover);
+}
+
+.content {
+  padding: 1.25rem 0;
+}
+
+@media (max-width: 980px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+
+  .layout-sidebar {
+    position: relative;
+    height: auto;
+    border-right: 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .content {
+    padding-top: 0.85rem;
+  }
+}

@@ -1,0 +1,36 @@
+.post-files {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.post-file-container {
+  overflow: hidden;
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.post-file-container:hover {
+  transform: scale(1.03);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.post-file {
+  max-width: 200px;
+  max-height: 200px;
+  display: block;
+  object-fit: contain;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.file-link {
+  display: inline-block;
+  padding: 6px 10px;
+  background: #f2f2f2;
+  border-radius: 4px;
+  font-size: 14px;
+}

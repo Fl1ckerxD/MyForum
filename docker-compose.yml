@@ -1,0 +1,166 @@
+services:
+  frontend-builder:
+    build:
+      context: ./MyForum.Web
+      dockerfile: Dockerfile
+    container_name: myforum-frontend-builder
+    volumes:
+      - ./nginx/html/forum:/dist-output
+    networks:
+      - myforum-network
+    restart: "no"
+
+  admin-frontend-builder:
+    build:
+      context: ./MyForum.Admin
+      dockerfile: Dockerfile
+    container_name: myforum-admin-frontend-builder
+    volumes:
+      - ./nginx/html/admin:/dist-output
+    networks:
+      - myforum-network
+    restart: "no"
+
+  nginx:
+    image: nginx:alpine
+    container_name: myforum-nginx
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/html:/usr/share/nginx/html:ro
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      - myforum-api
+      - frontend-builder
+      - admin-frontend-builder
+    restart: unless-stopped
+    networks:
+      - myforum-network
+
+  myforum-api:
+    build:
+      context: .
+      dockerfile: MyForum.Api/Dockerfile
+    container_name: myforum-api
+    expose:
+      - "80"
+    env_file:
+      - .env
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://+:80
+    depends_on:
+      - db
+      - minio
+      - redis
+    networks:
+      - myforum-network
+    restart: unless-stopped
+
+  db:
+    image: postgres:18-alpine
+    container_name: myforum-postgresql
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=myforumdb
+    volumes:
+      - psql_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - myforum-network
+    restart: unless-stopped
+
+  redis:
+    image: redis:alpine
+    container_name: myforum-redis
+    volumes:
+      - redis_data:/data
+    ports:
+      - "6379:6379"
+    networks:
+      - myforum-network
+    restart: unless-stopped
+
+  promtail:
+    image: grafana/promtail:latest
+    container_name: myforum-promtail
+    ports:
+      - "9080:9080"
+    volumes:
+      - ./promtail-config.yaml:/etc/promtail/config.yml
+      - ./MyForum/Logs:/var/log/myforum:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+    command: -config.file=/etc/promtail/config.yml
+    networks:
+      - myforum-network
+    restart: unless-stopped
+
+  loki:
+    image: grafana/loki:latest
+    container_name: myforum-loki
+    ports:
+      - "3100:3100"
+    volumes:
+      - ./loki-config.yaml:/etc/loki/local-config.yaml:ro
+    command: -config.file=/etc/loki/local-config.yaml
+    networks:
+      - myforum-network
+    restart: unless-stopped
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: myforum-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    networks:
+      - myforum-network
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: myforum-grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=${GF_SECURITY_ADMIN_USER}
+      - GF_SECURITY_ADMIN_PASSWORD=${GF_SECURITY_ADMIN_PASSWORD}
+    volumes:
+      - ./grafana/provisioning:/etc/grafana/provisioning
+      - grafana_data:/var/lib/grafana
+    networks:
+      - myforum-network
+    restart: unless-stopped
+    depends_on:
+      - prometheus
+
+  minio:
+    image: minio/minio:latest
+    container_name: myforum-minio
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      - MINIO_ROOT_USER=${MINIO_ACCESS_KEY}
+      - MINIO_ROOT_PASSWORD=${MINIO_SECRET_KEY}
+    command: server /data --console-address ":9001"
+    volumes:
+      - minio_data:/data
+    networks:
+      - myforum-network
+
+networks:
+  myforum-network:
+    driver: bridge
+
+volumes:
+  psql_data:
+  grafana_data:
+  minio_data:
+  prometheus_data:
+  redis_data:

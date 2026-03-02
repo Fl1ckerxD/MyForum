@@ -1,0 +1,28 @@
+.title {
+  font-size: 1.08rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+
+.mf-text {
+  color: var(--foreground);
+  font-size: 1rem;
+}
+
+.mf-text-big {
+  font-size: clamp(1.95rem, 2.2vw, 2.45rem);
+  font-weight: 700;
+}
+
+.mf-text-middle {
+  font-size: 1rem;
+}
+
+.mf-text-primary {
+  color: var(--primary);
+}
+
+.mf-text-muted {
+  color: var(--muted-foreground);
+  margin-top: 0.25rem;
+}
