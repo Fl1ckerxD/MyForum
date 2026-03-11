@@ -1,11 +1,14 @@
+using System.Threading.RateLimiting;
 using FluentValidation;
 using HealthChecks.UI.Client;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
 using Minio;
+using MyForum.Api.Application.Extensions;
 using MyForum.Api.Application.Factories;
 using MyForum.Api.Core.Entities;
 using MyForum.Api.Core.Interfaces.Factories;
@@ -109,6 +112,19 @@ namespace MyForum.Api
                     });
                 });
 
+                builder.Services.AddRateLimiter(options =>
+                {
+                    options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(httpContext =>
+                        RateLimitPartition.GetFixedWindowLimiter(
+                            partitionKey: httpContext.GetClientIp(),
+                            factory: partition => new FixedWindowRateLimiterOptions
+                            {
+                                PermitLimit = 10,
+                                QueueLimit = 0,
+                                Window = TimeSpan.FromMinutes(1)
+                            }));
+                });
+
                 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
                 builder.Services.AddScoped<IBoardService, BoardService>();
                 builder.Services.AddScoped<IThreadService, ThreadService>();
@@ -188,6 +204,7 @@ namespace MyForum.Api
                 app.UseHttpsRedirection();
 
                 app.UseRouting();
+                app.UseRateLimiter();
 
                 app.UseAuthentication();
                 app.UseAuthorization();
